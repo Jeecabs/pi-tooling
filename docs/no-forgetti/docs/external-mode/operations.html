@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>no-forgetti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">NO-FORGETTI</div>
+      <a href="../../../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../../../docs/architecture/external-curator.html"><span class="marker">&#9671;</span>External curator architecture</a>
+      <a href="../../../docs/external-mode/index.html"><span class="marker">&#9671;</span>External mode</a>
+      <a href="../../../docs/external-mode/linux.html"><span class="marker">&#9671;</span>Run the worker on Linux</a>
+      <a href="../../../docs/external-mode/macos.html"><span class="marker">&#9671;</span>Run the worker on macOS</a>
+      <a class="current" href="../../../docs/external-mode/operations.html"><span class="marker">&#9671;</span>Operate and troubleshoot external mode</a>
+      <a href="../../../docs/external-mode/setup.html"><span class="marker">&#9671;</span>Set up external mode</a>
+      <a href="../../../docs/getting-started.html"><span class="marker">&#9671;</span>Getting started</a>
+      <a href="../../../docs/guide/memory.html"><span class="marker">&#9671;</span>Project memory</a>
+      <a href="../../../docs/guide/project-skills.html"><span class="marker">&#9671;</span>Project skills</a>
+      <a href="../../../docs/index.html"><span class="marker">&#9671;</span>Memory that stays with the project</a>
+      <a href="../../../docs/reference/commands.html"><span class="marker">&#9671;</span>Command reference</a>
+      <a href="../../../docs/reference/storage.html"><span class="marker">&#9671;</span>Storage reference</a>
+      <a href="../../../docs/service-management.html"><span class="marker">&#9671;</span>External review service management</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">MEMORY</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
+      <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
+      <div class="md"><h1>Operate and troubleshoot external mode</h1>
+<p>Use <code>/memory status</code> as the primary operational view. Service-manager status and logs explain process failures; the Pi monitor explains No Forgetti state.</p>
+<h2>Read the status view</h2>
+<pre><code class="language-text">/memory status
+</code></pre>
+<p>The monitor reports:</p>
+<ul>
+<li>configured authority mode and reviewer</li>
+<li>worker heartbeat and compatibility</li>
+<li>queued, running, completed, and dead-letter counts</li>
+<li>daily calls, tokens, and cost</li>
+<li>budget exhaustion and offline warnings</li>
+<li>active project branch and memory capacity</li>
+<li>current-project review phase, attempt, and job ID</li>
+</ul>
+<p>An external worker publishes a heartbeat every 10 seconds. A newly started worker may take one monitor tick to appear.</p>
+<h2>Normal job lifecycle</h2>
+<p>A healthy job usually moves through:</p>
+<pre><code class="language-text">queued → reviewing → applying → completed
+</code></pre>
+<p>A transient failure returns the job for a bounded retry. The project widget shows this retry without adding transcript entries.</p>
+<p>A completed provider call can produce these admission results:</p>
+<ul>
+<li><code>applied</code>: The store committed one or more validated memory operations.</li>
+<li><code>noop</code>: The reviewer made no durable change.</li>
+<li><code>stale</code>: Current memory did not match the captured digest.</li>
+<li><code>rejected</code>: Validation or admission refused the proposal.</li>
+</ul>
+<p>A terminal worker failure moves the job to dead-letter. Pi writes a durable failure card with <code>/memory review retry</code>. This command uses retained evidence and current memory to create a new job generation.</p>
+<p>A no-op, a stale result, and a safe rejection are not worker crashes. A stale result lets a foreground write win over delayed review.</p>
+<h2>Updates and configuration changes</h2>
+<p>After updating No Forgetti:</p>
+<ol>
+<li>Stop the external worker.</li>
+<li>Install one pinned global No Forgetti release.</li>
+<li>Start the external worker.</li>
+<li>Run <code>/reload</code> in each live Pi process.</li>
+<li>Run the doctor command.</li>
+</ol>
+<pre><code class="language-bash">&quot;$NODE_BIN&quot; &quot;$WORKER_BIN&quot; doctor --agent-dir &quot;$AGENT_DIR&quot; --projects-root /path/to/projects
+</code></pre>
+<p>The doctor fails if a live Pi process or worker uses another release. It also fails if a scanned project has a local No Forgetti override.</p>
+<p>The heartbeat carries the worker’s memory-policy version and capacity. When <code>/memory status</code> shows <code>restart required</code>, new evidence remains unqueued and its cursor does not advance. Already queued candidates remain durable until a compatible worker starts.</p>
+<p>Changing <code>reviewer.provider</code>, <code>reviewer.model</code>, <code>reasoningEffort</code>, budgets, or authority mode also requires a worker restart. Reload Pi after any mode change because the extension reads authority when the project session loads.</p>
+<p><code>evidenceTtlHours</code> is re-read during worker maintenance, but restarting after configuration edits is still the simplest operational rule.</p>
+<h2>Common failures</h2>
+<h3><code>no-forgetti: command not found</code></h3>
+<p>Pi package installation does not guarantee that package binaries appear on your shell <code>PATH</code>. Run the worker script through Node:</p>
+<pre><code class="language-bash">AGENT_DIR=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
+node &quot;$AGENT_DIR/git/github.com/Jeecabs/no-forgetti/bin/no-forgetti.mjs&quot; \
+  review --once --agent-dir &quot;$AGENT_DIR&quot;
+</code></pre>
+<p>Adjust the script path for project-local or local-path installs.</p>
+<h3>Service config rejected</h3>
+<p>Check that:</p>
+<ul>
+<li>the file is <code>$AGENT_DIR/no-forgetti/service.json</code>;</li>
+<li><code>version</code> is <code>1</code>;</li>
+<li><code>mode</code> is one of <code>embedded</code>, <code>shadow</code>, or <code>external</code>;</li>
+<li>external mode includes a reviewer;</li>
+<li>budget numbers are positive and within documented limits; and</li>
+<li>no unknown fields are present.</li>
+</ul>
+<p>Run the <a href="./setup.html">one-off startup check</a> to get the parser error directly.</p>
+<h3>Reviewer configuration required</h3>
+<p>The worker can start only when <code>service.json</code> includes a reviewer profile. <code>external</code> mode requires one by schema. A reviewer may also be present in <code>shadow</code> or <code>embedded</code> configuration for controlled worker inspection, but only external mode enables project admission.</p>
+<h3>Model not found</h3>
+<p><code>reviewer.provider</code> and <code>reviewer.model</code> must identify a model registered in Pi’s persistent model runtime. Open Pi, run <code>/model</code>, and copy the exact provider and model IDs. If the model comes from custom configuration, confirm it exists in the same agent directory’s <code>models.json</code>.</p>
+<h3>Authentication unavailable</h3>
+<p>Run <code>/login</code> in Pi for the configured provider and ensure Pi and the worker use the same agent directory. If credentials exist only in environment variables, confirm the service manager actually supplies them to the worker.</p>
+<h3>Worker is offline</h3>
+<p>Check the process first:</p>
+<pre><code class="language-bash"># macOS
+launchctl print &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
+
+# Linux
+systemctl --user status no-forgetti-review.service
+</code></pre>
+<p>Then inspect logs:</p>
+<pre><code class="language-bash"># macOS
+tail -n 50 &quot;$AGENT_DIR/no-forgetti/logs/review.stderr.log&quot;
+
+# Linux
+journalctl --user -u no-forgetti-review.service -n 50 --no-pager
+</code></pre>
+<p>Common causes are stale absolute paths after a Node upgrade, a moved project-local checkout, invalid JSON, and environment-only credentials.</p>
+<h3>Queue does not drain</h3>
+<p>Check, in order:</p>
+<ol>
+<li>worker heartbeat is fresh and compatible;</li>
+<li>mode is <code>external</code> in both <code>service.json</code> and <code>/memory status</code>;</li>
+<li>daily call, token, and cost budgets are not exhausted;</li>
+<li>the configured model and credentials are available;</li>
+<li>worker logs do not show repeated retryable provider failures; and</li>
+<li>the job has not moved to dead-letter.</li>
+</ol>
+<p>Do not start several duplicate workers to “unstick” a queue. One healthy worker is sufficient.</p>
+<h3>A review finished but memory did not change</h3>
+<p>The outcome may be a no-op, stale, rejected, or a valid partial no-op. External UI feedback uses the actual post-validation content diff. Pi does not show an applied-change card when there is no applied diff.</p>
+<p>If Pi shows a durable failure card, run:</p>
+<pre><code class="language-text">/memory review retry
+</code></pre>
+<p>Use <code>/memory review retry &lt;job-id&gt;</code> when more than one failed review is present. Retained evidence expires with <code>evidenceTtlHours</code>.</p>
+<h2>Disable external mode</h2>
+<p>To return safely to embedded review:</p>
+<ol>
+<li>Let the queue drain while the worker is still running, if you want accepted jobs completed.</li>
+<li>Stop and unregister or disable the OS service.</li>
+<li>Change <code>mode</code> to <code>embedded</code>, or remove <code>service.json</code> to use the default.</li>
+<li>Restart Pi or run <code>/reload</code>.</li>
+<li>Confirm <code>embedded</code> mode in <code>/memory status</code>.</li>
+</ol>
+<p>Queued external jobs are not reassigned to the embedded reviewer. Switching modes before they drain leaves them in durable storage until an external worker processes them or you deliberately remove that state.</p>
+<h2>Remove retained external-review state</h2>
+<p>Review evidence and operational checkpoints are sensitive even though jobs exclude resolved credentials. To forget them, stop <strong>every</strong> worker first, then review the deletion guidance in <a href="https://github.com/Jeecabs/no-forgetti/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+<p>At minimum, external state can include:</p>
+<ul>
+<li><code>review-spool/</code></li>
+<li><code>review-budget.json*</code></li>
+<li><code>review-ledger.sqlite*</code></li>
+<li><code>runtimes/</code></li>
+<li>per-project <code>service/</code> records</li>
+<li>active review-admission intents</li>
+</ul>
+<p>Deleting unresolved attempts, decisions, budget records, or admission state abandons recovery and accounting guarantees. Do not remove these files while a worker is running.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

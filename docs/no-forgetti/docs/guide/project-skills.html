@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>no-forgetti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">NO-FORGETTI</div>
+      <a href="../../../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../../../docs/architecture/external-curator.html"><span class="marker">&#9671;</span>External curator architecture</a>
+      <a href="../../../docs/external-mode/index.html"><span class="marker">&#9671;</span>External mode</a>
+      <a href="../../../docs/external-mode/linux.html"><span class="marker">&#9671;</span>Run the worker on Linux</a>
+      <a href="../../../docs/external-mode/macos.html"><span class="marker">&#9671;</span>Run the worker on macOS</a>
+      <a href="../../../docs/external-mode/operations.html"><span class="marker">&#9671;</span>Operate and troubleshoot external mode</a>
+      <a href="../../../docs/external-mode/setup.html"><span class="marker">&#9671;</span>Set up external mode</a>
+      <a href="../../../docs/getting-started.html"><span class="marker">&#9671;</span>Getting started</a>
+      <a href="../../../docs/guide/memory.html"><span class="marker">&#9671;</span>Project memory</a>
+      <a class="current" href="../../../docs/guide/project-skills.html"><span class="marker">&#9671;</span>Project skills</a>
+      <a href="../../../docs/index.html"><span class="marker">&#9671;</span>Memory that stays with the project</a>
+      <a href="../../../docs/reference/commands.html"><span class="marker">&#9671;</span>Command reference</a>
+      <a href="../../../docs/reference/storage.html"><span class="marker">&#9671;</span>Storage reference</a>
+      <a href="../../../docs/service-management.html"><span class="marker">&#9671;</span>External review service management</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">MEMORY</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
+      <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
+      <div class="md"><h1>Project skills</h1>
+<p>Project skills are procedural memory: durable, repeatable workflows formed from successful work in one project.</p>
+<h2>How skills become available</h2>
+<p>No Forgetti stores active skills outside the repository as standard <code>SKILL.md</code> packages. It publishes the project’s active skills directory through Pi’s native resource discovery.</p>
+<p>Pi then owns invocation:</p>
+<ul>
+<li>Matching skill metadata appears in Pi’s <code>&lt;available_skills&gt;</code> section.</li>
+<li>The model reads <code>SKILL.md</code> when a task matches.</li>
+<li>Users can force invocation with <code>/skill:&lt;name&gt;</code>.</li>
+</ul>
+<p>The body is not injected on every turn. It enters working context only through Pi’s native progressive-disclosure path.</p>
+<h2>Authorship</h2>
+<p>No Forgetti captures the oldest bounded review frontier. The packet contains at most 12 user turns and 32,000 sanitized transcript characters. It removes raw tool arguments, tool results, thinking, images, secrets, and skill-invocation scaffolding.</p>
+<p>The packet can include bounded action facts for completed or failed verification commands and project-relative file operations. A strict grammar rejects shell control characters, mutating commands, sensitive paths, ambiguous tool pairs, and symlink escapes. Each proposal reason and evidence item must match an exact transcript span or canonical action fact. Failed action facts are diagnostic evidence. They do not prove a successful procedure.</p>
+<p>The reviewer also receives one atomic skill-corpus snapshot. This snapshot contains a ranked catalog, relevant exact skill bodies, pending summaries, omission counts, and content bindings. Allowlisted manifest facts and labeled project-memory beliefs provide project conventions. The reviewer treats every packet field as untrusted data.</p>
+<p>The embedded <code>writing-great-skills</code> doctrine defines seven phases: evidence, curation, conventions, invocation, information hierarchy, pruning, and safety. Predictability is the root criterion.</p>
+<p>Descriptions are compact context pointers. They front-load a leading word. Each genuine branch gets one trigger. The reviewer prunes instead of clipping. The 500-character limit is a safety ceiling, not an authorship target.</p>
+<p>Skill bodies put ordered actions before reference. Each step has a checkable completion criterion. Authors remove duplication, no-ops, sediment, sprawl, and avoidable negation.</p>
+<p>Each review uses an immutable job and the active model at <code>xhigh</code> reasoning. The job binds the evidence packet, prompt version, doctrine, system prompt, user prompt, claim generation, and hashed session identity. A valid proposal also records the requested reviewer profile, actual model provenance, token usage, cost, and operation digest.</p>
+<p>Invalid model output does not become a no-change decision. No Forgetti retains the exact evidence and enters review backoff. It also quarantines malformed persisted proposals so one bad record cannot block project-skill commands.</p>
+<h2>Review and approval</h2>
+<p>A skill review produces at most one create, patch, or archive operation.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Default behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Create</td>
+<td>Applies automatically after generated-package validation</td>
+</tr>
+<tr>
+<td>Patch</td>
+<td>Remains pending for explicit approval</td>
+</tr>
+<tr>
+<td>Archive</td>
+<td>Remains pending for explicit approval</td>
+</tr>
+</tbody></table>
+<p>A patch binds the captured skill generation and content digest. Approval fails closed if the target changes during model latency. A valid patch snapshots a revision before mutation. Archives require approval because they remove a skill from Pi’s discovery surface.</p>
+<p>No Forgetti catches only typed target-binding conflicts as stale proposals. Filesystem, lock, and integrity errors remain failures. The review cursor advances only after a valid proposal or explicit no-change outcome settles the exact cadence claim.</p>
+<p>::: info External mode boundary
+The external worker processes <strong>memory review only</strong>. Project-skill review remains inside Pi in every authority mode. No Forgetti does not treat the memory reviewer profile as consent for external skill authorship.
+:::</p>
+<h2>Reviewer evaluation</h2>
+<p>The checked-in skill-authoring smoke corpus runs immutable jobs through the production reviewer engine. It scores action accuracy, semantic grounding, invocation quality, and projected procedure quality.</p>
+<p>Run deterministic checks with <code>pnpm eval:skills:check</code>. Live comparisons require <code>pnpm eval:skills:live -- --live</code> plus two explicit profiles and call, token, cost, and output limits. The live command does not read <code>service.json</code> or mutate project state.</p>
+<p>The frozen corpus contains 31 labeled cases: 15 proposals and 16 no-change negatives. Admission requires every case to pass. It requires proposal-precision, negative-specificity, and paired non-inferiority lower bounds. It also requires complete dispatch accounting and bounded token and cost changes.</p>
+<h2>Manage skills</h2>
+<p>Run <code>/project-skills</code> without arguments to open the interactive browser, or use direct commands:</p>
+<pre><code class="language-text">/project-skills list
+/project-skills stats
+/project-skills read &lt;name&gt;
+/project-skills edit &lt;name&gt;
+/project-skills delete &lt;name&gt;
+/project-skills undo &lt;name&gt;
+/project-skills pending
+/project-skills approve &lt;name&gt;
+/project-skills approve-all
+/project-skills reject &lt;name&gt;
+/project-skills review
+</code></pre>
+<p>Validated creates and approved patches become visible to Pi after <code>/reload</code> or in the next session. The viewer also supports <code>d</code> to delete the open skill after confirmation. Deletion removes the skill from discovery and keeps an archived copy.</p>
+<h2>Usage and retention</h2>
+<p>No Forgetti observes successful native reads of active project <code>SKILL.md</code> files and persisted <code>/skill:&lt;name&gt;</code> expansions. A skill receives at most one usage credit per successful agent run.</p>
+<p>Recall tracking stays local. It stores bounded SHA-256 session markers only to deduplicate distinct-session use. It does not store raw Pi session identifiers or send telemetry.</p>
+<p>After 20 completed distinct project sessions without recall, No Forgetti stages an archive proposal. Recalling the skill withdraws that automatic proposal. Rejecting it snoozes retention for another 20 sessions. Retention never deletes or archives a skill without explicit approval.</p>
+<h2>Editing and undo</h2>
+<p>The interactive browser supports reading and editing active skill Markdown. Edits snapshot a revision, and <code>/project-skills undo &lt;name&gt;</code> shows the rendered diff before confirmation.</p>
+<p>Skills remain outside the repository throughout their lifecycle. Use checked-in documentation for facts that need version control. Use project skills for procedures that Pi should invoke on demand.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

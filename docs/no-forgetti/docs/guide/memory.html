@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>no-forgetti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">NO-FORGETTI</div>
+      <a href="../../../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../../../docs/architecture/external-curator.html"><span class="marker">&#9671;</span>External curator architecture</a>
+      <a href="../../../docs/external-mode/index.html"><span class="marker">&#9671;</span>External mode</a>
+      <a href="../../../docs/external-mode/linux.html"><span class="marker">&#9671;</span>Run the worker on Linux</a>
+      <a href="../../../docs/external-mode/macos.html"><span class="marker">&#9671;</span>Run the worker on macOS</a>
+      <a href="../../../docs/external-mode/operations.html"><span class="marker">&#9671;</span>Operate and troubleshoot external mode</a>
+      <a href="../../../docs/external-mode/setup.html"><span class="marker">&#9671;</span>Set up external mode</a>
+      <a href="../../../docs/getting-started.html"><span class="marker">&#9671;</span>Getting started</a>
+      <a class="current" href="../../../docs/guide/memory.html"><span class="marker">&#9671;</span>Project memory</a>
+      <a href="../../../docs/guide/project-skills.html"><span class="marker">&#9671;</span>Project skills</a>
+      <a href="../../../docs/index.html"><span class="marker">&#9671;</span>Memory that stays with the project</a>
+      <a href="../../../docs/reference/commands.html"><span class="marker">&#9671;</span>Command reference</a>
+      <a href="../../../docs/reference/storage.html"><span class="marker">&#9671;</span>Storage reference</a>
+      <a href="../../../docs/service-management.html"><span class="marker">&#9671;</span>External review service management</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">MEMORY</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
+      <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
+      <div class="md"><h1>Project memory</h1>
+<div class="plate">
+  <div><dt>Section</dt><dd>Core guide</dd></div>
+  <div><dt>Applies to</dt><dd>Primary Pi sessions</dd></div>
+  <div><dt>Storage</dt><dd>Outside the repository</dd></div>
+  <div><dt>Write paths</dt><dd>Direct and automatic review</dd></div>
+</div><p>Project memory is a short, durable record for one project. Pi loads the active memory branch before each turn. Future sessions can follow established conventions without rediscovering them.</p>
+<p>::: tip A simple test
+Store a fact when it should still help in a future session and does not already exist in project documentation.
+:::</p>
+<h2>Choose what to remember</h2>
+<p>Keep facts that are stable and expensive to rediscover. For example:</p>
+<ul>
+<li><code>Use pnpm check before pnpm test.</code></li>
+<li><code>The API package owns request validation.</code></li>
+<li><code>Prefer named options objects when an API includes boolean settings.</code></li>
+<li><code>The release script requires a clean Git worktree.</code></li>
+</ul>
+<p>Memory is also useful for architecture facts, recurring project preferences, and non-obvious tool behavior.</p>
+<p>Leave out facts that are temporary, sensitive, or already documented. Do not store:</p>
+<ul>
+<li>current task progress or completed-work diaries</li>
+<li>issue numbers, pull request numbers, or commit hashes</li>
+<li>raw logs and tool output</li>
+<li>temporary failures</li>
+<li>secrets</li>
+<li>facts from <code>AGENTS.md</code> or other checked-in project documents</li>
+</ul>
+<p>Each entry has <code>high</code>, <code>normal</code>, or <code>low</code> importance. Importance measures the cost of forgetting. It does not measure certainty, age, or urgency.</p>
+<h2>How memory changes</h2>
+<p>No Forgetti has two write paths:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>When it runs</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Direct write</td>
+<td>Pi uses the <code>project_memory</code> tool during a turn</td>
+<td>Saves the change immediately</td>
+</tr>
+<tr>
+<td>Automatic review</td>
+<td>Pi completes a successful turn and becomes idle</td>
+<td>Reviews recent evidence and proposes bounded changes</td>
+</tr>
+</tbody></table>
+<h3>Direct writes</h3>
+<p>The <code>project_memory</code> tool can list, add, replace, or remove entries. Each change writes to the active memory branch immediately. No background reviewer or external worker delays the change.</p>
+<p>Pi reloads the active branch before the next turn. This makes writes from other sessions and review processes visible without a manual refresh.</p>
+<h3>Automatic review</h3>
+<p>Automatic review follows this sequence:</p>
+<ol>
+<li>Pi completes a successful turn and becomes idle.</li>
+<li>No Forgetti selects the oldest unreviewed evidence window.</li>
+<li>No Forgetti removes sensitive or unnecessary evidence.</li>
+<li>The reviewer proposes additions, replacements, removals, or consolidations.</li>
+<li>No Forgetti validates the proposal against the memory policy.</li>
+<li>No Forgetti commits the proposal only when the branch still matches the reviewed version.</li>
+</ol>
+<p>Step 6 uses compare-and-swap (CAS). CAS prevents a stale review from overwriting a newer memory change.</p>
+<p>A review window contains at most 12 user turns and 32,000 sanitized characters. No Forgetti excludes thinking, images, raw tool arguments, raw tool results, user Bash, provider headers, and diagnostics.</p>
+<p>No Forgetti advances the review position only through evidence in the selected window. This prevents a truncated window from skipping evidence.</p>
+<h2>Capacity controls</h2>
+<p>Memory has four capacity controls:</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th align="right">Size</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Entry limit</td>
+<td align="right">800 characters</td>
+<td>Keeps each fact compact</td>
+</tr>
+<tr>
+<td>Maintenance goal</td>
+<td align="right">4,000 characters</td>
+<td>Guides lossless consolidation</td>
+</tr>
+<tr>
+<td>Working target</td>
+<td align="right">4,500 characters</td>
+<td>Limits growth from automatic review</td>
+</tr>
+<tr>
+<td>Hard limit</td>
+<td align="right">6,000 characters</td>
+<td>Reserves capacity for direct writes</td>
+</tr>
+</tbody></table>
+<p>Automatic review below the working target cannot cross it. At or above the target, review can keep the same size or shrink toward the maintenance goal. Direct writes can use the reserved capacity up to the hard limit. Exact duplicate entries have no effect.</p>
+<h2>Inspect and undo</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/memory status</code></td>
+<td>Show the project, active branch, capacity, and review mode</td>
+</tr>
+<tr>
+<td><code>/memory show</code></td>
+<td>Show entries in the active branch</td>
+</tr>
+<tr>
+<td><code>/memory branches</code></td>
+<td>List all memory branches</td>
+</tr>
+<tr>
+<td><code>/memory undo</code></td>
+<td>Undo the latest eligible automatic review</td>
+</tr>
+</tbody></table>
+<p>Each changed automatic review creates an immutable revision record. <code>/memory undo</code> reverts reviewed entries only when they still match that revision. It preserves unrelated later writes. It stops if a later write changed a reviewed entry.</p>
+<h2>Use a separate memory branch</h2>
+<p>Pi <code>/fork</code> and <code>/clone</code> commands create session histories. They do not create memory branches.</p>
+<p>Create an independent copy of the active memory branch when an experiment needs different facts:</p>
+<pre><code class="language-text">/memory fork experiment
+</code></pre>
+<p>This command switches only the current Pi session to the new branch. Switch the session back to <code>main</code> when the experiment ends:</p>
+<pre><code class="language-text">/memory use main
+</code></pre>
+<p>No Forgetti stores the selected branch in Pi session state. If Pi does not persist the session, the selection lasts only for the current process.</p>
+<h2>Project scope</h2>
+<p>No Forgetti identifies the project with this order:</p>
+<ol>
+<li>Use the nearest Git root.</li>
+<li>If no Git root exists, use the exact Pi launch directory.</li>
+</ol>
+<p>Each Git worktree receives separate memory because each worktree has a different root.</p>
+<p>Child-agent processes marked with <code>PI_SUBAGENT_CHILD_AGENT</code> or <code>PI_SUBAGENT_RUN_ID</code> do not load or write project memory.</p>
+<p>No Forgetti stores memory outside the repository. See the <a href="../reference/storage.html">storage reference</a> for paths, permissions, and retention details.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

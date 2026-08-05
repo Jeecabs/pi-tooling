@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>no-forgetti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">NO-FORGETTI</div>
+      <a href="../../../index.html"><span class="marker">&#9670;</span>README</a>
+      <a class="current" href="../../../docs/architecture/external-curator.html"><span class="marker">&#9671;</span>External curator architecture</a>
+      <a href="../../../docs/external-mode/index.html"><span class="marker">&#9671;</span>External mode</a>
+      <a href="../../../docs/external-mode/linux.html"><span class="marker">&#9671;</span>Run the worker on Linux</a>
+      <a href="../../../docs/external-mode/macos.html"><span class="marker">&#9671;</span>Run the worker on macOS</a>
+      <a href="../../../docs/external-mode/operations.html"><span class="marker">&#9671;</span>Operate and troubleshoot external mode</a>
+      <a href="../../../docs/external-mode/setup.html"><span class="marker">&#9671;</span>Set up external mode</a>
+      <a href="../../../docs/getting-started.html"><span class="marker">&#9671;</span>Getting started</a>
+      <a href="../../../docs/guide/memory.html"><span class="marker">&#9671;</span>Project memory</a>
+      <a href="../../../docs/guide/project-skills.html"><span class="marker">&#9671;</span>Project skills</a>
+      <a href="../../../docs/index.html"><span class="marker">&#9671;</span>Memory that stays with the project</a>
+      <a href="../../../docs/reference/commands.html"><span class="marker">&#9671;</span>Command reference</a>
+      <a href="../../../docs/reference/storage.html"><span class="marker">&#9671;</span>Storage reference</a>
+      <a href="../../../docs/service-management.html"><span class="marker">&#9671;</span>External review service management</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">MEMORY</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
+      <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
+      <div class="md"><h1>External curator architecture</h1>
+<h2>Goal</h2>
+<p>Make accepted memory reviews survive the Pi process while preserving No Forgetti&#39;s bounded context, local-first privacy, immediate foreground memory writes, and project isolation.</p>
+<p>The guarantee is deliberately narrow:</p>
+<blockquote>
+<p>A successfully settled turn that is durably accepted as a review job remains eligible for eventual review, subject to configured credentials and budgets.</p>
+</blockquote>
+<p>This does not guarantee capture before <code>agent_settled</code>, recovery of killed ephemeral sessions, correctness of model output, provider exactly-once execution, or automatic historical import.</p>
+<h2>Delivery architecture</h2>
+<pre><code class="language-text">Pi extension
+  ├─ injects current memory at turn boundaries
+  ├─ performs immediate foreground memory commands
+  ├─ sanitizes completed evidence
+  └─ atomically enqueues deterministic review jobs
+                  │
+                  ▼
+Review service
+  ├─ filesystem-authoritative queue and attempt journal
+  ├─ dedicated reviewer profile and durable budgets
+  ├─ tool-less proposal generation
+  ├─ immutable provider-result and proposal-decision checkpoints
+  ├─ deterministic proposal admission
+  ├─ exact branch-digest CAS and admission intent
+  └─ immutable outcomes, mutation receipts, and SQLite shadow
+</code></pre>
+<p>The extension remains the Pi lifecycle adapter. The service never edits Pi JSONL. Existing memory JSON remains canonical during the mixed-version release. SQLite is observational shadow state, not authority for queue ownership, provider attempts, budgets, decisions, or memory.</p>
+<p>External UI feedback uses a project-local durable mailbox. The extension registers accepted external jobs before it returns to Pi. Successful admission publishes a private, bounded event with the actual post-validation content diff. The worker repairs missing terminal-failure events from durable outcomes and retained job evidence.</p>
+<p>The extension derives live progress from pending mailbox interest and authoritative spool state. It does not persist a second progress event stream. An open Pi consumes terminal feedback during service polling. Otherwise, the next project session consumes it at startup. The transcript card uses the same custom entry as embedded review. A failed job retains its sanitized evidence for a new-generation replay through <code>/memory review retry</code>.</p>
+<h2>Authority modes and rollout</h2>
+<ul>
+<li><code>embedded</code>: current in-process reviewer owns review.</li>
+<li><code>shadow</code>: embedded reviewer remains authoritative; durable service validates transport, dedupe, attempt accounting, decisions, and recovery without a second mutation.</li>
+<li><code>external</code>: accepted jobs belong only to the service. The embedded reviewer does not process them.</li>
+</ul>
+<p>Foreground <code>project_memory</code> writes remain extension-local in all initial modes. A delayed service proposal must compare its captured exact branch digest against the current branch.</p>
+<p>Authority is staged rather than inferred from files merely existing:</p>
+<ol>
+<li>Filesystem queue and SQLite audit shadow.</li>
+<li>Per-provider-attempt journal, conservative budget accounting, and durable result/decision election in shadow.</li>
+<li>Project admission intents and crash recovery in shadow.</li>
+<li>Explicit opt-in external authority after crash, contention, privacy, and budget gates pass.</li>
+<li>Any future SQLite or claim-store authority requires a separate migration, compatibility window, and rollback plan.</li>
+</ol>
+<h2>Job and provider-attempt authority</h2>
+<p>Review jobs are versioned, bounded, sanitized, identity-bound records. Queue/running/outcome files fence job ownership. Each provider attempt also needs its own immutable filesystem identity and state; a job-level lease alone cannot account for a request that may outlive its worker.</p>
+<p>Provider-attempt states are:</p>
+<ul>
+<li><code>reserved</code>: budget and attempt identity durably allocated; provider dispatch not yet recorded.</li>
+<li><code>dispatched</code>: the pre-dispatch checkpoint completed and provider execution may have begun.</li>
+<li><code>settled</code>: a complete provider result, including normalized outcome and available provenance/usage, is durably checkpointed.</li>
+<li><code>unknown</code>: dispatch may have happened, but no trustworthy durable result proves its outcome.</li>
+<li><code>cancelled</code>: the reservation is durably closed with proof that dispatch did not happen.</li>
+</ul>
+<p>Recovery may cancel an orphaned <code>reserved</code> attempt. It must conservatively turn an orphaned <code>dispatched</code> attempt into <code>unknown</code>; it must not pretend the call was cancelled or free its full budget. State transitions are monotonic and idempotent. Attempt files, not process memory or SQLite rows, answer whether a provider call may have occurred.</p>
+<p>Provider APIs generally cannot participate in No Forgetti&#39;s local transaction and may not accept an idempotency key. Therefore provider exactly-once execution is impossible to promise. A worker can crash after the provider accepted a request but before the response is durable. Retrying an <code>unknown</code> attempt may make another paid call. No Forgetti instead guarantees at-most-one elected proposal effect per job: every observed result is checkpointed under its attempt identity, and one immutable proposal-decision record selects the result eligible for admission. Later or replayed results remain accounted evidence and cannot replace the elected decision.</p>
+<h2>Durable result and decision checkpoints</h2>
+<p>A provider result is persisted before it can affect job completion or project memory. Its immutable checkpoint binds attempt ID, complete review job, normalized outcome, and proposal digest. A successful result may then create-or-compare one immutable proposal decision for the job. The decision embeds the complete elected job and outcome so recovery never needs to reconstruct the proposal or call the provider again.</p>
+<p>Conflicting content at an existing immutable path fails closed. Failed attempts are checkpointed for accounting but cannot win proposal election. Queue outcome publication follows the durable decision; an existing matching checkpoint is replay, not new work.</p>
+<h2>Budget accounting</h2>
+<p>Budget reporting separates certainty rather than compressing ambiguous calls into one total:</p>
+<ul>
+<li><code>actual</code>: usage/cost from a durably settled provider result.</li>
+<li><code>held</code>: conservative reservation for live or recoverable work, including a call count before dispatch and configured token/cost exposure where exact usage is unavailable.</li>
+<li><code>unknown</code>: exposure from an <code>unknown</code> attempt. It remains visible and charged conservatively because the provider may have executed even though usage was not observed.</li>
+</ul>
+<p>Admission checks <code>actual + held + unknown</code> against daily call, token, and cost limits before reserving another attempt. Settling moves held exposure to actual usage; proved pre-dispatch cancellation releases held exposure; ambiguous dispatch moves it to unknown. One in-flight call can exceed token or cost thresholds because exact usage is known only afterward. UTC rollover must not erase unresolved attempt accounting; unknown exposure remains attributable and visible until an explicit reconciliation policy resolves it.</p>
+<p>The reviewer profile never silently inherits whichever foreground model happened to be active. Missing model/auth configuration before dispatch permits cancellation; provider/auth errors observed after dispatch are settled or unknown according to durable evidence, not guessed from error text.</p>
+<h2>Project admission transaction</h2>
+<p>Reviewers return proposals only. Admission re-runs schema, secret, Unicode, fence, duplicate, capacity, evidence-reference, and target-precondition checks under canonical project-memory authority.</p>
+<p>Before the first project mutation, admission durably publishes a project-local intent containing an exact binding to the elected outcome, base and resulting branch digests, frozen post-admission branch, optional revision, and stable receipt metadata. The complete elected job/outcome remains in the global decision checkpoint. Recovery inspects canonical artifacts and rolls the project intent forward in order:</p>
+<pre><code class="language-text">intent → branch → revision (when present) → project completion → immutable receipt
+</code></pre>
+<p>Matching artifacts are idempotent. Missing next artifacts are published. Conflicting artifacts fail closed; recovery never rolls the branch backward. After the bound receipt is durable, the full project intent is compacted to a digest-only tombstone. This makes the project intent the recovery authority for a begun branch mutation, while project memory JSON remains content authority and the decision checkpoint remains provider-result authority.</p>
+<p>No nested locks are permitted across subsystems. Spool, attempt/decision, budget, and project-memory operations acquire one lock domain at a time, persist the hand-off record, release it, then enter the next domain. Recovery uses immutable identities and compare-and-swap checks rather than holding a global lock or acquiring a project lock while a spool/decision/budget lock is held.</p>
+<p>During v1 coexistence, admission compares the exact canonical digest captured from the complete pre-sanitization branch object. Unknown revision fields are not added to v1 branch JSON because old clients may reconstruct and drop them. Undo remains entry-level inverse CAS: unrelated later writes survive, while a reviewed entry changed later refuses reversal.</p>
+<h2>Filesystem durability assumptions</h2>
+<p>The durability model assumes one host and a trustworthy local filesystem providing atomic same-filesystem rename/link or exclusive creation, stable file handles, exclusive lock-file creation, and working <code>fsync</code>/directory-sync semantics. Durable publication means write temporary file, sync file, atomically publish, then sync its parent directory; durable deletion likewise requires parent-directory sync.</p>
+<p>Network filesystems, cloud-synced folders, removable media with weak flush guarantees, multi-host workers sharing a spool, and filesystems that lie about flush completion are outside the guarantee. Unsupported directory sync or abrupt storage/power failure can reduce the guarantee to process-crash atomicity. The spool, decision store, budget files, admission intents, and canonical project store must stay on local storage; cross-device moves are not a transaction primitive.</p>
+<h2>Privacy</h2>
+<p>Initial authoritative review preserves the existing evidence boundary:</p>
+<ul>
+<li>at most 12 user turns / 32,000 characters</li>
+<li>user and assistant text</li>
+<li>tool name and success/failure only</li>
+<li>no thinking</li>
+<li>no images or base64</li>
+<li>no raw tool arguments/results</li>
+<li>no user bash</li>
+<li>no auth, provider headers, or diagnostics</li>
+</ul>
+<p>Evidence and durable checkpoints use private files and directories. Evidence expires after the configured terminal-job TTL. Logs contain IDs, sizes, digests, outcomes, usage, and cost. They never contain evidence or credentials. Result and decision checkpoints embed sanitized jobs and proposals, so they have the same retention requirements.</p>
+<p>Private runtime heartbeat files contain the release, memory-policy version, process ID, and project root. The doctor compares them with live Pi processes and the worker. These files do not contain review evidence.</p>
+<h2>Append-graph trajectory track</h2>
+<p>Rich trajectory intelligence is separate from first authority. It incrementally sends sanitized append-order entries plus independent settled-leaf checkpoints. It never repeats root-to-leaf snapshots.</p>
+<p>Node identity binds parent digest, canonical sanitized payload, parser version, and sanitizer version. Duplicate overlap is accepted; gaps request a bounded predecessor; missing ancestry is quarantined. Review coverage uses canonical turn/node digests rather than one cursor.</p>
+<p>This ledger later supports evidence, claims, file applicability, selective projection, and agentic reviewers. Indexing does not imply model review.</p>
+<h2>Historical backfill</h2>
+<p>No historical scan runs at install or daemon startup. Backfill is an explicit two-step operation:</p>
+<pre><code class="language-text">backfill plan --project &lt;cwd&gt; [caps]
+backfill run &lt;plan-id&gt;
+</code></pre>
+<p>Plans report eligible files, provenance quality, bytes, dates, calls, tokens, cost, time, and disk growth. Import is streaming, resumable, capped, index-first, and shadow-only. Historical leaves without trusted settled checkpoints remain inferred. Legacy review cursors are uncertain coverage because old bounded reviews may have skipped earlier entries.</p>
+<p>Canonical memory is never automatically mutated from historical backfill. Promotion requires staged diff, full pre-batch snapshot, atomic apply, audit, and exact rollback.</p>
+<h2>Rollout gates</h2>
+<ol>
+<li>Current cursor, CAS, undo, capacity, and versioning correctness.</li>
+<li>Shared <code>review --once</code> engine from a clean packed install.</li>
+<li>Filesystem spool plus shadow SQLite ledger with crash injection.</li>
+<li>Attempt state, actual/held/unknown budget, and decision-election recovery.</li>
+<li>Project admission-intent roll-forward with no nested locks.</li>
+<li>Opt-in JSON-authority memory daemon.</li>
+<li>Append-graph/evidence intelligence in shadow.</li>
+<li>Scoped agent reviewer, skills, future database authority, Codex, and backfill as separate gates.</li>
+</ol>
+<p>Hard gates include zero secret leakage, zero duplicate mutation effects, exact decision and admission digest replay, bounded conservative cost behavior, local-filesystem fault tests, and memory precision calibrated against a frozen baseline.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

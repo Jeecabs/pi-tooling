@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>no-forgetti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">NO-FORGETTI</div>
+      <a href="../../../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../../../docs/architecture/external-curator.html"><span class="marker">&#9671;</span>External curator architecture</a>
+      <a href="../../../docs/external-mode/index.html"><span class="marker">&#9671;</span>External mode</a>
+      <a href="../../../docs/external-mode/linux.html"><span class="marker">&#9671;</span>Run the worker on Linux</a>
+      <a href="../../../docs/external-mode/macos.html"><span class="marker">&#9671;</span>Run the worker on macOS</a>
+      <a href="../../../docs/external-mode/operations.html"><span class="marker">&#9671;</span>Operate and troubleshoot external mode</a>
+      <a href="../../../docs/external-mode/setup.html"><span class="marker">&#9671;</span>Set up external mode</a>
+      <a href="../../../docs/getting-started.html"><span class="marker">&#9671;</span>Getting started</a>
+      <a href="../../../docs/guide/memory.html"><span class="marker">&#9671;</span>Project memory</a>
+      <a href="../../../docs/guide/project-skills.html"><span class="marker">&#9671;</span>Project skills</a>
+      <a href="../../../docs/index.html"><span class="marker">&#9671;</span>Memory that stays with the project</a>
+      <a href="../../../docs/reference/commands.html"><span class="marker">&#9671;</span>Command reference</a>
+      <a class="current" href="../../../docs/reference/storage.html"><span class="marker">&#9671;</span>Storage reference</a>
+      <a href="../../../docs/service-management.html"><span class="marker">&#9671;</span>External review service management</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">MEMORY</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
+      <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
+      <div class="md"><h1>Storage reference</h1>
+<p>No Forgetti keeps durable state outside the repository.</p>
+<p><code>PI_CODING_AGENT_DIR</code> defaults to <code>~/.pi/agent</code> and supports <code>~/…</code> values. Resolve the default safely in shell scripts:</p>
+<pre><code class="language-bash">AGENT_DIR=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
+</code></pre>
+<h2>Directory layout</h2>
+<pre><code class="language-text">$PI_CODING_AGENT_DIR/no-forgetti/
+├── service.json                         # optional reviewer profile; never credentials
+├── review-budget.json                   # legacy aggregate, imported conservatively
+├── review-workers/                      # worker heartbeats for /memory status
+├── review-ledger.sqlite                 # observational WAL shadow
+├── review-spool/
+│   ├── queued/
+│   ├── running/
+│   ├── outcomes/
+│   ├── dead-letter/
+│   ├── accounting/
+│   │   ├── days/                        # actual, held, and unknown usage
+│   │   └── identities/                  # immutable attempt identities
+│   ├── provider-results/                # normalized per-attempt checkpoints
+│   └── proposal-decisions/              # one elected result per job
+└── &lt;sha256(project-root)&gt;/
+    ├── project.json
+    ├── reviews/
+    │   ├── main.json
+    │   └── experiment.json
+    ├── revisions/
+    │   └── main/
+    │       ├── 000000000001-&lt;revision-id&gt;.json
+    │       └── 000000000002-&lt;undo-id&gt;.json
+    ├── branches/
+    │   ├── main.json
+    │   └── experiment.json
+    ├── skills/
+    │   ├── &lt;skill-name&gt;/
+    │   │   ├── SKILL.md
+    │   │   └── review.json              # latest background authorship receipt, when present
+    │   └── .archive/
+    ├── skill-activity-index/
+    │   ├── state.json
+    │   ├── sessions/&lt;hashed-session-id&gt;.json
+    │   └── generations/&lt;generation-id&gt;.json
+    ├── skill-review.json                 # v3 session-scoped exact cadence and lease
+    ├── skill-pending/                    # bound proposals and reviewer receipts
+    ├── skill-revisions/                  # frozen skill snapshots and patch receipts
+    ├── service/
+    │   ├── commit-receipts/
+    │   └── review-feedback/
+    │       ├── pending/
+    │       └── ready/
+    └── review-admissions/                # active intents, then compact tombstones
+</code></pre>
+<h2>Authority</h2>
+<p>The filesystem is authoritative for the review queue, provider attempts, budgets, decisions, and canonical project memory. SQLite is an observational ledger for status and inspection. It is not queue or memory authority.</p>
+<p>A cross-process lock serializes project-memory read-modify-write operations. External admission also uses durable project intents and exact compare-and-swap checks.</p>
+<h2>Permissions and sensitivity</h2>
+<p>Service configuration never contains credentials. Provider authentication stays in Pi’s <code>auth.json</code> or the worker process environment.</p>
+<p>No Forgetti sanitizes queued evidence, but review spool and project service records remain sensitive. Result checkpoints can include sanitized jobs and model proposals. Active admission intents can include frozen memory post-state. Project-skill receipts contain job, prompt, attempt, operation, and target-binding digests.</p>
+<p>Receipts also contain requested and observed model identities, timestamps, token usage, and cost. They do not contain raw model output or resolved credentials. Keep the whole agent directory private to your user.</p>
+<h2>Retention and deletion</h2>
+<p>The worker periodically enforces <code>evidenceTtlHours</code> for terminal spool records, decisions, and closed-day accounting. Unresolved attempts and incomplete admission intents can remain longer for safe recovery and conservative accounting.</p>
+<p>Stop every external worker before removing review state. Deleting unresolved state abandons recovery guarantees. See the complete procedure and threat model in <a href="https://github.com/Jeecabs/no-forgetti/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+<h2>Legacy state</h2>
+<p>No Forgetti migrates legacy <code>skill-activity.json</code> once into bounded per-session and per-generation records. It retains the old file as <code>skill-activity.json.legacy</code>.</p>
+<p>Project-skill cadence migrates from versions 1 and 2 to version 3. Migration preserves global failure backoff and claim generation. It discards unattributed pending counters because it cannot assign them safely to a session path.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>
