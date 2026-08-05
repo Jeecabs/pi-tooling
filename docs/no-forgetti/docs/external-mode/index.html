@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>no-forgetti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">NO-FORGETTI</div>
+      <a href="../../../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../../../docs/architecture/external-curator.html"><span class="marker">&#9671;</span>External curator architecture</a>
+      <a class="current" href="../../../docs/external-mode/index.html"><span class="marker">&#9671;</span>External mode</a>
+      <a href="../../../docs/external-mode/linux.html"><span class="marker">&#9671;</span>Run the worker on Linux</a>
+      <a href="../../../docs/external-mode/macos.html"><span class="marker">&#9671;</span>Run the worker on macOS</a>
+      <a href="../../../docs/external-mode/operations.html"><span class="marker">&#9671;</span>Operate and troubleshoot external mode</a>
+      <a href="../../../docs/external-mode/setup.html"><span class="marker">&#9671;</span>Set up external mode</a>
+      <a href="../../../docs/getting-started.html"><span class="marker">&#9671;</span>Getting started</a>
+      <a href="../../../docs/guide/memory.html"><span class="marker">&#9671;</span>Project memory</a>
+      <a href="../../../docs/guide/project-skills.html"><span class="marker">&#9671;</span>Project skills</a>
+      <a href="../../../docs/index.html"><span class="marker">&#9671;</span>Memory that stays with the project</a>
+      <a href="../../../docs/reference/commands.html"><span class="marker">&#9671;</span>Command reference</a>
+      <a href="../../../docs/reference/storage.html"><span class="marker">&#9671;</span>Storage reference</a>
+      <a href="../../../docs/service-management.html"><span class="marker">&#9671;</span>External review service management</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">MEMORY</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
+      <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
+      <div class="md"><h1>External mode</h1>
+<p>External mode gives accepted memory-review work a durable owner outside the Pi process. Use it when a review should continue even if you close Pi immediately after a turn.</p>
+<p>It is optional. The default embedded mode is the right choice when process durability is not important.</p>
+<h2>What changes</h2>
+<p>In embedded mode, Pi captures evidence, calls the reviewer, validates the proposal, and admits any safe memory change in process.</p>
+<p>In external mode, responsibility splits:</p>
+<ol>
+<li><strong>Pi captures.</strong> After a successful settled turn, the extension builds the oldest bounded unreviewed evidence window.</li>
+<li><strong>Pi queues.</strong> The sanitized job is durably published to a local spool. Once accepted, the service owns it, not the embedded reviewer.</li>
+<li><strong>The worker reviews.</strong> A user-scoped process claims the job, reserves budget, and calls the configured model without coding tools.</li>
+<li><strong>The worker checkpoints.</strong> Provider results and the elected proposal are persisted before any project effect.</li>
+<li><strong>The project store admits.</strong> The proposal is revalidated and commits only if the captured branch digest still matches current memory.</li>
+<li><strong>Pi reports.</strong> An open Pi shows project-local progress and receives the terminal result. Otherwise, the next project session displays the result.</li>
+</ol>
+<p><a href="/external-mode-explainer.svg"><img src="/external-mode-explainer.svg" alt="External mode durability and authority flow"></a></p>
+<p><a href="/external-mode-explainer.svg">Open the full-size diagram</a></p>
+<h2>What does not change</h2>
+<ul>
+<li>Foreground <code>project_memory</code> writes remain immediate inside Pi.</li>
+<li>Existing project JSON remains canonical.</li>
+<li>A newer foreground write wins over a stale external proposal.</li>
+<li>Project-skill review remains inside Pi.</li>
+<li>No coding tools, shell, project filesystem, or generic network tools are exposed to review evidence.</li>
+<li>Historical Pi sessions are not imported automatically.</li>
+</ul>
+<h2>Choose an authority mode</h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Review authority</th>
+<th>Durable job spool</th>
+<th>External admission</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>embedded</code></td>
+<td>Pi process</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>shadow</code></td>
+<td>Pi process</td>
+<td>Yes, for transport and evaluation inspection</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>external</code></td>
+<td>Worker service</td>
+<td>Yes</td>
+<td>Yes, after validation and exact CAS</td>
+</tr>
+</tbody></table>
+<p><code>shadow</code> is not a lighter form of external authority. Pi still reviews and admits memory changes; the mirrored jobs exist for inspection and evaluation.</p>
+<h2>Failure boundaries</h2>
+<p>External mode is designed to survive common local failures:</p>
+<ul>
+<li>Pi can exit after durable enqueue.</li>
+<li>A worker crash releases its lease for later recovery.</li>
+<li>A mid-admission crash rolls the frozen intent forward; it never rolls canonical memory backward.</li>
+<li>A stale proposal fails closed rather than overwriting newer memory.</li>
+<li>A terminal failure retains its evidence for <code>/memory review retry</code> until the configured evidence timeout.</li>
+</ul>
+<p>It does <strong>not</strong> guarantee provider exactly-once execution. A crash after dispatch can leave an attempt <code>unknown</code>; retry may duplicate provider cost. No Forgetti retains conservative budget exposure and prevents duplicate memory effects.</p>
+<h2>Before you enable it</h2>
+<p>You need:</p>
+<ul>
+<li>a persistent No Forgetti installation, not <code>pi -e</code>;</li>
+<li>Node.js 22.19 or newer;</li>
+<li>a reviewer provider and exact model ID known to Pi;</li>
+<li>provider credentials available to the worker;</li>
+<li>one writable Pi agent directory on a trustworthy local filesystem; and</li>
+<li>a user service manager such as <code>launchd</code> or <code>systemd --user</code>.</li>
+</ul>
+<p>Do not place the agent directory on NFS, cloud-synced storage, shared multi-host storage, or media with weak flush semantics.</p>
+<h2>Set it up</h2>
+<p>Follow <a href="./setup.html">Set up external mode</a> first. That guide validates paths, authentication, configuration, and one-off review before you register a long-running process.</p>
+<p>Then register the worker for your operating system:</p>
+<ul>
+<li><a href="./macos.html">macOS with <code>launchd</code></a></li>
+<li><a href="./linux.html">Linux with <code>systemd --user</code></a></li>
+</ul>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

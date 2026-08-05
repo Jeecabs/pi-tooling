@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/gang">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">GANG</div>
+      <a class="current" href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/gang"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/gang">Jeecabs/gang &nearr;</a></div>
+      <div class="md"><h1>gang</h1>
+<p align="center">
+  <img src="assets/gang-logo.png" alt="gang mission-control crew logo" width="260">
+</p><p>A minimal, <strong>observable</strong> subagent primitive for <a href="https://github.com/earendil-works">Pi</a>. Fire up
+subagents as <strong>visible tmux panes</strong> you watch live, let them talk over a <strong>cross-agent message
+bus</strong>, and observe everything three ways: live panes, a durable log, and a mission-control view —
+in your terminal (a Pi overlay) <strong>and</strong> in the browser.</p>
+<p>Built on a vendored, fully-owned copy of <a href="https://github.com/nicobailon/pi-intercom">pi-intercom</a>
+(MIT). No external <code>pi-intercom</code> runtime dependency; npm deps install with the package.
+Targets <code>@earendil-works</code> Pi <strong>0.80.x</strong> (supported range: <code>&gt;=0.80.2 &lt;0.81.0</code>).</p>
+<pre><code>┌─ tmux panes ──────────────┐   raw per-agent view — watch each member&#39;s pi session
+│  superintendent │ worker        │
+│           │ reviewer      │
+└───────────┴───────────────┘
+        │ intercom (unix socket: ~/.pi/agent/intercom/broker.sock)
+        ▼
+┌─ owned broker (vendored) ────────────────────┐
+│  • routes messages                            │
+│  • TAP  → ~/.pi/agent/intercom/intercom.jsonl │  durable, greppable, replayable
+│  • HTTP + SSE :7717  ─────────────────────────┼─► mission control:  /gang watch  (in Pi)
+└───────────────────────────────────────────────┘                     127.0.0.1:7717 (browser)
+</code></pre>
+<h2>Requirements</h2>
+<ul>
+<li><strong>Pi</strong> (<code>@earendil-works/pi-coding-agent</code>) 0.80.x, ≥ 0.80.2 — <code>pi --version</code></li>
+<li><strong>tmux</strong> — members run as visible panes (<code>brew install tmux</code>)</li>
+<li><strong>Node</strong> ≥ 22</li>
+</ul>
+<h2>Install</h2>
+<h3>Option A — from npm (recommended)</h3>
+<pre><code class="language-sh">pi install pi-gang
+pi list                                           # verify: should list  gang
+</code></pre>
+<h3>Option B — from GitHub</h3>
+<p>Pi packages run local extension code with your user permissions, so review the source before
+installing. Pi installs the package&#39;s runtime dependencies for you on a git install:</p>
+<pre><code class="language-sh">pi install https://github.com/Jeecabs/gang.git
+pi list                                           # verify: should list  gang
+</code></pre>
+<p>SSH also works if your GitHub account is configured for it:
+<code>pi install ssh://git@github.com/Jeecabs/gang.git</code></p>
+<h3>Option C — local clone (to hack on it)</h3>
+<pre><code class="language-sh">git clone git@github.com:Jeecabs/gang.git
+cd gang
+npm install                                       # REQUIRED — the broker + GUI run from node_modules
+pi install .                                       # persistent: registers it in your Pi settings
+# …or load it for a single session without touching settings:
+pi -e ./src/intercom/index.ts -e ./src/gang/index.ts
+</code></pre>
+<blockquote>
+<p>⚠️ A <strong>local</strong> install (<code>pi install .</code>) references the folder <strong>in place</strong> and does <strong>not</strong> run
+<code>npm install</code> for you — so run it yourself, and don&#39;t move or delete the folder (the broker
+launches from its <code>node_modules</code>). A git/npm install handles deps automatically.</p>
+</blockquote>
+<p>Unsure about Pi extensions in general? Pi documents itself — just ask it:
+<code>pi -p &quot;how do I write and install a Pi extension?&quot;</code></p>
+<h2>Use</h2>
+<p>In any Pi session, ask for a member — or call the tool yourself. The session adopts the <strong><code>superintendent</code></strong>
+identity the first time you spawn (not before), so sessions where you never use gang keep their
+natural title in <code>pi -r</code>:</p>
+<pre><code>/gang spawn list the repo&#39;s largest files
+/gang spawn @reviewer -t high review the diff carefully
+</code></pre>
+<p><code>gang spawn</code> returns immediately and opens a tmux pane. The member does the task in its own Pi
+session and sends the result <strong>back to superintendent as an intercom message</strong> (it does not return inline).
+Keep working; handle the result when it arrives.</p>
+<p>Watch the gang three ways:</p>
+<pre><code class="language-sh"># 1. in Pi — live mission-control overlay (members + status + feed)
+/gang watch            # or press  alt+g
+
+# 2. in the browser — the same feed, richer
+/gang url              # prints computed loopback URL from GANG_GUI_PORT
+open http://127.0.0.1:7717
+
+# 3. durable, greppable log of every cross-agent message
+tail -f ~/.pi/agent/intercom/intercom.jsonl
+</code></pre>
+<h2>Commands &amp; tools</h2>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gang</code> tool</td>
+<td><code>{action:&quot;spawn&quot;, task, role?, thinking?}</code> · <code>{action:&quot;list&quot;}</code> · <code>{action:&quot;clean&quot;, force?, all?}</code> · <code>{action:&quot;stop&quot;, role? finished?}</code> · <code>{action:&quot;name&quot;, name}</code> — model-callable</td>
+</tr>
+<tr>
+<td><code>/gang</code></td>
+<td>show the roster</td>
+</tr>
+<tr>
+<td><code>/gang spawn [@name] [-t &lt;level&gt;] &lt;task&gt;</code></td>
+<td>spawn a member by hand; name optional (auto <code>m1</code>, <code>m2</code>, …). Levels: <code>off</code>, <code>minimal</code>, <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code></td>
+</tr>
+<tr>
+<td><code>/gang clean</code> · <code>/gang clean --force</code> · <code>/gang clean all</code></td>
+<td><code>clean</code> reaps dead/missing panes and prunes stale roster entries; <code>clean --force</code> also kills members that already reported back; <code>clean all</code> stops this superintendent&#39;s members (detached mode kills the <code>gang</code> session; in-tmux mode kills direct member panes only)</td>
+</tr>
+<tr>
+<td><code>/gang stop &lt;member&gt;</code> · <code>/gang stop --all-finished</code></td>
+<td>stop one member immediately, or bulk-stop any member already reapable (<code>reported_done</code>, <code>pane_dead</code>, <code>pane_missing</code>)</td>
+</tr>
+<tr>
+<td><code>/gang url</code></td>
+<td>show the browser mission-control URL (<code>http://127.0.0.1:&lt;GANG_GUI_PORT&gt;</code>)</td>
+</tr>
+<tr>
+<td><code>/gang name [name]</code></td>
+<td>show or set this agent/session&#39;s own name</td>
+</tr>
+<tr>
+<td><code>/gang watch</code> · <code>alt+g</code></td>
+<td>open mission control (in-Pi overlay)</td>
+</tr>
+<tr>
+<td><code>intercom</code> tool</td>
+<td>message any session: <code>list</code> / <code>send</code> / <code>ask</code> / <code>reply</code></td>
+</tr>
+</tbody></table>
+<p>Env knobs: <code>GANG_GUI_PORT</code> (default <code>7717</code>), <code>GANG_TMUX_BIN</code> (default Homebrew tmux), <code>GANG_FEED_HOURS</code> (mission-control feed recency window, default <code>6</code>).</p>
+<p>Finished members linger on purpose — their panes stay (<code>remain-on-exit on</code>) so you can read the final state. Reap them when you&#39;re done with <code>/gang clean</code> (or <code>gang({ action: &quot;clean&quot; })</code>). If a member has already reported back but its pane is still hanging around, use <code>/gang clean --force</code> or <code>/gang stop --all-finished</code>. <code>/gang stop &lt;member&gt;</code> is the first-class escape hatch when you know a specific pane should die. <code>/gang clean all</code> tears down the detached <code>gang</code> session outside tmux; inside tmux it kills this superintendent&#39;s direct member panes only.</p>
+<p>Agent naming: an unnamed orchestrator session claims <code>superintendent of &lt;current-folder&gt;</code> (e.g. <code>superintendent of private-evals</code>) <strong>on its first spawn</strong>, not at startup — so plain Pi sessions stay unnamed in the <code>pi -r</code> resume list. Use <code>/gang name &lt;name&gt;</code> before spawning to pick a custom target; spawned members get that exact supervisor name. Member task prompts also tell agents to name themselves with <code>gang({ action: &quot;name&quot;, name: &quot;&lt;clear role/name&gt;&quot; })</code> before spinning up their own teammate.</p>
+<h2>How it&#39;s wired</h2>
+<p><code>package.json</code> → <code>pi.extensions</code> points Pi at two TypeScript entry files it loads on startup:</p>
+<ul>
+<li><code>src/intercom/</code> — vendored pi-intercom: the broker, client, and the <code>intercom</code> /
+<code>contact_supervisor</code> tools. <strong>Owned</strong> — imports retargeted to <code>@earendil-works/*</code>, plus a broker
+message <strong>tap</strong> (durable log) and an embedded <strong>HTTP/SSE</strong> mission-control server.</li>
+<li><code>src/gang/</code> — the <code>gang</code> tool (spawn members in tmux, list the roster), the <code>/gang watch</code>
+overlay, and superintendent auto-naming.</li>
+</ul>
+<p><code>gang spawn &lt;task&gt;</code> (optionally <code>@name</code>) launches <code>pi --name &lt;name&gt; … @&lt;taskfile&gt;</code> in a tmux pane with five
+<code>PI_SUBAGENT_*</code> env vars. Pass <code>--thinking &lt;level&gt;</code> to add Pi&#39;s <code>--thinking</code> flag for that member.
+The vendored intercom extension reads the env vars at child startup to register
+the member on the bus and unlock its <code>contact_supervisor</code> tool — that&#39;s the whole contract:</p>
+<table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Set to</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PI_SUBAGENT_INTERCOM_SESSION_NAME</code></td>
+<td><code>&lt;role&gt;</code></td>
+<td>member&#39;s intercom identity</td>
+</tr>
+<tr>
+<td><code>PI_SUBAGENT_ORCHESTRATOR_TARGET</code></td>
+<td>current supervisor name (<code>superintendent of &lt;folder&gt;</code> or custom <code>/gang name</code>)</td>
+<td>who it reports to</td>
+</tr>
+<tr>
+<td><code>PI_SUBAGENT_RUN_ID</code> / <code>_CHILD_AGENT</code> / <code>_CHILD_INDEX</code></td>
+<td>run metadata</td>
+<td>unlocks <code>contact_supervisor</code></td>
+</tr>
+</tbody></table>
+<p>(The member&#39;s addressable <strong>name</strong> comes from Pi&#39;s <code>--name</code> flag; the supervisor self-names
+lazily to the computed or custom <code>orchestratorName</code>.)</p>
+<h2>Develop</h2>
+<pre><code class="language-sh">npm test             # vendored intercom suite + gang/tmux/tap/GUI/overlay tests
+npm run typecheck    # strict TypeScript check
+</code></pre>
+<h2>Credits</h2>
+<p>Vendors <a href="https://github.com/nicobailon/pi-intercom">pi-intercom</a> by Nico Bailon (MIT). See <code>NOTICE</code>.
+Built on Pi by the <a href="https://github.com/earendil-works">earendil-works</a> team.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

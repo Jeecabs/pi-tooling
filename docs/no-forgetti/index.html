@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>no-forgetti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">NO-FORGETTI</div>
+      <a class="current" href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/architecture/external-curator.html"><span class="marker">&#9671;</span>External curator architecture</a>
+      <a href="../docs/external-mode/index.html"><span class="marker">&#9671;</span>External mode</a>
+      <a href="../docs/external-mode/linux.html"><span class="marker">&#9671;</span>Run the worker on Linux</a>
+      <a href="../docs/external-mode/macos.html"><span class="marker">&#9671;</span>Run the worker on macOS</a>
+      <a href="../docs/external-mode/operations.html"><span class="marker">&#9671;</span>Operate and troubleshoot external mode</a>
+      <a href="../docs/external-mode/setup.html"><span class="marker">&#9671;</span>Set up external mode</a>
+      <a href="../docs/getting-started.html"><span class="marker">&#9671;</span>Getting started</a>
+      <a href="../docs/guide/memory.html"><span class="marker">&#9671;</span>Project memory</a>
+      <a href="../docs/guide/project-skills.html"><span class="marker">&#9671;</span>Project skills</a>
+      <a href="../docs/index.html"><span class="marker">&#9671;</span>Memory that stays with the project</a>
+      <a href="../docs/reference/commands.html"><span class="marker">&#9671;</span>Command reference</a>
+      <a href="../docs/reference/storage.html"><span class="marker">&#9671;</span>Storage reference</a>
+      <a href="../docs/service-management.html"><span class="marker">&#9671;</span>External review service management</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">MEMORY</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
+      <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
+      <div class="md"><p align="center">
+  <img src="assets/no-forgetti-logo.jpg" alt="No Forgetti elephant logo" width="240">
+</p><h1 align="center">No Forgetti</h1><p align="center">Project-scoped persistent memory and self-forming skills for Pi.</p><p>No Forgetti ports the useful part of <a href="https://github.com/NousResearch/hermes-agent">Hermes Agent</a>’s learning loop without turning Pi sessions into one global memory stream.</p>
+<p><strong><a href="https://jeecabs.github.io/no-forgetti/">Read the documentation</a></strong> · <a href="docs/getting-started.html">Getting started</a> · <a href="docs/external-mode/setup.html">External mode setup</a></p>
+<h2>What it does</h2>
+<ul>
+<li><strong>Scopes memory to the project.</strong> The nearest Git root identifies memory; without Git, the exact launch directory does.</li>
+<li><strong>Persists writes immediately.</strong> Every turn reloads the active branch, so foreground tools, review, and other sessions become visible without a manual refresh.</li>
+<li><strong>Reviews only settled work.</strong> Automatic learning starts after a successfully completed turn and admits only validated, bounded changes.</li>
+<li><strong>Forms project skills.</strong> Repeatable workflows become standard <code>SKILL.md</code> packages exposed through Pi’s native skill discovery and <code>/skill:&lt;name&gt;</code>.</li>
+<li><strong>Keeps state outside the repository.</strong> Memory and generated skills do not create project-file churn.</li>
+<li><strong>Supports durable review.</strong> Optional external mode queues accepted memory-review work for a separately managed worker, so Pi can exit without aborting it.</li>
+</ul>
+<h2>Install</h2>
+<p>Install globally for all Pi projects:</p>
+<pre><code class="language-bash">pi install https://github.com/Jeecabs/no-forgetti
+pi list
+</code></pre>
+<p>Restart Pi after the first install, or run <code>/reload</code> in an existing interactive session. Then verify:</p>
+<pre><code class="language-text">/memory status
+</code></pre>
+<p>Project-local install:</p>
+<pre><code class="language-bash">pi install -l https://github.com/Jeecabs/no-forgetti
+</code></pre>
+<p>Try for one process without changing settings:</p>
+<pre><code class="language-bash">pi -e https://github.com/Jeecabs/no-forgetti
+</code></pre>
+<p>See <a href="docs/getting-started.html">Getting started</a> for requirements, install scopes, and the first-use walkthrough.</p>
+<h2>Review modes</h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>embedded</code></td>
+<td>Default. Pi reviews memory in process; no service setup required.</td>
+</tr>
+<tr>
+<td><code>shadow</code></td>
+<td>Pi remains authoritative and also writes sanitized deterministic jobs for inspection.</td>
+</tr>
+<tr>
+<td><code>external</code></td>
+<td>Pi durably queues accepted jobs; a user-scoped worker owns review and CAS admission.</td>
+</tr>
+</tbody></table>
+<p>External mode is opt-in and processes <strong>memory review only</strong>. Foreground <code>project_memory</code> writes remain immediate in Pi, and project-skill review stays in Pi.</p>
+<p>If review must survive Pi exit, follow the dedicated guide in order:</p>
+<ol>
+<li><a href="docs/external-mode/index.html">Understand external mode</a></li>
+<li><a href="docs/external-mode/setup.html">Configure and test it once</a></li>
+<li>Register it with <a href="docs/external-mode/macos.html">macOS <code>launchd</code></a> or <a href="docs/external-mode/linux.html">Linux <code>systemd --user</code></a></li>
+<li><a href="docs/external-mode/operations.html">Operate and troubleshoot it</a></li>
+</ol>
+<p>No Forgetti never starts a daemon during package installation.</p>
+<h2>Core commands</h2>
+<pre><code class="language-text">/memory status
+/memory show
+/memory branches
+/memory fork &lt;name&gt;
+/memory use &lt;name&gt;
+/memory review
+/memory review retry
+/memory undo
+
+/project-skills
+/project-skills list
+/project-skills stats
+/project-skills read &lt;name&gt;
+/project-skills edit &lt;name&gt;
+/project-skills delete &lt;name&gt;
+/project-skills undo &lt;name&gt;
+/project-skills pending
+/project-skills approve &lt;name&gt;
+/project-skills approve-all
+/project-skills reject &lt;name&gt;
+/project-skills review
+</code></pre>
+<p>Use <code>no-forgetti doctor</code> after an external-mode update. It checks the installed release, live Pi runtimes, and the worker. Add <code>--projects-root &lt;path&gt;</code> to scan Git roots for local overrides.</p>
+<p>See the <a href="docs/reference/commands.html">command reference</a> for behavior and worker CLI options.</p>
+<h2>Documentation</h2>
+<ul>
+<li><a href="docs/getting-started.html">Getting started</a></li>
+<li><a href="docs/guide/memory.html">Project memory</a></li>
+<li><a href="docs/guide/project-skills.html">Project skills</a></li>
+<li><a href="docs/external-mode/index.html">External mode</a></li>
+<li><a href="docs/reference/storage.html">Storage reference</a></li>
+<li><a href="SECURITY.html">Security model</a></li>
+<li><a href="docs/architecture/external-curator.html">External curator architecture</a></li>
+<li><a href="CONTRIBUTING.html">Contributing</a></li>
+</ul>
+<h2>Design boundaries</h2>
+<p>Memory has a 4,000-character maintenance goal, a 4,500-character automatic-review target, a 6,000-character hard limit, and an 800-character per-entry limit. Foreground writes retain reserved capacity. Automatic review uses branch compare-and-swap, append-only revision history, and inverse-CAS undo that refuses to erase later conflicting writes.</p>
+<p>Accepted review evidence is bounded to 12 user turns and 32,000 sanitized characters. It excludes thinking, images, raw tool arguments and results, user Bash, provider headers, and diagnostics. Review <a href="SECURITY.html">SECURITY.md</a> before enabling external mode.</p>
+<h2>Development</h2>
+<pre><code class="language-bash">git clone https://github.com/Jeecabs/no-forgetti.git
+cd no-forgetti
+pnpm install --frozen-lockfile
+pnpm check
+pnpm test
+pnpm docs:install
+pnpm docs:build
+pi -e .
+</code></pre>
+<p>Run the documentation site locally:</p>
+<pre><code class="language-bash">pnpm docs:dev
+</code></pre>
+<p>No Forgetti is released under the <a href="LICENSE">MIT License</a>. Upstream inspiration is noted in <a href="NOTICE.html">NOTICE.md</a>.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

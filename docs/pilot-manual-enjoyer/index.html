@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pilot-manual-enjoyer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pilot-manual-enjoyer">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PILOT-MANUAL-ENJOYER</div>
+      <a class="current" href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/pilot-manual-enjoyer"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">WORKFLOW</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/pilot-manual-enjoyer">Jeecabs/pilot-manual-enjoyer &nearr;</a></div>
+      <div class="md"><h1>Pilot Manual Enjoyer</h1>
+<p>Pi package for clear technical writing. It combines an ASD-STE100-inspired writing skill with a deterministic prose linter.</p>
+<p>The package adapts the kit from <a href="https://github.com/woosal1337/blog/tree/main/videos/ep01-the-cure-for-ai-slop">“The cure for AI slop is a 1986 aircraft manual”</a>. It ports the linter to TypeScript and adds Pi tools, commands, source locations, compact rendering, and file safeguards.</p>
+<h2>What it does</h2>
+<p>Pilot Manual Enjoyer provides two resources:</p>
+<ul>
+<li><code>pilot-manual-enjoyer</code>: an on-demand skill for writing and rewriting technical prose.</li>
+<li><code>ste_lint</code>: a read-only model tool that checks text or explicit files.</li>
+</ul>
+<p>The linter reports:</p>
+<ul>
+<li>sentences longer than 20 words;</li>
+<li>semicolons and contractions;</li>
+<li>likely passive voice and <code>-ing</code> main verbs;</li>
+<li>nominalizations and selected phrasal verbs;</li>
+<li>complex words, marketing adjectives, and modal hedges;</li>
+<li>paragraphs longer than six sentences;</li>
+<li>em dashes as unscored slop markers.</li>
+</ul>
+<p>Score equals counted violations per 100 words. Lower is cleaner. The score is most useful when you compare a draft before and after revision.</p>
+<p>This checker covers mechanical rules only. It cannot certify ASD-STE100 or make an unsupported claim true.</p>
+<h2>Install</h2>
+<p>Install the package globally from GitHub:</p>
+<pre><code class="language-bash">pi install https://github.com/Jeecabs/pilot-manual-enjoyer
+</code></pre>
+<p>Restart Pi or run <code>/reload</code>.</p>
+<p>Remove it with:</p>
+<pre><code class="language-bash">pi remove https://github.com/Jeecabs/pilot-manual-enjoyer
+</code></pre>
+<h2>Use</h2>
+<p>The skill loads when you ask Pi to write or revise technical prose. Invoke it directly when needed:</p>
+<pre><code class="language-text">/skill:pilot-manual-enjoyer rewrite this README introduction
+</code></pre>
+<p>The model can call <code>ste_lint</code> with inline text or up to 20 explicit file paths. The tool never changes files.</p>
+<p>Use the command to inspect your current editor draft or one file:</p>
+<pre><code class="language-text">/ste lint
+/ste file README.md
+/ste rules
+/ste status
+</code></pre>
+<p><code>/ste lint</code> reads the editor without changing or submitting it.</p>
+<h2>Safety and privacy</h2>
+<ul>
+<li>No network calls.</li>
+<li>No model calls from the extension.</li>
+<li>No subprocesses.</li>
+<li>No file mutations.</li>
+<li>No config or persistent state.</li>
+<li>Text and files are limited to 1 MiB each.</li>
+<li>File batches are limited to 20 explicit paths.</li>
+<li>Symlinks and non-regular files are rejected.</li>
+<li>Tool output is limited to 50 KiB and 2,000 lines.</li>
+</ul>
+<p>The selected Pi model still receives normal tool arguments and results as part of its conversation.</p>
+<h2>Development</h2>
+<pre><code class="language-bash">pnpm install
+pnpm verify
+pi -e ./src/index.ts
+</code></pre>
+<p><code>pnpm verify</code> runs strict TypeScript checks, Node tests, and a package dry run.</p>
+<h2>Upstream and licensing</h2>
+<p>Pilot Manual Enjoyer is MIT licensed. Adapted upstream material remains MIT licensed under its original copyright.</p>
+<p>See <a href="THIRD_PARTY_NOTICES.html"><code>THIRD_PARTY_NOTICES.md</code></a> and <a href="vendor/WOOSAL_BLOG_LICENSE.html"><code>vendor/WOOSAL_BLOG_LICENSE.md</code></a>. The official ASD-STE100 specification is copyrighted and is not included. Obtain it from <a href="https://asd-ste100.org">https://asd-ste100.org</a>.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>
