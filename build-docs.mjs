@@ -163,7 +163,7 @@ for (const p of PROJECTS) {
   }
 
   for (const page of pages) {
-    const depth = page.out.split("/").length + 1; // relative to OUT root
+    const depth = page.out.split("/").length; // docs-root depth: <proj>/ counts once, plus out's subdirs
     const up = "../".repeat(depth - 1); // to project root within docs/
     const sidebar = pages
       .map((s) => {
