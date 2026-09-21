@@ -10,6 +10,8 @@ const OUT = path.join(ROOT, "docs");
 
 const PROJECTS = [
   { dir: "gang", cat: "ORCHESTRATION" },
+  { dir: "micro-manager", cat: "ORCHESTRATION" },
+  { dir: "pi-processes", cat: "ORCHESTRATION" },
   { dir: "pi-mobile-bridge", cat: "ORCHESTRATION" },
   { dir: "no-forgetti", cat: "MEMORY", site: "https://jeecabs.github.io/no-forgetti/" },
   { dir: "moron-guard", cat: "GUARDRAILS" },
@@ -20,6 +22,7 @@ const PROJECTS = [
   { dir: "a-pi-that-draws", cat: "INTERFACE" },
   { dir: "pi-html-artifacts", cat: "INTERFACE" },
   { dir: "yapping-to-a-pi", cat: "INTERFACE" },
+  { dir: "graph-of-thonking", cat: "WORKFLOW" },
   { dir: "pi-next-step", cat: "WORKFLOW" },
   { dir: "pi-tooltime", cat: "WORKFLOW" },
   { dir: "pilot-manual-enjoyer", cat: "WORKFLOW" },

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-processes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-PROCESSES</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a class="current" href="../docs/README.html"><span class="marker">&#9671;</span>docs</a>
+      <a href="../docs/future-cleanup-hooks.html"><span class="marker">&#9671;</span>Future Cleanup Hooks</a>
+      <a href="../docs/future-persistent-manager.html"><span class="marker">&#9671;</span>Future Persistent Manager</a>
+      <a href="../docs/notifications.html"><span class="marker">&#9671;</span>Process notifications</a>
+      <a href="../docs/python-presentation.html"><span class="marker">&#9671;</span>Python presentation</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
+      <div class="md"><h1>docs</h1>
+<p>Evergreen documentation and design notes for <code>pi-processes</code>. Current behavior and architecture live here; proposed or unsettled work is marked in the file itself.</p>
+<h2>Index</h2>
+<ul>
+<li><p><code>python-presentation.md</code>: compact Python output inside the Bash tool, command recognition, expansion, and lifecycle metadata.</p>
+</li>
+<li><p><code>notifications.md</code> — how process lifecycle and log-watch events become agent notifications: the two-layer fanout, per-process notify config and defaults, attention-level mapping, forced display for crashes/failures, the intentional-stop config bypass, the <code>terminate_timeout</code> non-emit path, and log-match matching and rate limiting. Includes per-end-state call stacks and a summary matrix.</p>
+</li>
+<li><p><code>future-persistent-manager.md</code> — proposed design for keeping processes alive across <code>/reload</code>, <code>/new</code>, and <code>/fork</code>.</p>
+</li>
+<li><p><code>future-cleanup-hooks.md</code> — proposed design for generic cleanup hooks run when a managed process stops.</p>
+</li>
+</ul>
+<h2>Upkeep</h2>
+<p>Update a doc when the flow, config, or attention rules it describes change. Anchor call-stack nodes to real symbols and plain repo paths, never line numbers. A stale call graph misleads worse than none — delete or fix it when the code drifts.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

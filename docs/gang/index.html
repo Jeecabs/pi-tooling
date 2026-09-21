@@ -32,8 +32,9 @@ subagents as <strong>visible tmux panes</strong> you watch live, let them talk o
 bus</strong>, and observe everything three ways: live panes, a durable log, and a mission-control view —
 in your terminal (a Pi overlay) <strong>and</strong> in the browser.</p>
 <p>Built on a vendored, fully-owned copy of <a href="https://github.com/nicobailon/pi-intercom">pi-intercom</a>
-(MIT). No external <code>pi-intercom</code> runtime dependency; npm deps install with the package.
-Targets <code>@earendil-works</code> Pi <strong>0.80.x</strong> (supported range: <code>&gt;=0.80.2 &lt;0.81.0</code>).</p>
+<strong>v0.13.0</strong> (MIT). No external <code>pi-intercom</code> runtime dependency; npm deps install with the package.
+A dev-only version pin lets Dependabot flag new Intercom releases, while CI requires the vendored
+version marker to match. Targets <code>@earendil-works</code> Pi <strong>0.85.x</strong> (<code>&gt;=0.85.1 &lt;0.86.0</code>).</p>
 <pre><code>┌─ tmux panes ──────────────┐   raw per-agent view — watch each member&#39;s pi session
 │  superintendent │ worker        │
 │           │ reviewer      │
@@ -48,7 +49,7 @@ Targets <code>@earendil-works</code> Pi <strong>0.80.x</strong> (supported range
 </code></pre>
 <h2>Requirements</h2>
 <ul>
-<li><strong>Pi</strong> (<code>@earendil-works/pi-coding-agent</code>) 0.80.x, ≥ 0.80.2 — <code>pi --version</code></li>
+<li><strong>Pi</strong> (<code>@earendil-works/pi-coding-agent</code>) 0.85.x, ≥ 0.85.1 — <code>pi --version</code></li>
 <li><strong>tmux</strong> — members run as visible panes (<code>brew install tmux</code>)</li>
 <li><strong>Node</strong> ≥ 22</li>
 </ul>
@@ -111,7 +112,7 @@ tail -f ~/.pi/agent/intercom/intercom.jsonl
 </thead>
 <tbody><tr>
 <td><code>gang</code> tool</td>
-<td><code>{action:&quot;spawn&quot;, task, role?, thinking?}</code> · <code>{action:&quot;list&quot;}</code> · <code>{action:&quot;clean&quot;, force?, all?}</code> · <code>{action:&quot;stop&quot;, role? finished?}</code> · <code>{action:&quot;name&quot;, name}</code> — model-callable</td>
+<td><code>{action:&quot;spawn&quot;, task, role?, thinking?, deadlineSeconds?}</code> · <code>{action:&quot;list&quot;}</code> · <code>{action:&quot;clean&quot;, force?, all?}</code> · <code>{action:&quot;stop&quot;, role? finished?}</code> · <code>{action:&quot;name&quot;, name}</code> — model-callable</td>
 </tr>
 <tr>
 <td><code>/gang</code></td>
@@ -143,22 +144,45 @@ tail -f ~/.pi/agent/intercom/intercom.jsonl
 </tr>
 <tr>
 <td><code>intercom</code> tool</td>
-<td>message any session: <code>list</code> / <code>send</code> / <code>ask</code> / <code>reply</code></td>
+<td><code>list</code> / <code>list-cwd</code> / <code>send</code> / <code>ask</code> / <code>reply</code> / <code>pending</code> / <code>status</code> / <code>cancel</code></td>
 </tr>
 </tbody></table>
 <p>Env knobs: <code>GANG_GUI_PORT</code> (default <code>7717</code>), <code>GANG_TMUX_BIN</code> (default Homebrew tmux), <code>GANG_FEED_HOURS</code> (mission-control feed recency window, default <code>6</code>).</p>
+<p>Set <code>deadlineSeconds</code> on a tool-driven spawn when a workflow needs a terminal failure path. If the member does not report in time, gang wakes the superintendent with its latest pane state. It does not kill the member automatically.</p>
 <p>Finished members linger on purpose — their panes stay (<code>remain-on-exit on</code>) so you can read the final state. Reap them when you&#39;re done with <code>/gang clean</code> (or <code>gang({ action: &quot;clean&quot; })</code>). If a member has already reported back but its pane is still hanging around, use <code>/gang clean --force</code> or <code>/gang stop --all-finished</code>. <code>/gang stop &lt;member&gt;</code> is the first-class escape hatch when you know a specific pane should die. <code>/gang clean all</code> tears down the detached <code>gang</code> session outside tmux; inside tmux it kills this superintendent&#39;s direct member panes only.</p>
 <p>Agent naming: an unnamed orchestrator session claims <code>superintendent of &lt;current-folder&gt;</code> (e.g. <code>superintendent of private-evals</code>) <strong>on its first spawn</strong>, not at startup — so plain Pi sessions stay unnamed in the <code>pi -r</code> resume list. Use <code>/gang name &lt;name&gt;</code> before spawning to pick a custom target; spawned members get that exact supervisor name. Member task prompts also tell agents to name themselves with <code>gang({ action: &quot;name&quot;, name: &quot;&lt;clear role/name&gt;&quot; })</code> before spinning up their own teammate.</p>
+<h2>Gang review skill</h2>
+<p>The package includes a parallel review skill. It starts visible gang reviewers and returns
+patch-anchored P0-P3 findings, confidence scores, and a ship verdict. The skill does not
+run for a general review request. Start it explicitly:</p>
+<pre><code class="language-text">/skill:gang-review worktree
+/skill:gang-review against main
+/skill:gang-review commit abc123
+/skill:gang-review https://github.com/owner/repo/pull/123
+</code></pre>
+<p>The skill supports worktree, base-branch, single-commit, and GitHub PR reviews. It filters lock
+files, generated output, build output, and binary files.</p>
+<p>The skill assigns related files to the same reviewer and runs reviewers in parallel. Each reviewer
+is read-only and reports through intercom. The superintendent validates and deduplicates all
+findings before it gives the verdict.</p>
+<h2>Adversarial template skill</h2>
+<p>The package includes an explicit best-of-N contest skill. Each gang contestant receives the same
+task and scoring rubric. The superintendent evaluates every valid submission, promotes one winner,
+and fires the others from the simulated run.</p>
+<pre><code class="language-text">/skill:adversarial-template 3 design a retry policy for this API client
+</code></pre>
+<p>Contestants return independent answers, plans, or proposed patches. They do not edit the shared
+worktree. The skill selects a recommended solution but does not apply it.</p>
 <h2>How it&#39;s wired</h2>
 <p><code>package.json</code> → <code>pi.extensions</code> points Pi at two TypeScript entry files it loads on startup:</p>
 <ul>
-<li><code>src/intercom/</code> — vendored pi-intercom: the broker, client, and the <code>intercom</code> /
-<code>contact_supervisor</code> tools. <strong>Owned</strong> — imports retargeted to <code>@earendil-works/*</code>, plus a broker
-message <strong>tap</strong> (durable log) and an embedded <strong>HTTP/SSE</strong> mission-control server.</li>
+<li><code>src/intercom/</code> — vendored pi-intercom: broker, client, extension bus, mailbox, and the
+<code>intercom</code> / <code>contact_supervisor</code> tools. <strong>Owned</strong> — adds gang lifecycle metadata, a broker message
+<strong>tap</strong> (durable log), compact tool results, and an embedded <strong>HTTP/SSE</strong> mission-control server.</li>
 <li><code>src/gang/</code> — the <code>gang</code> tool (spawn members in tmux, list the roster), the <code>/gang watch</code>
-overlay, and superintendent auto-naming.</li>
+overlay, superintendent auto-naming, and the <code>gang-review</code> skill.</li>
 </ul>
-<p><code>gang spawn &lt;task&gt;</code> (optionally <code>@name</code>) launches <code>pi --name &lt;name&gt; … @&lt;taskfile&gt;</code> in a tmux pane with five
+<p><code>gang spawn &lt;task&gt;</code> (optionally <code>@name</code>) launches <code>pi --name &lt;name&gt; … @&lt;taskfile&gt;</code> in a tmux pane with
 <code>PI_SUBAGENT_*</code> env vars. Pass <code>--thinking &lt;level&gt;</code> to add Pi&#39;s <code>--thinking</code> flag for that member.
 The vendored intercom extension reads the env vars at child startup to register
 the member on the bus and unlock its <code>contact_supervisor</code> tool — that&#39;s the whole contract:</p>
@@ -181,6 +205,11 @@ the member on the bus and unlock its <code>contact_supervisor</code> tool — th
 <td>who it reports to</td>
 </tr>
 <tr>
+<td><code>PI_SUBAGENT_ORCHESTRATOR_SESSION_ID</code></td>
+<td>supervisor&#39;s intercom session ID</td>
+<td>reports still arrive after <code>/gang name</code> or <code>/alias</code> renames the supervisor</td>
+</tr>
+<tr>
 <td><code>PI_SUBAGENT_RUN_ID</code> / <code>_CHILD_AGENT</code> / <code>_CHILD_INDEX</code></td>
 <td>run metadata</td>
 <td>unlocks <code>contact_supervisor</code></td>
@@ -188,6 +217,20 @@ the member on the bus and unlock its <code>contact_supervisor</code> tool — th
 </tbody></table>
 <p>(The member&#39;s addressable <strong>name</strong> comes from Pi&#39;s <code>--name</code> flag; the supervisor self-names
 lazily to the computed or custom <code>orchestratorName</code>.)</p>
+<h2>Roadmap</h2>
+<ul>
+<li><p><strong>Busy-aware messaging in the vendored intercom.</strong> Presence already carries each session&#39;s
+lifecycle status (<code>idle</code>, <code>thinking</code>, <code>tool:&lt;name&gt;</code>, see <code>currentStatus()</code> in
+<code>src/intercom/index.ts</code>), but only <code>list</code> shows it. Ideas to design and build in <code>src/intercom/</code>:</p>
+<ul>
+<li><code>send</code> / <code>ask</code> results say when the target is busy and with what, so a sender knows an <code>ask</code>
+may wait on a long tool call.</li>
+<li>A timestamp for when the current status started, so peers can tell &quot;busy&quot; from &quot;stuck&quot;.</li>
+<li>A way to wait until a target goes idle, so senders do not poll <code>list</code>.</li>
+</ul>
+<p>Upstream pi-intercom (up to v0.13.0) does not provide this, so gang owns the design.</p>
+</li>
+</ul>
 <h2>Develop</h2>
 <pre><code class="language-sh">npm test             # vendored intercom suite + gang/tmux/tap/GUI/overlay tests
 npm run typecheck    # strict TypeScript check

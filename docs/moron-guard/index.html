@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>moron-guard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/moron-guard">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">MORON-GUARD</div>
+      <a class="current" href="index.html"><span class="marker">&#9670;</span>README</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/moron-guard"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">GUARDRAILS</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/moron-guard">Jeecabs/moron-guard &nearr;</a></div>
+      <div class="md"><h1>Moron Guard</h1>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Jeecabs/moron-guard/main/assets/moron-guard.png" alt="Moron Guard mascot blocking a terminal command" width="360">
+</p><p>Moron Guard is a <a href="https://github.com/earendil-works/pi">Pi</a> extension. It checks shell commands for destructive operations before Pi runs them. Its TypeScript scanner runs in process and does not invoke an external scanner.</p>
+<p><a href="https://github.com/Dicklesworthstone/destructive_command_guard">destructive_command_guard</a> inspired the project. Moron Guard is an independent implementation and does not include or depend on that project.</p>
+<blockquote>
+<p>[!WARNING]
+Moron Guard is a guardrail, not a sandbox. It can miss destructive behavior in generated scripts, unrecognized interpreters, alternate tools, or unknown syntax. Use operating-system or container isolation when you need a security boundary. Review commands before you run them.</p>
+</blockquote>
+<h2>What it checks</h2>
+<p>When enabled, Moron Guard inspects:</p>
+<ul>
+<li><code>bash</code> tool calls made by the model</li>
+<li>commands entered through Pi&#39;s <code>!</code> and <code>!!</code> shortcuts</li>
+<li>nested commands passed through wrappers such as <code>sh -c</code>, <code>bash -c</code>, <code>env</code>, <code>sudo</code>, <code>doas</code>, <code>timeout</code>, <code>xargs</code>, and <code>find -exec</code></li>
+<li>executable substitutions and interpreter payloads, while distinguishing them from quoted, search, and heredoc data</li>
+</ul>
+<p>Built-in rules cover destructive filesystem, Git, system, permission, database, container, Kubernetes, cloud, remote, and package-manager operations. Findings include a rule ID, severity, confidence, evidence, and remediation.</p>
+<p>The evaluator does not execute the command that it checks. Its decision path does not start subprocesses or use network and filesystem probes. It rejects input over 256 KiB by default and bounds nested parsing. It returns an error for malformed or opaque dynamic shell syntax. The Pi extension blocks those errors by default.</p>
+<h2>Requirements</h2>
+<ul>
+<li>Node.js 22 or later</li>
+<li><a href="https://github.com/earendil-works/pi">Pi</a></li>
+<li>Git for installation from this repository</li>
+</ul>
+<h2>Install</h2>
+<p>Review the source before installing: Pi extensions run with your full user permissions.</p>
+<pre><code class="language-bash">pi install npm:moron-guard@0.1.0
+</code></pre>
+<p>Versioned installs stay pinned. You can also install the matching Git tag after reviewing its source:</p>
+<pre><code class="language-bash">pi install git:github.com/Jeecabs/moron-guard@v0.1.0
+</code></pre>
+<p>Restart Pi after installation. To try the extension without adding it to Pi&#39;s settings:</p>
+<pre><code class="language-bash">pi -e npm:moron-guard@0.1.0
+</code></pre>
+<p>To remove it:</p>
+<pre><code class="language-bash">pi remove npm:moron-guard
+</code></pre>
+<h2>Commands</h2>
+<pre><code class="language-text">/moron status
+/moron doctor
+/moron rules
+/moron explain git reset --hard HEAD
+/moron reload
+/moron clear-cache
+/moron off
+/moron on
+</code></pre>
+<p>The guard starts enabled. <code>/moron off</code> disables it for the current session. Pi stores this state in the session history. <code>/moron on</code> enables the guard again.</p>
+<h2>Configuration</h2>
+<p>Moron Guard reads global configuration first, then project configuration:</p>
+<ol>
+<li><code>~/.pi/agent/moron-guard.json</code> (or <code>$PI_AGENT_DIR/moron-guard.json</code>)</li>
+<li><code>.pi/moron-guard.json</code> in the current project</li>
+</ol>
+<p>The legacy project path <code>.moron-guard.json</code> is accepted when <code>.pi/moron-guard.json</code> does not exist. Set <code>MORON_GUARD_CONFIG</code> to use one explicit file instead. Environment variables override file values. Run <code>/moron reload</code> after changing configuration.</p>
+<pre><code class="language-json">{
+  &quot;enabled&quot;: true,
+  &quot;mode&quot;: &quot;enforce&quot;,
+  &quot;failClosed&quot;: true,
+  &quot;userBash&quot;: true,
+  &quot;categories&quot;: [&quot;filesystem&quot;, &quot;git&quot;, &quot;database&quot;],
+  &quot;allow&quot;: [&quot;git status&quot;],
+  &quot;maxDepth&quot;: 8,
+  &quot;maxCommandBytes&quot;: 262144
+}
+</code></pre>
+<p>Modes:</p>
+<ul>
+<li><code>enforce</code>: block deny decisions and evaluation errors when <code>failClosed</code> is true</li>
+<li><code>audit</code>: evaluate commands without blocking them</li>
+<li><code>off</code>: skip evaluation</li>
+</ul>
+<p>By default, project configuration can only strengthen the core switches. It can set <code>enabled</code>, <code>mode: &quot;enforce&quot;</code>, <code>failClosed</code>, or <code>userBash</code> to safe values. Moron Guard ignores project allowlists, category filters, parser limits, and weakening switch values. Set <code>MORON_GUARD_ALLOW_PROJECT_CONFIG=1</code> only when you trust the project. This setting applies its complete configuration. Global configuration, explicit configuration, and environment variables remain trusted policy sources.</p>
+<h3>Environment variables</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>MORON_GUARD_CONFIG</code></td>
+<td>Path to one explicit config file</td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_ENABLED</code></td>
+<td>Enable or disable the guard</td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_MODE</code></td>
+<td><code>enforce</code>, <code>audit</code>, or <code>off</code></td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_FAIL_CLOSED</code></td>
+<td>Block evaluation errors</td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_USER_BASH</code></td>
+<td>Inspect Pi <code>!</code> and <code>!!</code> commands</td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_CATEGORIES</code></td>
+<td>Comma-separated rule families</td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_ALLOW</code></td>
+<td>Semicolon-separated exact normalized commands</td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_MAX_DEPTH</code></td>
+<td>Nested parse depth from 1 through 32</td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_MAX_COMMAND_BYTES</code></td>
+<td>UTF-8 input limit from 1 KiB through 1 MiB</td>
+</tr>
+<tr>
+<td><code>MORON_GUARD_ALLOW_PROJECT_CONFIG</code></td>
+<td>Trust and apply all project configuration fields</td>
+</tr>
+</tbody></table>
+<p>Boolean environment values accept <code>1</code>, <code>true</code>, <code>on</code>, or <code>yes</code>, and <code>0</code>, <code>false</code>, <code>off</code>, or <code>no</code>, without regard to case.</p>
+<p>Allowlisting uses exact normalized-command matching. It does not evaluate regular expressions. Keep allowlists narrow: an allowlisted command bypasses findings for that command.</p>
+<h2>Built-in rule families</h2>
+<ul>
+<li><code>filesystem</code>: recursive removal, secure deletion, and <code>find -delete</code></li>
+<li><code>git</code>: hard reset, clean, path restore or checkout, stash deletion, branch deletion, force push, and recovery-data expiration</li>
+<li><code>system</code>: block-device writes or formatting, disk erase, service stop, and destructive inline interpreter behavior</li>
+<li><code>permissions</code>: broad recursive or world-writable permission changes</li>
+<li><code>database</code>: destructive SQL and database CLI operations</li>
+<li><code>containers</code>: destructive Docker and Compose operations</li>
+<li><code>kubernetes</code>: broad namespace or resource deletion</li>
+<li><code>cloud</code>: recursive object deletion and destructive provider commands</li>
+<li><code>remote</code>: <code>rsync</code> deletion</li>
+<li><code>package-manager</code>: destructive cache, store, and publication operations</li>
+</ul>
+<p>Use <code>/moron rules</code> for the enabled family names and <code>/moron explain &lt;command&gt;</code> to inspect a decision without running the command.</p>
+<h2>Host-independent API</h2>
+<p>You can use the evaluator without Pi:</p>
+<pre><code class="language-ts">import { createGuard } from &quot;moron-guard&quot;;
+
+const guard = createGuard({ context: { cwd: process.cwd() } });
+const decision = guard.evaluate(&quot;git reset --hard HEAD&quot;);
+
+if (decision.enforce) {
+  throw new Error(`Command rejected: ${decision.action}`);
+}
+</code></pre>
+<p>A decision has an <code>action</code> of <code>allow</code>, <code>deny</code>, or <code>error</code>, an <code>enforce</code> compatibility boolean, <code>source: &quot;native&quot;</code>, and structured <code>diagnostics</code>. Treat <code>error</code> as blocking unless your host explicitly implements a fail-open policy.</p>
+<h2>Development</h2>
+<pre><code class="language-bash">git clone https://github.com/Jeecabs/moron-guard.git
+cd moron-guard
+pnpm install --frozen-lockfile
+pnpm check
+pnpm test
+pi -e ./src/index.ts
+</code></pre>
+<p>The tests parse and evaluate command strings. They do not execute candidate commands. See <a href="CONTRIBUTING.html">CONTRIBUTING.md</a> before you submit a change. Maintainers should follow <a href="RELEASING.html">RELEASING.md</a> when they publish a version.</p>
+<h2>Security and support</h2>
+<p>Report vulnerabilities according to <a href="SECURITY.html">SECURITY.md</a>. Use <a href="SUPPORT.html">SUPPORT.md</a> for usage questions and ordinary bug reports.</p>
+<h2>License</h2>
+<p>See <a href="LICENSE">LICENSE</a>.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

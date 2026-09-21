@@ -119,7 +119,7 @@ chmod 600 &quot;$AGENT_DIR/no-forgetti/service.json&quot;
 </tr>
 <tr>
 <td><code>mode</code></td>
-<td><code>embedded</code>, <code>shadow</code>, or <code>external</code></td>
+<td><code>disabled</code>, <code>embedded</code>, <code>shadow</code>, or <code>external</code></td>
 </tr>
 <tr>
 <td><code>evidenceTtlHours</code></td>
@@ -151,6 +151,7 @@ chmod 600 &quot;$AGENT_DIR/no-forgetti/service.json&quot;
 </tr>
 </tbody></table>
 <p>The schema rejects unknown fields. Credentials do not belong in this file.</p>
+<p>Use <code>mode: &quot;disabled&quot;</code> to pause No Forgetti without uninstalling it. The extension and commands remain registered, but memory, project skills, automatic reviews, and review-job enqueueing do not start. Existing state and queued jobs remain untouched. A review worker started with this mode stays idle and makes no model calls. Restart Pi and the worker after changing the mode.</p>
 <p>Daily calls are reserved atomically before dispatch. Token and cost thresholds use actual provider usage, so one in-flight call can cross a threshold; subsequent calls stop until the next UTC day.</p>
 <h2>6. Reload Pi</h2>
 <p>No Forgetti reads the authority mode when a project session loads. After creating or changing <code>service.json</code>, restart Pi or run:</p>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-processes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-PROCESSES</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/README.html"><span class="marker">&#9671;</span>docs</a>
+      <a href="../docs/future-cleanup-hooks.html"><span class="marker">&#9671;</span>Future Cleanup Hooks</a>
+      <a href="../docs/future-persistent-manager.html"><span class="marker">&#9671;</span>Future Persistent Manager</a>
+      <a class="current" href="../docs/notifications.html"><span class="marker">&#9671;</span>Process notifications</a>
+      <a href="../docs/python-presentation.html"><span class="marker">&#9671;</span>Python presentation</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
+      <div class="md"><h1>Process notifications</h1>
+<p>This document describes how process lifecycle and log-watch events become
+notifications that reach the agent, which user options control each path, and
+which paths bypass user config. It covers the event flow only — UI rendering
+(<code>/no-block</code>, dock, logs overlay) is out of scope.</p>
+<p>There are two layers:</p>
+<ol>
+<li><strong>NotificationService</strong> (<code>extensions/processes/notifications/service.ts</code>)
+listens to the <code>ProcessManager</code> event bus, classifies the end, resolves an
+attention level, and emits a language-neutral payload on
+<code>CHANNELS.NOTIFICATION</code>.</li>
+<li><strong>Delivery listener</strong> (<code>extensions/processes/handlers/notifications.ts</code>)
+subscribes to <code>CHANNELS.NOTIFICATION</code>, applies log-match rate limiting, and
+converts each payload into a persisted Pi custom message via
+<code>sendProcessNotificationMessage</code>.</li>
+</ol>
+<p>UI extensions (<code>processes-logs</code>, <code>processes-dock</code>) also observe
+<code>CHANNELS.NOTIFICATION</code> for display concerns (e.g. log-match highlighting) but
+do not affect delivery.</p>
+<h3>Delivery timing</h3>
+<p>Generic <code>turn</code> notifications use Pi&#39;s <code>steer</code> path. They wake an idle agent or
+reach an active run after its current tool calls finish. No Block lifecycle
+notifications use <code>followUp</code> so a completed finite job does not redirect an
+active run. <code>context</code> and emitted <code>ignore</code> notifications use <code>nextTurn</code>. They do
+not wake or steer the agent and enter the conversation with the next user prompt.</p>
+<p>Deferring non-turn notifications also preserves tool-call ordering. Appending a
+custom message during tool execution would place it between the assistant
+<code>tool_use</code> and its <code>tool_result</code>, which Anthropic rejects.</p>
+<h2>Per-process notify config</h2>
+<p>Registered by the <code>process start</code> and <code>process update</code> tools
+(<code>normalizeNotifyConfig</code> in <code>extensions/processes/tools/notify.ts</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>onSuccess</code></td>
+<td><code>&quot;turn&quot;</code> | <code>&quot;context&quot;</code> | <code>&quot;ignore&quot;</code></td>
+<td><code>&quot;turn&quot;</code></td>
+</tr>
+<tr>
+<td><code>onFailure</code></td>
+<td><code>&quot;turn&quot;</code> | <code>&quot;context&quot;</code> | <code>&quot;ignore&quot;</code></td>
+<td><code>&quot;turn&quot;</code></td>
+</tr>
+<tr>
+<td><code>onKilled</code></td>
+<td><code>&quot;turn&quot;</code> | <code>&quot;context&quot;</code> | <code>&quot;ignore&quot;</code></td>
+<td><code>&quot;context&quot;</code></td>
+</tr>
+<tr>
+<td><code>logMatches</code></td>
+<td><code>LogMatcherConfig[]</code></td>
+<td><code>[]</code></td>
+</tr>
+</tbody></table>
+<p>Each <code>LogMatcherConfig</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pattern</code></td>
+<td><code>string</code> (≤500 chars, non-empty)</td>
+<td>required</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td><code>&quot;literal&quot;</code> | <code>&quot;regex&quot;</code></td>
+<td><code>&quot;literal&quot;</code></td>
+</tr>
+<tr>
+<td><code>stream</code></td>
+<td><code>&quot;stdout&quot;</code> | <code>&quot;stderr&quot;</code> | <code>&quot;both&quot;</code></td>
+<td><code>&quot;both&quot;</code></td>
+</tr>
+<tr>
+<td><code>repeat</code></td>
+<td><code>boolean</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>on</code></td>
+<td><code>&quot;turn&quot;</code> | <code>&quot;context&quot;</code> | <code>&quot;ignore&quot;</code></td>
+<td><code>&quot;turn&quot;</code></td>
+</tr>
+</tbody></table>
+<p>There are no global settings that affect notifications. The extension config
+(<code>ProcessConfig</code> in <code>extensions/processes/config/types.ts</code>) only covers
+execution, output retention, and UI — none of it changes attention or delivery.</p>
+<h2>Attention levels</h2>
+<p>An attention level is resolved per event and mapped to Pi send options by
+<code>attentionToSendOptions</code> (<code>extensions/processes/notification-sender.ts</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Attention</th>
+<th><code>triggerTurn</code></th>
+<th><code>deliverAs</code></th>
+<th>Agent effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>turn</code></td>
+<td><code>true</code></td>
+<td><code>steer</code> or <code>followUp</code></td>
+<td>Wakes an idle agent. Generic events steer. No Block terminal events wait for the active run to settle.</td>
+</tr>
+<tr>
+<td><code>context</code></td>
+<td><code>false</code></td>
+<td><code>nextTurn</code></td>
+<td>Waits for the next user prompt; does not wake or steer the agent.</td>
+</tr>
+<tr>
+<td><code>ignore</code></td>
+<td><code>false</code></td>
+<td><code>nextTurn</code></td>
+<td>Suppressed for successful exits and external kills; emitted log matches wait for the next user prompt. Failures are promoted to <code>context</code>.</td>
+</tr>
+</tbody></table>
+<p>Every delivered message has <code>display: true</code> and is persisted when Pi adds it to
+the conversation. A <code>nextTurn</code> message is not displayed or persisted until the
+next user prompt.</p>
+<p>The delivery listener retries lifecycle messages when <code>pi.sendMessage</code> throws
+synchronously. Delivery moves through <code>pending</code>, <code>publishing</code>, and <code>published</code>
+states. It retries at 100 ms, 200 ms, and 400 ms. Disposal cancels pending
+retries. Log-match messages do not retry because a delayed retry could bypass
+their rate limit.</p>
+<h2>No Block foreground suppression</h2>
+<p>No Block initially registers each Bash job with <code>completionDelivery: &quot;tool&quot;</code>.
+If the job exits during the foreground wait, the Bash tool result reports the
+terminal state. The notification service suppresses the duplicate lifecycle
+message.</p>
+<p>When the foreground wait expires, No Block changes the job to
+<code>completionDelivery: &quot;notify&quot;</code> and sets <code>turnDelivery: &quot;followUp&quot;</code>. The later
+terminal event wakes the idle agent or waits for the active run to settle.</p>
+<h2>Lifecycle notifications</h2>
+<p><code>NotificationService.handleProcessEnded</code> runs on every <code>process_ended</code> event
+(deferred one microtask so the start tool can register the notify config
+first). It classifies the end, resolves attention from the per-process config
+or defaults, and either emits or suppresses.</p>
+<h3>Classification</h3>
+<p><code>classifyProcessEnd</code> (<code>extensions/processes/notifications/classify.ts</code>):</p>
+<table>
+<thead>
+<tr>
+<th><code>ProcessInfo.status</code> / <code>endReason</code></th>
+<th>Kind</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>status === &quot;killed&quot;</code></td>
+<td><code>killed</code></td>
+</tr>
+<tr>
+<td><code>success === true</code></td>
+<td><code>success</code></td>
+</tr>
+<tr>
+<td><code>endReason</code> ∈ <code>spawn_error</code>/<code>missing_pid</code>/<code>lost</code></td>
+<td><code>crash</code></td>
+</tr>
+<tr>
+<td><code>exitCode !== null &amp;&amp; exitCode !== 0</code></td>
+<td><code>crash</code></td>
+</tr>
+<tr>
+<td>otherwise</td>
+<td><code>failure</code></td>
+</tr>
+</tbody></table>
+<p><code>terminate_timeout</code> never reaches <code>process_ended</code>: <code>ProcessManager.kill</code> sets
+<code>endTime</code> and transitions to <code>terminate_timeout</code> without emitting, and the
+<code>close</code> handler bails on the <code>endTime</code> guard. The timeout is carried by the
+tool result (<code>KillResult.reason: &quot;timeout&quot;</code>) instead.</p>
+<h3>Attention resolution</h3>
+<p><code>resolveAttention</code> picks the config field for the kind, falling back to
+<code>DEFAULT_ATTENTION</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Config field</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>success</code></td>
+<td><code>onSuccess</code></td>
+<td><code>turn</code></td>
+</tr>
+<tr>
+<td><code>failure</code></td>
+<td><code>onFailure</code></td>
+<td><code>turn</code></td>
+</tr>
+<tr>
+<td><code>crash</code></td>
+<td><code>onFailure</code></td>
+<td><code>turn</code></td>
+</tr>
+<tr>
+<td><code>killed</code></td>
+<td><code>onKilled</code></td>
+<td><code>context</code></td>
+</tr>
+</tbody></table>
+<h3>Forced display for crashes/failures</h3>
+<p>After resolving attention, the service forces a minimum of <code>context</code> for
+<code>crash</code> and <code>failure</code>:</p>
+<ul>
+<li>If attention is <code>ignore</code> and the kind is <code>crash</code> or <code>failure</code>, attention is
+upgraded to <code>context</code> and the notification is emitted.</li>
+<li>If attention is <code>ignore</code> and the kind is <code>success</code> or <code>killed</code>, the
+notification is suppressed entirely (no emit).</li>
+</ul>
+<p>This means <code>onFailure: &quot;ignore&quot;</code> cannot silence a failed process — failures
+always notify, so it becomes a context message for the next user prompt.
+<code>onSuccess: &quot;ignore&quot;</code> and <code>onKilled: &quot;ignore&quot;</code> suppress their notifications.</p>
+<h3>Intentional stops (config bypass)</h3>
+<p>A stop is <em>intentional</em> when it goes through <code>killIntentionally</code>
+(<code>extensions/processes/handlers/kill-process.ts</code>), which calls
+<code>registry.markIntentionalStop(id)</code> before <code>manager.kill</code>. Three entry points
+use it:</p>
+<ul>
+<li>The <code>process stop</code> tool.</li>
+<li>The <code>/no-block:kill</code> command.</li>
+<li>The <code>/no-block</code> overview panel <code>x</code> key (via <code>requestKill</code> →
+<code>CHANNELS.COMMAND_KILL</code>).</li>
+</ul>
+<p>When <code>handleProcessEnded</code> sees an intentional stop, it <strong>bypasses the
+per-process config entirely</strong> and emits a single <code>context</code> notification with
+the classified kind. The agent is not woken, but it learns the process ended.
+User <code>onKilled</code>/<code>onSuccess</code>/<code>onFailure</code> settings are ignored on this path.</p>
+<p>If the kill fails (<code>not_found</code>/<code>error</code>) or the process is already dead, the
+intentional-stop marker is consumed back and the normal path runs.</p>
+<h3>End-state callstacks</h3>
+<p>Each block shows the call chain and the notification it produces. &quot;Emit&quot; means
+a <code>CHANNELS.NOTIFICATION</code> payload with the shown attention; the delivery
+listener then sends it as a Pi message.</p>
+<h4>Normal success</h4>
+<pre><code>child process exits 0
+  ProcessRuntimeController.child.on(&quot;close&quot;)          src/manager/process-runtime-controller.ts
+    transition(managed, &quot;exited&quot;)
+      emit process_ended
+        NotificationService.handleEvent               extensions/processes/notifications/service.ts
+          queueMicrotask → handleProcessEnded
+            classifyProcessEnd → &quot;success&quot;
+            resolveAttention → config.onSuccess ?? &quot;turn&quot;
+            emit kind=success attention=&lt;onSuccess&gt;
+              delivery listener → sendProcessNotificationMessage(triggerTurn=&lt;onSuccess&gt;)
+</code></pre>
+<p>Default: a turn. <code>onSuccess: &quot;context&quot;</code> downgrades to a context message.
+<code>onSuccess: &quot;ignore&quot;</code> suppresses.</p>
+<h4>Normal failure (non-zero exit)</h4>
+<pre><code>child process exits non-zero
+  ProcessRuntimeController child.on(&quot;close&quot;)
+    transition(managed, &quot;exited&quot;)
+      emit process_ended
+        handleProcessEnded
+          classifyProcessEnd → &quot;crash&quot;          (exitCode !== 0)
+          resolveAttention → config.onFailure ?? &quot;turn&quot;
+          forced display: onFailure===&quot;ignore&quot; → upgraded to &quot;context&quot;
+          emit kind=crash attention=&lt;resolved or &quot;context&quot;&gt;
+            delivery listener → sendProcessNotificationMessage
+</code></pre>
+<p>Default: a turn. <code>onFailure: &quot;ignore&quot;</code> becomes a context message (never fully
+silent).</p>
+<h4>Spawn error / missing pid / lost</h4>
+<pre><code>spawn error (or liveness tick detects lost/missing_pid)
+  handleSpawnError / livenessTick
+    transition(managed, &quot;exited&quot;)
+      emit process_ended
+        handleProcessEnded
+          classifyProcessEnd → &quot;crash&quot;
+          resolveAttention → config.onFailure ?? &quot;turn&quot;
+          forced display: ignore → &quot;context&quot;
+          emit kind=crash attention=&lt;resolved or &quot;context&quot;&gt;
+</code></pre>
+<p>Same as normal failure: defaults to turn, <code>ignore</code> forced to context.</p>
+<h4>External kill (signal from outside the manager)</h4>
+<pre><code>external signal kills the process group
+  child.on(&quot;close&quot;, code, signal)
+    transition(managed, &quot;killed&quot;)                signal branch
+      emit process_ended
+        handleProcessEnded
+          isIntentionalStop? no (no marker)
+          classifyProcessEnd → &quot;killed&quot;
+          resolveAttention → config.onKilled ?? &quot;context&quot;
+          (no forced display for killed)
+          attention===&quot;ignore&quot; → suppressed; else emit kind=killed
+            delivery listener → sendProcessNotificationMessage(triggerTurn=&lt;onKilled&gt;)
+</code></pre>
+<p>Default: a context message (no turn). <code>onKilled: &quot;turn</code> promotes to a turn.
+<code>onKilled: &quot;ignore&quot;</code> suppresses.</p>
+<h4>Intentional stop (config bypass)</h4>
+<pre><code>/no-block panel &quot;x&quot; | /no-block:kill | process stop tool
+  requestKill / executeStop
+    COMMAND_KILL handler                         extensions/processes/handlers/commands.ts
+      killIntentionally                          extensions/processes/handlers/kill-process.ts
+        registry.markIntentionalStop(id)
+        manager.kill(id, opts)
+          transition(managed, &quot;killed&quot;|&quot;exited&quot;)
+            emit process_ended
+              handleProcessEnded
+                isIntentionalStop? yes
+                  BYPASS config — emit kind=&lt;classified&gt; attention=&quot;context&quot;
+                    delivery listener → sendProcessNotificationMessage(triggerTurn=false)
+</code></pre>
+<p>Always a context message. Config is ignored. The agent is not woken.</p>
+<h4>Kill timeout (terminate_timeout)</h4>
+<pre><code>manager.kill SIGTERM grace period expires, process still alive
+  ProcessRuntimeController.kill                     src/manager/process-runtime-controller.ts
+    endReason = &quot;kill_timeout&quot;; endTime = Date.now()
+    transition(managed, &quot;terminate_timeout&quot;)       (no process_ended emit — not exited/killed)
+      returns KillResult { ok: false, reason: &quot;timeout&quot; }
+  child.on(&quot;close&quot;) later → bails on endTime guard, no second process_ended
+</code></pre>
+<p>No notification. The timeout is reported through the tool/command result only.</p>
+<h2>Log-watch notifications</h2>
+<p><code>NotificationService.handleOutputChanged</code> runs on every
+<code>process_output_changed</code> event. It syncs the compiled matcher set for the
+process, evaluates matchers against the appended text, and emits one
+<code>log_match</code> payload per match with the matcher&#39;s <code>on</code> attention.</p>
+<pre><code>process emits output
+  ProcessOutput append
+    emit process_output_changed { id, appendedText }
+      NotificationService.handleOutputChanged
+        registry.getWatchState(id) → null? return
+        syncMatcherState(id, watchState)
+        evaluateLogMatchers(matchers, appendedText, now)
+          per matcher: skip if !repeat &amp;&amp; fired; cooldown if repeat+fired
+          per line: stream filter, plainTextForDisplay, lineMatcher
+        for each match:
+          emit kind=log_match attention=match.on
+            delivery listener → rate-limit check → sendProcessNotificationMessage
+</code></pre>
+<p>Matcher behavior:</p>
+<ul>
+<li><code>repeat: false</code> (default) fires once per process lifetime.</li>
+<li><code>repeat: true</code> fires again after a 15s cooldown
+(<code>LOG_MATCH_COOLDOWN_MS</code>).</li>
+<li>Lines are normalized with <code>plainTextForDisplay</code> before matching, so CR
+progress lines and escape bytes do not fire watches.</li>
+<li>Lines longer than 10 000 chars are skipped.</li>
+</ul>
+<p>Log-match <code>on: &quot;ignore&quot;</code> intentionally retains the match as context rather
+than suppressing it. The delivery listener treats it like <code>context</code>, so it does
+not wake or steer the agent and appears with the next user prompt. Use either
+value when a match is useful later but requires no immediate response.</p>
+<h3>Log-match rate limiting</h3>
+<p>The delivery listener caps live <code>log_match</code> deliveries at 20 per 60s window
+(<code>MAX_LOG_MATCH_NOTIFICATIONS_PER_WINDOW</code>, <code>NOTIFICATION_WINDOW_MS</code>). Overflows
+are counted and flushed as a single summary at window end:</p>
+<pre><code>log_match payload arrives
+  delivery listener
+    window expired or new? flush prior suppressed summary (kind=log_match_suppressed, attention=context)
+    sentInWindow &gt;= 20? suppressed++; return
+    sentInWindow++; sendProcessNotificationMessage
+  (window timer) flushSuppressedSummary
+    emit kind=log_match_suppressed summary &quot;Suppressed N log-match notifications...&quot;
+</code></pre>
+<p>The summary is always <code>context</code>.</p>
+<h2>Summary matrix</h2>
+<table>
+<thead>
+<tr>
+<th>End state</th>
+<th>Kind</th>
+<th>Default attention</th>
+<th>Config field</th>
+<th><code>ignore</code> effect</th>
+<th>Bypassed by intentional stop?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>exit 0</td>
+<td>success</td>
+<td>turn</td>
+<td><code>onSuccess</code></td>
+<td>suppressed</td>
+<td>yes → context</td>
+</tr>
+<tr>
+<td>exit non-zero</td>
+<td>crash</td>
+<td>turn</td>
+<td><code>onFailure</code></td>
+<td>forced to context</td>
+<td>yes → context</td>
+</tr>
+<tr>
+<td>spawn_error/missing/lost</td>
+<td>crash</td>
+<td>turn</td>
+<td><code>onFailure</code></td>
+<td>forced to context</td>
+<td>yes → context</td>
+</tr>
+<tr>
+<td>external signal</td>
+<td>killed</td>
+<td>context</td>
+<td><code>onKilled</code></td>
+<td>suppressed</td>
+<td>yes → context</td>
+</tr>
+<tr>
+<td>intentional stop</td>
+<td>(classified)</td>
+<td>context</td>
+<td>—</td>
+<td>—</td>
+<td>(this is the bypass)</td>
+</tr>
+<tr>
+<td>kill timeout</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>no emit (tool result only)</td>
+</tr>
+<tr>
+<td>log match</td>
+<td>log_match</td>
+<td>turn</td>
+<td>matcher <code>on</code></td>
+<td>delivered as context</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>log-match overflow</td>
+<td>log_match_suppressed</td>
+<td>context</td>
+<td>—</td>
+<td>—</td>
+<td>n/a</td>
+</tr>
+</tbody></table>
+<h2>References</h2>
+<ul>
+<li><code>extensions/processes/notifications/service.ts</code> — event handling, attention
+resolution, intentional-stop bypass, log-match emission.</li>
+<li><code>extensions/processes/notifications/classify.ts</code> — end classification.</li>
+<li><code>extensions/processes/notifications/registry.ts</code> — per-process config and
+intentional-stop markers.</li>
+<li><code>extensions/processes/handlers/kill-process.ts</code> — intentional stop marking.</li>
+<li><code>extensions/processes/handlers/notifications.ts</code> — delivery listener and
+rate limiting.</li>
+<li><code>extensions/processes/notification-sender.ts</code> — attention → Pi send options.</li>
+<li><code>extensions/processes/tools/notify.ts</code> — config normalization and defaults.</li>
+<li><code>src/manager/process-runtime-controller.ts</code> — <code>process_ended</code> emission,
+<code>terminate_timeout</code> non-emit, <code>close</code>/<code>error</code>/liveness paths.</li>
+</ul>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

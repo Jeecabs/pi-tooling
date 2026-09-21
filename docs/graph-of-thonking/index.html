@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>graph-of-thonking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/graph-of-thonking">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">GRAPH-OF-THONKING</div>
+      <a class="current" href="index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="docs/upstream.html"><span class="marker">&#9671;</span>Upstream contract</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/graph-of-thonking"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">WORKFLOW</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/graph-of-thonking">Jeecabs/graph-of-thonking &nearr;</a></div>
+      <div class="md"><p align="center"><img src="assets/logo.png" alt="The Thonker: a skeptical goblin with a branching graph for thoughts" width="280"></p><h1>Graph of Thonking</h1>
+<p>Give Pi a code map before it reads the repository.</p>
+<p>A native Pi wrapper for <a href="https://github.com/redhat-et/ripwire">Ripwire</a>. Four tools cover task context, symbol navigation, change evidence, and diagnostics. No MCP server, automatic scans, or tool overrides.</p>
+<h2>Install</h2>
+<ol>
+<li><p>Install Ripwire from its <a href="https://github.com/redhat-et/ripwire/releases">official releases</a>.</p>
+</li>
+<li><p>Put the executable on <code>PATH</code>, in <code>~/.local/bin</code>, or set <code>RIPWIRE_BIN</code> to its absolute path.</p>
+</li>
+<li><p>Install the package:</p>
+<pre><code class="language-sh">pi install git:github.com/Jeecabs/graph-of-thonking
+</code></pre>
+</li>
+<li><p>Run <code>/reload</code> in an existing Pi session.</p>
+</li>
+<li><p>Run <code>/thonk status</code>.</p>
+</li>
+</ol>
+<p>The wrapper does not download executables or change other agents&#39; settings. Development verification uses Ripwire 0.4.0. Other releases may change flag behavior.</p>
+<h2>Use</h2>
+<pre><code class="language-text">/thonk map
+/thonk search cache invalidation
+/thonk pack add retry handling
+/thonk expand src/cache.ts:invalidate
+/thonk callers invalidate
+/thonk tests
+/thonk review main
+/thonk quality
+/thonk delta main..HEAD
+/thonk trace /tmp/error.txt
+</code></pre>
+<p>Run <code>/thonk</code> for an action picker. Commands accept an action followed by literal target text. Do not add shell quotes or CLI flags.</p>
+<p>Commands add evidence to the conversation without starting a model turn. In the TUI, Escape cancels the current command. Expand a result card to read its evidence and coverage limits.</p>
+<h3>Agent tools</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Actions</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ripwire_context</code></td>
+<td>map, search, pack, recall</td>
+<td>Task text, except map</td>
+</tr>
+<tr>
+<td><code>ripwire_symbol</code></td>
+<td>expand, outline, callers, callees, uses, impact, verify, graph</td>
+<td>Symbol selector, claim, or graph expression</td>
+</tr>
+<tr>
+<td><code>ripwire_changes</code></td>
+<td>situ, tests, review, quality, delta</td>
+<td>Optional files for situ/tests, optional base for review, required commit/range for delta</td>
+</tr>
+<tr>
+<td><code>ripwire_diagnose</code></td>
+<td>trace, help, status</td>
+<td>Trace file or task text, except status</td>
+</tr>
+</tbody></table>
+<p>Tool calls accept a local <code>root</code> and a <code>timeoutMs</code> deadline. The default deadline is 60 seconds. The maximum is five minutes.</p>
+<p>Map, search, pack, recall, review, and trace accept a token <code>budget</code>. The default is 6000. Ripwire estimates tokens, so this is not a tokenizer guarantee. Unsupported combinations fail rather than silently ignore a parameter.</p>
+<p>Use <code>limit</code> for map, recall, graph, and quality. Use <code>offset</code> for graph, quality, and review. Prefer <code>file:name</code> or canonical IDs when symbol names collide.</p>
+<h2>Multiple sessions in one checkout</h2>
+<ul>
+<li>Each extension instance creates a private cache directory on first use. Reloads and forks get a new directory.</li>
+<li>Child processes receive that directory through <code>TMPDIR</code> and <code>XDG_CACHE_HOME</code>. No shared wrapper cache or checkout lock exists.</li>
+<li>Each invocation writes separate stdout and stderr artifacts, even when sessions reuse the same tool-call ID.</li>
+<li>Cancellation targets only that invocation&#39;s process group on macOS and Linux.</li>
+<li>Session shutdown cancels its own invocations, waits for them, then removes only its private cache.</li>
+<li>Reports remain available after shutdown. Their directories use the <code>graph-of-thonking-</code> prefix under the system temporary directory.</li>
+<li>The wrapper never stores a baseline, writes an acknowledgment, edits source, or intercepts another session&#39;s tools.</li>
+</ul>
+<p>Concurrent reads do not create an atomic checkout snapshot. Another session can edit files during a scan. Re-run affected queries after edits settle. Independent caches trade some cross-session reuse for isolation.</p>
+<p>Ripwire may honor repository-local settings and sidecars. Use trusted checkouts. See <a href="docs/upstream.html">the upstream contract notes</a>.</p>
+<h2>Results and boundaries</h2>
+<p>The wrapper retains Ripwire&#39;s raw evidence, confidence, and coverage warnings. It does not turn graph counts into completeness claims.</p>
+<ul>
+<li>A zero graph count means none found, not none exist.</li>
+<li>The tests action reports obligations. It never runs tests. Exit 4 remains an obligation report, not an execution failure.</li>
+<li>Delta exit 2 remains a regression report. Exit 0 does not prove that new code has no debt.</li>
+<li>Delta requires committed input, such as <code>HEAD~1..HEAD</code>. The wrapper excludes bare working-tree delta because it can delete a stale shared baseline.</li>
+<li>Review with a base uses Ripwire&#39;s merge-base semantics, not a direct comparison against the base tip.</li>
+<li>Unexpected exit codes, deadlines, and cancellation produce errors with artifact paths.</li>
+<li>Output previews allow 40 KiB of stdout and 8 KiB of stderr, with 1600 and 300 lines respectively. Small notices sit outside those limits.</li>
+<li>Large reports remain on disk. The runner does not buffer the full output in memory.</li>
+<li>Remote cloning, arbitrary flags, source edits, baseline writes, and automatic recommendation execution are not exposed.</li>
+</ul>
+<p>Raw artifacts can contain source code or sensitive diagnostics. They use private directories and mode-0600 files. Delete old artifacts when no longer needed. The wrapper uploads no reports.</p>
+<h2>Development</h2>
+<pre><code class="language-sh">npm install
+RIPWIRE_TEST_BIN=/absolute/path/to/ripwire npm test
+npm run check
+</code></pre>
+<p>Without <code>RIPWIRE_TEST_BIN</code>, the real-binary test skips. Other tests cover independent sessions, cancellation, deadlines, and large-output preservation.</p>
+<h2>License</h2>
+<p><a href="LICENSE">MIT</a>. Ripwire is a separate <a href="https://github.com/redhat-et/ripwire/blob/main/LICENSE">Apache-2.0 project</a>. This package does not bundle its executable.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

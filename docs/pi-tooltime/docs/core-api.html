@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-tooltime</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-TOOLTIME</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="../docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a class="current" href="../docs/core-api.html"><span class="marker">&#9671;</span>Core API</a>
+      <a href="../docs/data-and-privacy.html"><span class="marker">&#9671;</span>Data and privacy</a>
+      <a href="../docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a href="../docs/remote-export.html"><span class="marker">&#9671;</span>Remote Export</a>
+      <a href="../docs/terminology.html"><span class="marker">&#9671;</span>Terminology</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">WORKFLOW</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
+      <div class="md"><h1>Core API</h1>
+<p>Pi Tooltime ships a Pi-independent Node.js core for evaluation harnesses and other programs. The package root does not register the extension, write files, or make network requests.</p>
+<p>The curated interface below is Core v1. Package version 1.0.0 establishes the stable compatibility contract described in <a href="#versioning">Versioning</a>.</p>
+<h2>Requirements and package shape</h2>
+<ul>
+<li>Node.js 22.19.0 or later.</li>
+<li>ECMAScript modules. CommonJS <code>require()</code> is not supported.</li>
+<li>A pinned Git dependency. Pi Tooltime is not published to npm.</li>
+</ul>
+<p>Add a release tag to a consuming project:</p>
+<pre><code class="language-json">{
+  &quot;dependencies&quot;: {
+    &quot;pi-tooltime&quot;: &quot;github:Jeecabs/pi-tooltime#v1.0.0&quot;
+  }
+}
+</code></pre>
+<p>The package has two exports:</p>
+<table>
+<thead>
+<tr>
+<th>Export</th>
+<th>Target</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>pi-tooltime</code></td>
+<td><code>dist/core/index.js</code></td>
+<td>Pi-independent Core v1 interface.</td>
+</tr>
+<tr>
+<td><code>pi-tooltime/extension</code></td>
+<td><code>dist/index.js</code></td>
+<td>Pi extension default export.</td>
+</tr>
+</tbody></table>
+<p><code>@earendil-works/pi-coding-agent</code> is an optional peer dependency. A core-only runtime does not need it. The extension export needs a Pi host.</p>
+<p>Do not import <code>src/*.ts</code>, <code>dist/core/*.js</code>, or undeclared package subpaths. Those files are implementation details.</p>
+<h2>Runtime interface</h2>
+<p>The root exports five runtime values:</p>
+<pre><code class="language-text">TooltimeLifecycleError
+analyzeTraces
+createTaskRecorder
+decodeTaskTrace
+formatAnalysis
+</code></pre>
+<p>The root exports these named types:</p>
+<pre><code class="language-text">DecodeIssue
+DecodeIssueCode
+DecodeTaskTraceResult
+FormatAnalysisOptions
+LifecycleErrorCode
+RecorderOptions
+TaskIntent
+TaskOutcome
+TaskRecorder
+TaskTrace
+ToolEvent
+TooltimeClock
+TraceAnalysis
+</code></pre>
+<p>Adding an accidental helper to an internal module does not add it to this interface.</p>
+<h2>Record one task</h2>
+<p><code>createTaskRecorder</code> accepts raw lifecycle events. It classifies task intent, tool calls, and results. It also calculates fingerprints, interval timing, and findings.</p>
+<pre><code class="language-ts">import {
+  analyzeTraces,
+  createTaskRecorder,
+  formatAnalysis,
+} from &quot;pi-tooltime&quot;;
+
+const task = createTaskRecorder({
+  sessionId: &quot;eval-run-42&quot;,
+  taskId: &quot;case-7&quot;,
+  cwd: process.cwd(),
+  prompt: &quot;Inspect the repository&quot;,
+});
+
+task.record({
+  type: &quot;start&quot;,
+  callId: &quot;call-1&quot;,
+  toolName: &quot;read&quot;,
+  input: { path: &quot;src/index.ts&quot; },
+});
+
+task.record({
+  type: &quot;finish&quot;,
+  callId: &quot;call-1&quot;,
+  result: &quot;file text&quot;,
+  isError: false,
+});
+
+const trace = task.finish(&quot;completed&quot;);
+const analysis = analyzeTraces([trace]);
+
+console.log(formatAnalysis(analysis, {
+  audience: &quot;human&quot;,
+  title: &quot;Eval run 42&quot;,
+}));
+</code></pre>
+<p>Use an <code>update</code> event when a host hook changes the final tool name or input:</p>
+<pre><code class="language-ts">task.record({
+  type: &quot;update&quot;,
+  callId: &quot;call-1&quot;,
+  toolName: &quot;read&quot;,
+  input: { path: &quot;src/core/index.ts&quot; },
+});
+</code></pre>
+<p>Raw prompts, current working directories, call IDs, tool inputs, and tool results do not enter the returned Task Trace.</p>
+<h2>Recorder options</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Requirement</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sessionId</code></td>
+<td>1 to 128 letters, digits, underscores, or hyphens. Required.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td><code>taskId</code></td>
+<td>Same format as <code>sessionId</code>.</td>
+<td>Random UUID.</td>
+</tr>
+<tr>
+<td><code>cwd</code></td>
+<td>Nonempty string, at most 4,096 characters.</td>
+<td><code>process.cwd()</code> captured at construction.</td>
+</tr>
+<tr>
+<td><code>mode</code></td>
+<td><code>analytics</code> or <code>coach</code>.</td>
+<td><code>analytics</code>.</td>
+</tr>
+<tr>
+<td><code>prompt</code></td>
+<td>String. Core inspects only the first 32,768 characters.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td><code>intent</code></td>
+<td><code>repository</code>, <code>web</code>, or <code>database</code>. It overrides prompt inference.</td>
+<td>Inferred when unambiguous.</td>
+</tr>
+<tr>
+<td><code>slowCallMs</code></td>
+<td>Safe integer from 0 through 3,600,000.</td>
+<td>5,000.</td>
+</tr>
+<tr>
+<td><code>maxCalls</code></td>
+<td>Safe integer from 1 through 5,000.</td>
+<td>500.</td>
+</tr>
+<tr>
+<td><code>clock</code></td>
+<td>Optional monotonic and wall-clock adapter.</td>
+<td>Process clocks.</td>
+</tr>
+</tbody></table>
+<p>The recorder accepts at most <code>maxCalls</code> start events. It throws a lifecycle error instead of retaining unbounded call state.</p>
+<h2>Lifecycle contract</h2>
+<p>Call sequence numbers use accepted start order, not finish order. Calls can overlap and finish in any order.</p>
+<p><code>record</code> uses these strict rules:</p>
+<ul>
+<li>A duplicate active call ID throws <code>TooltimeLifecycleError</code> with code <code>duplicate-call</code>.</li>
+<li>An update or finish for an unknown call ID throws code <code>unknown-call</code>.</li>
+<li>A start after the call limit throws code <code>call-limit</code>.</li>
+<li>Any event after task finish throws code <code>task-finished</code>.</li>
+<li>Invalid event values throw <code>TypeError</code> or <code>RangeError</code>.</li>
+</ul>
+<p>Errors do not include caller IDs, prompts, tool input, or tool results.</p>
+<p><code>finish</code> closes every active call at one monotonic timestamp as an errored call. It sorts spans by start sequence. Repeated calls to <code>finish</code> return the same deeply frozen Task Trace.</p>
+<p>A custom monotonic clock must return finite nondecreasing numbers from one clock domain. A custom wall clock must return a valid <code>Date</code>. Tool Wall Time is the interval union. Tool Call Sum includes overlap and can exceed Task Wall Time.</p>
+<h2>Decode persisted traces</h2>
+<p>Treat parsed JSON and older local records as untrusted input:</p>
+<pre><code class="language-ts">import { decodeTaskTrace } from &quot;pi-tooltime&quot;;
+
+const decoded = decodeTaskTrace(JSON.parse(line));
+if (!decoded.ok) {
+  console.error(decoded.issues.map((issue) =&gt; issue.code));
+} else {
+  consume(decoded.value);
+}
+</code></pre>
+<p>The decoder:</p>
+<ul>
+<li>Accepts Task Trace schema version 1.</li>
+<li>Applies the fixed field allowlist and vocabulary normalization.</li>
+<li>Rejects unsupported versions and invalid required fields.</li>
+<li>Rejects inconsistent chronology, timing, error/result, sequence, or finding references.</li>
+<li>Returns <code>normalized-trace</code> when it safely removes or replaces data.</li>
+<li>Returns a deeply frozen Task Trace.</li>
+</ul>
+<p>Decoder issue codes do not contain input values.</p>
+<h2>Analyze traces</h2>
+<p><code>analyzeTraces</code> accepts any iterable. It decodes every item before aggregation.</p>
+<pre><code class="language-ts">const analysis = analyzeTraces(rows.map((row) =&gt; JSON.parse(row)));
+console.log(analysis.taskCount);
+console.log(analysis.rejectedTraceCount);
+</code></pre>
+<p>Malformed records increment <code>rejectedTraceCount</code>. They do not silently change <code>taskCount</code>. The function accepts at most 100,000 iterable items and rejects unsafe aggregate-number overflow.</p>
+<p>Finding <code>taskCount</code> counts trace instances with that finding. It does not depend on caller-supplied task ID uniqueness. Multiple findings of one code and confidence in one trace count as one finding task and multiple occurrences.</p>
+<p>Ordering is deterministic:</p>
+<ul>
+<li>Tool summaries: call duration descending, call count descending, then identifier by code-point order.</li>
+<li>Findings: suspected duration descending, task count descending, code by code-point order, then high confidence before medium confidence.</li>
+<li>Modes: code-point order.</li>
+</ul>
+<p>The returned analysis and nested values are deeply frozen.</p>
+<h2>Format analysis</h2>
+<p>The caller must select an audience:</p>
+<pre><code class="language-ts">formatAnalysis(analysis, { audience: &quot;human&quot;, title: &quot;Local report&quot; });
+formatAnalysis(analysis, { audience: &quot;model&quot; });
+</code></pre>
+<p>Human reports can contain normalized custom tool identifiers. Human titles remove control characters and have a 120-character limit.</p>
+<p>Model reports use a fixed title and replace custom tool identifiers with fixed coarse labels. <code>formatAnalysis</code> accepts only an analysis returned by <code>analyzeTraces</code>. This prevents a caller-built object from injecting arbitrary scalar values into model text.</p>
+<p>Report text is human-facing output. Do not parse it. Wording, whitespace, and display limits can change in a compatible release. Use the structured analysis for integrations.</p>
+<h2>Privacy and performance contract</h2>
+<p>The root import and all Core v1 functions are synchronous. They do not read files or use the network.</p>
+<p>Raw tool inputs use bounded, process-keyed HMAC fingerprints. Equal fingerprints only indicate equal bounded canonical input in one process. They do not prove input equality. Do not use fingerprints as identities, secrets, cache keys, or cross-run metrics. Remote Export omits them.</p>
+<p>Classification handles cyclic, accessor-based, and proxy inputs conservatively. Result inspection reads at most 4,096 text characters and 256 content items. Fingerprinting has fixed depth, node, character, key, and array-item budgets.</p>
+<p>Large analyses run on the calling thread. Use a worker when a job can block an interactive process.</p>
+<h2>Versioning</h2>
+<p>The package major is the Core interface major:</p>
+<ul>
+<li><code>pi-tooltime@1.x</code> means Core interface v1.</li>
+<li><code>TaskTrace.schemaVersion</code> versions serialized trace fields.</li>
+<li>Guidance <code>policyVersion</code> identifies selected rule content.</li>
+<li>The <code>h1:</code> prefix versions the Local Fingerprint format.</li>
+</ul>
+<p>These versions are independent. Record the exact package version or Git commit for reproducible evaluations because detector behavior can improve during a major line.</p>
+<p>Starting with package version 1.0.0, incompatible changes require a new package major. This includes removals, required parameters, incompatible defaults, closed-vocabulary changes, and lifecycle changes.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

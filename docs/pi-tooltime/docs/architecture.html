@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-tooltime</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-TOOLTIME</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a class="current" href="../docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="../docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a href="../docs/core-api.html"><span class="marker">&#9671;</span>Core API</a>
+      <a href="../docs/data-and-privacy.html"><span class="marker">&#9671;</span>Data and privacy</a>
+      <a href="../docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a href="../docs/remote-export.html"><span class="marker">&#9671;</span>Remote Export</a>
+      <a href="../docs/terminology.html"><span class="marker">&#9671;</span>Terminology</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">WORKFLOW</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
+      <div class="md"><h1>Architecture</h1>
+<h2>Goals</h2>
+<p>Pi Tooltime separates measurement from behavior change. Analytics Mode does not change the system prompt. Coach Mode uses a bounded fixed guidance policy.</p>
+<p>The feedback loop has six stages:</p>
+<pre><code class="language-text">observe -&gt; detect -&gt; aggregate -&gt; promote -&gt; inject -&gt; compare
+</code></pre>
+<h2>Three parts</h2>
+<p>Pi Tooltime has three parts:</p>
+<ol>
+<li>The Pi-independent Node.js core classifies calls, records traces, detects findings, aggregates evidence, and builds guidance.</li>
+<li>The Pi adapter connects lifecycle events, commands, session state, status, and system-prompt injection.</li>
+<li>Internal I/O adapters store local Task Traces and optionally send a smaller remote subset.</li>
+</ol>
+<p>The package root exports only the core. It does not import Pi APIs. See <a href="core-api.html">Core API</a>.</p>
+<h2>Lifecycle</h2>
+<p>The Pi adapter uses these events:</p>
+<ol>
+<li><code>session_start</code> loads config, local history, storage, and the optional remote adapter.</li>
+<li><code>before_agent_start</code> closes stale work and starts a Task Trace. Coach Mode can append guidance here.</li>
+<li><code>tool_execution_start</code> starts a Tool Span with a monotonic clock.</li>
+<li><code>tool_result</code> sees final tool input after tool-call hooks. It refreshes normalized classification and the fingerprint.</li>
+<li><code>tool_execution_end</code> closes the matching Tool Span by <code>toolCallId</code>. It also classifies the result.</li>
+<li><code>agent_end</code> records the latest low-level run outcome.</li>
+<li><code>agent_settled</code> closes the Task Trace after automatic work settles. It schedules local and optional remote writes.</li>
+<li><code>session_shutdown</code> closes incomplete work and flushes pending writes.</li>
+</ol>
+<p>Pi Tooltime does not write trace files or start Remote Export inside a measured Tool Span. These operations start after the Task Trace closes.</p>
+<p>Storage and remote failures do not fail the agent. Their latest errors appear in <code>/tooltime status</code>.</p>
+<h2>Trace boundary</h2>
+<p>A Task Trace starts at <code>before_agent_start</code> and ends at <code>agent_settled</code>. It can include multiple model turns, automatic retries, continuations, and parallel tool calls.</p>
+<p>This boundary follows one accepted Pi task run. It does not create a trace for each model response.</p>
+<p><code>/tooltime analyze</code> sends an aggregate report as a user message. The adapter skips the next Task Trace so self-analysis does not change the analytics.</p>
+<p>The report is still visible to the model and its provider. The model formatter groups custom tool identifiers into fixed labels before sending it. Pi can also persist the report in the session.</p>
+<p>See <a href="data-and-privacy.html">Data and privacy</a>.</p>
+<h2>Parallel tool calls</h2>
+<p>Pi can run sibling tool calls in parallel. A sum of durations counts overlap more than once.</p>
+<p>For intervals <code>[start, end]</code>, the core calculates:</p>
+<pre><code class="language-text">toolWallMs = duration(union(intervals))
+toolCallMs = sum(duration(interval))
+</code></pre>
+<p><code>toolWallMs</code> measures time with at least one active tool. <code>toolCallMs</code> measures aggregate tool work.</p>
+<p>Use <code>toolWallMs</code> for user-visible tool occupancy. Keep <code>toolCallMs</code> for diagnosis.</p>
+<h2>Classification boundary</h2>
+<p>The adapter and core inspect these transient values:</p>
+<ul>
+<li>Task prompt for one explicit Source Intent.</li>
+<li>Tool name and input for call classification and fingerprinting.</li>
+<li>Tool result for fixed coarse Result Kind.</li>
+<li>Final assistant stop reason for task outcome.</li>
+</ul>
+<p>Pi Tooltime preserves safe lowercase tool identifiers. Other stored call classifications use fixed vocabularies.</p>
+<p>A custom input <code>action</code> maps to a fixed coarse operation. Pi Tooltime discards the raw action. Unknown actions become <code>unknown</code> and mutating.</p>
+<p>The Task Trace schema has no fields for raw prompts, inputs, results, file contents, database rows, or project paths. It contains normalized local IDs, exact timestamps, normalized tool identifiers, timing, and Local Fingerprints.</p>
+<p>Local Fingerprints are process-keyed <code>h1:</code> HMAC values. They support same-input comparisons only within one process. Remote Traces omit them.</p>
+<p>See <a href="data-and-privacy.html">Data and privacy</a> for field lists and inference risks.</p>
+<h2>Detection</h2>
+<p>Detectors use fixed finding codes and fixed Guidance Rule mappings.</p>
+<p>The current detectors are:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Trigger summary</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>repeat.expensive-identical</code></td>
+<td>A repeated nonmutating fingerprint passes the duration threshold, with no mutation between calls.</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>test.full-suite-loop</code></td>
+<td>A later full-suite call repeats the prior suite or follows a mutation.</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>search.broad-scope</code></td>
+<td>A search or analysis targets root or outside the project.</td>
+<td>High for root, medium for outside.</td>
+</tr>
+<tr>
+<td><code>search.slow-empty</code></td>
+<td>A search reaches <code>slowCallMs</code> and has an empty or error Result Kind.</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><code>route.explicit-web-local-search</code></td>
+<td>Repository search or analysis occurs before a web source for explicit web intent.</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>route.explicit-database-local-search</code></td>
+<td>Repository search or analysis occurs before a database source for explicit database intent.</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>route.explicit-repository-database-query</code></td>
+<td>A database query occurs before a repository source for explicit repository intent.</td>
+<td>High</td>
+</tr>
+</tbody></table>
+<p>A single necessary slow call is not a finding. Route findings require exactly one inferred Source Intent.</p>
+<p>Each finding names its observed call sequences. Suspected time uses the union of those Tool Spans. Task-level <code>suspectedWasteMs</code> unions all referenced sequences again, so overlapping findings do not double-count time.</p>
+<p>The sanitizer fixes <code>signature</code> to the finding code. Multiple finding codes can map to one Guidance Rule ID. The three route codes all map to <code>source-routing</code>.</p>
+<h2>Promotion</h2>
+<p>Only high-confidence aggregate findings can produce observed guidance. A finding group must meet both thresholds:</p>
+<pre><code class="language-text">taskCount &gt;= minTasks
+totalWasteMs &gt;= minTotalDurationMs
+</code></pre>
+<p>Defaults require three affected tasks and 30 seconds of suspected time.</p>
+<p>The builder orders observed candidates by aggregate suspected time. It removes duplicate Guidance Rule IDs. When enabled, fixed Baseline Guidance fills unused slots.</p>
+<p>Medium-confidence findings remain available in analytics reports. They never become observed guidance under the current policy.</p>
+<h2>Prompt contract</h2>
+<p>The prompt builder:</p>
+<ul>
+<li>Uses complete fixed bullet lines.</li>
+<li>Caps the rule count.</li>
+<li>Caps total characters.</li>
+<li>Records selected rule IDs in the Task Trace.</li>
+<li>Hashes selected rule IDs and text into a 12-character policy version.</li>
+<li>Excludes captured content, metrics, and raw evidence.</li>
+</ul>
+<p>Analytics Mode does not build a prompt for injection. Coach Mode appends the result during <code>before_agent_start</code>.</p>
+<p>The policy fields support comparisons between analytics and coach cohorts. They do not prove that guidance caused a change.</p>
+<h2>Local storage</h2>
+<p>The storage adapter groups data by the first 20 hexadecimal characters of SHA-256 over the resolved project path. It does not put the raw path in a Task Trace.</p>
+<p>Each storage instance owns a unique JSONL writer file. Its name contains the normalized session ID and a random writer UUID.</p>
+<p>Two instances with the same session ID never append to or compact the same active writer file. This avoids same-session append and rename races. A per-instance promise queue serializes writes and compaction.</p>
+<p>The loader sanitizes valid lines and ignores malformed, partial, and oversized lines. It sorts valid traces by completion time and returns at most <code>maxTasks</code>.</p>
+<p>Storage enforces allowlists, <code>0700</code> Tooltime directories, <code>0600</code> trace files, and no-follow regular-file checks. Active-file compaction uses both <code>maxTasks</code> and 16 MiB caps.</p>
+<p>Retention has a physical deletion caveat for inactive recent files. See <a href="data-and-privacy.html">Data and privacy</a> for exact limits and deletion behavior.</p>
+<h2>Remote Export</h2>
+<p>Remote Export is off by default. Pi Tooltime ignores project Remote Export config.</p>
+<p>File-based remote config requires an absolute agent directory. Both the configured and resolved directory and config paths must stay outside the project.</p>
+<p>Pi Tooltime ignores the <code>remote</code> value in that file when this location check fails. Environment variables can still enable Remote Export.</p>
+<p>When enabled, the adapter sends one Remote Trace after a task closes. It has eight pending slots by default, a timeout, and no retries.</p>
+<p>The endpoint rejects credentials, query strings, fragments, and insecure non-loopback HTTP. Fetch rejects redirect responses.</p>
+<p>The remote adapter accepts only RFC 6750-style bearer-token characters with optional trailing <code>=</code> padding. It rejects unsafe characters without repeating the token.</p>
+<p>The Remote Trace omits task and session IDs, Local Fingerprints, guidance text, and extras. It includes exact timestamps, mode, policy fields, timing, normalized calls, and coarse findings.</p>
+<p>Remote failures do not fail the agent. See <a href="remote-export.html">Remote Export</a> for the exact schema and delivery limits.</p>
+<h2>Eval integration</h2>
+<p>An eval harness can import the package root without loading Pi or the I/O adapters.</p>
+<p>A useful derived eval summary is:</p>
+<pre><code class="language-json">{
+  &quot;task_wall_ms&quot;: 120000,
+  &quot;tool_wall_ms&quot;: 70000,
+  &quot;tool_call_ms&quot;: 95000,
+  &quot;suspected_tool_waste_ms&quot;: 42000,
+  &quot;tool_calls&quot;: 14,
+  &quot;tool_failures&quot;: 2,
+  &quot;tool_policy_version&quot;: &quot;3ac3485ac7f1&quot;,
+  &quot;tool_policy_rule_ids&quot;: [
+    &quot;source-routing&quot;,
+    &quot;targeted-validation&quot;
+  ]
+}
+</code></pre>
+<p>The names in this example are eval-harness fields, not extra Task Trace fields.</p>
+<p>Do not infer causation from a simple before-and-after comparison. Run the same eval tasks in Analytics Mode and Coach Mode.</p>
+<h2>Non-goals</h2>
+<p>Pi Tooltime does not:</p>
+<ul>
+<li>Block or rewrite tool calls.</li>
+<li>Run a model reviewer after each task.</li>
+<li>Send remote data without user opt-in.</li>
+<li>Persist raw prompts, payloads, results, file contents, or project paths in Tooltime schemas.</li>
+<li>Replace a full tracing platform or OpenTelemetry exporter.</li>
+</ul>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

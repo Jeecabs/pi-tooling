@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-tooltime</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-TOOLTIME</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="../docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a href="../docs/core-api.html"><span class="marker">&#9671;</span>Core API</a>
+      <a href="../docs/data-and-privacy.html"><span class="marker">&#9671;</span>Data and privacy</a>
+      <a href="../docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a class="current" href="../docs/remote-export.html"><span class="marker">&#9671;</span>Remote Export</a>
+      <a href="../docs/terminology.html"><span class="marker">&#9671;</span>Terminology</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">WORKFLOW</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
+      <div class="md"><h1>Remote Export</h1>
+<p>Remote Export sends one allowlisted Task Trace subset to a user-selected HTTP endpoint. It is off by default.</p>
+<p>Local storage remains independent. A remote failure does not fail the agent or remove the local Task Trace.</p>
+<h2>Consent and configuration</h2>
+<p>Eligible user-global config or user environment variables can enable Remote Export. Project <code>remote</code> config is always ignored, including in a trusted project.</p>
+<p>User-global config is <code>&lt;agent-dir&gt;/tooltime.json</code>. The default agent directory is <code>~/.pi/agent</code>. <code>PI_CODING_AGENT_DIR</code> replaces that directory when set.</p>
+<p>File-based remote config is eligible only when the configured agent directory is absolute. Both the configured and resolved agent directory and config paths must be outside the current project directory.</p>
+<p>If this check fails, Pi Tooltime reads other file settings but ignores the complete <code>remote</code> value. It produces a warning. Environment Remote Export variables still work.</p>
+<pre><code class="language-json">{
+  &quot;remote&quot;: {
+    &quot;enabled&quot;: true,
+    &quot;endpoint&quot;: &quot;https://telemetry.example.com/pi-tooltime&quot;,
+    &quot;timeoutMs&quot;: 5000
+  }
+}
+</code></pre>
+<p>Optional environment variables are:</p>
+<pre><code class="language-bash">export PI_TOOLTIME_REMOTE_ENABLED=true
+export PI_TOOLTIME_REMOTE_ENDPOINT=https://telemetry.example.com/pi-tooltime
+export PI_TOOLTIME_REMOTE_TOKEN=&#39;receiver-token&#39;
+</code></pre>
+<p>The environment enable flag and endpoint apply after file config. They also work when Pi Tooltime ignores file-based remote config. The sender uses the token only for the request header.</p>
+<p>Run <code>/tooltime reload</code> after a JSON change. Restart Pi after an environment change.</p>
+<p>Pi shows a receiver-origin warning when Remote Export starts.</p>
+<p><code>/tooltime status</code> shows the receiver origin, pending count, dropped count, and latest error. It does not show the configured request path.</p>
+<h2>Endpoint rules</h2>
+<p>The endpoint must be an absolute URL that meets all these rules:</p>
+<ul>
+<li>It has no username or password.</li>
+<li>It has no query string.</li>
+<li>It has no fragment.</li>
+<li>It uses HTTPS.</li>
+<li>It can use HTTP only for <code>localhost</code>, <code>127.0.0.1</code>, or IPv6 loopback.</li>
+</ul>
+<p>The sender uses <code>redirect: &quot;error&quot;</code>. It does not follow a redirect response. Endpoint credential, query, fragment, transport, and redirect failures prevent delivery.</p>
+<p>Keep routing metadata out of the query string. Put receiver-side routing behind the configured path or authentication policy.</p>
+<h2>Request</h2>
+<p>The sender makes one <code>POST</code> for each completed Task Trace.</p>
+<p>Headers:</p>
+<pre><code class="language-http">Content-Type: application/json
+User-Agent: pi-tooltime/1.0.0
+Authorization: Bearer &lt;PI_TOOLTIME_REMOTE_TOKEN&gt;
+</code></pre>
+<p><code>Authorization</code> is absent when the trimmed token is empty or unset.</p>
+<p>A nonempty token must match:</p>
+<pre><code class="language-text">^[A-Za-z0-9\-._~+/]+=*$
+</code></pre>
+<p>This permits letters, digits, <code>-._~+/</code>, and trailing <code>=</code> padding. An unsupported character rejects exporter setup with a generic error. The error does not repeat the token.</p>
+<p>The token does not appear in request JSON, Tooltime status, or Tooltime error messages.</p>
+<p>The request body is one JSON envelope:</p>
+<pre><code class="language-json">{
+  &quot;schemaVersion&quot;: 1,
+  &quot;type&quot;: &quot;pi-tooltime.task-trace&quot;,
+  &quot;sentAt&quot;: &quot;2026-08-05T12:00:06.000Z&quot;,
+  &quot;trace&quot;: {
+    &quot;schemaVersion&quot;: 1,
+    &quot;startedAt&quot;: &quot;2026-08-05T12:00:00.000Z&quot;,
+    &quot;completedAt&quot;: &quot;2026-08-05T12:00:05.000Z&quot;,
+    &quot;outcome&quot;: &quot;completed&quot;,
+    &quot;mode&quot;: &quot;coach&quot;,
+    &quot;intent&quot;: &quot;repository&quot;,
+    &quot;policyVersion&quot;: &quot;a0d6752d0e2d&quot;,
+    &quot;injectedRuleIds&quot;: [
+      &quot;source-routing&quot;
+    ],
+    &quot;taskWallMs&quot;: 5000,
+    &quot;toolWallMs&quot;: 3500,
+    &quot;toolCallMs&quot;: 4200,
+    &quot;suspectedWasteMs&quot;: 2000,
+    &quot;calls&quot;: [
+      {
+        &quot;toolName&quot;: &quot;read&quot;,
+        &quot;family&quot;: &quot;repository&quot;,
+        &quot;operation&quot;: &quot;read&quot;,
+        &quot;scope&quot;: &quot;targeted&quot;,
+        &quot;mutates&quot;: false,
+        &quot;sequence&quot;: 1,
+        &quot;startOffsetMs&quot;: 100,
+        &quot;durationMs&quot;: 1500,
+        &quot;isError&quot;: false,
+        &quot;resultKind&quot;: &quot;nonempty&quot;
+      },
+      {
+        &quot;toolName&quot;: &quot;grep&quot;,
+        &quot;family&quot;: &quot;repository&quot;,
+        &quot;operation&quot;: &quot;search&quot;,
+        &quot;scope&quot;: &quot;project&quot;,
+        &quot;mutates&quot;: false,
+        &quot;sequence&quot;: 2,
+        &quot;startOffsetMs&quot;: 500,
+        &quot;durationMs&quot;: 700,
+        &quot;isError&quot;: false,
+        &quot;resultKind&quot;: &quot;nonempty&quot;
+      },
+      {
+        &quot;toolName&quot;: &quot;read&quot;,
+        &quot;family&quot;: &quot;repository&quot;,
+        &quot;operation&quot;: &quot;read&quot;,
+        &quot;scope&quot;: &quot;targeted&quot;,
+        &quot;mutates&quot;: false,
+        &quot;sequence&quot;: 3,
+        &quot;startOffsetMs&quot;: 2500,
+        &quot;durationMs&quot;: 2000,
+        &quot;isError&quot;: false,
+        &quot;resultKind&quot;: &quot;nonempty&quot;
+      }
+    ],
+    &quot;findings&quot;: [
+      {
+        &quot;code&quot;: &quot;repeat.expensive-identical&quot;,
+        &quot;signature&quot;: &quot;repeat.expensive-identical&quot;,
+        &quot;confidence&quot;: &quot;high&quot;,
+        &quot;callSequences&quot;: [
+          3
+        ],
+        &quot;suspectedWasteMs&quot;: 2000,
+        &quot;guidanceId&quot;: &quot;avoid-repeat&quot;
+      }
+    ],
+    &quot;droppedCallCount&quot;: 0
+  }
+}
+</code></pre>
+<p><code>intent</code>, <code>policyVersion</code>, and call <code>scope</code> are optional. The sender omits each field when it is absent.</p>
+<h2>Exact remote field set</h2>
+<p>The envelope contains only:</p>
+<pre><code class="language-text">schemaVersion, type, sentAt, trace
+</code></pre>
+<p>The Remote Trace contains only:</p>
+<pre><code class="language-text">schemaVersion, startedAt, completedAt, outcome, mode, intent?,
+policyVersion?, injectedRuleIds, taskWallMs, toolWallMs, toolCallMs,
+suspectedWasteMs, calls, findings, droppedCallCount
+</code></pre>
+<p>Each remote call contains only:</p>
+<pre><code class="language-text">toolName, family, operation, scope?, mutates, sequence,
+startOffsetMs, durationMs, isError, resultKind
+</code></pre>
+<p>Each remote finding contains only:</p>
+<pre><code class="language-text">code, signature, confidence, callSequences,
+suspectedWasteMs, guidanceId
+</code></pre>
+<p>The sender sanitizes the local trace first. It then constructs new trace, call, and finding objects from these fields. Extra fields do not pass through.</p>
+<h2>Included data</h2>
+<p>Remote data includes:</p>
+<ul>
+<li>Exact ISO <code>sentAt</code>, <code>startedAt</code>, and <code>completedAt</code> timestamps.</li>
+<li>Exact mode and outcome.</li>
+<li>Optional fixed Source Intent.</li>
+<li>Optional policy version and fixed injected rule IDs.</li>
+<li>Exact millisecond timing totals and Tool Span offsets.</li>
+<li>Normalized tool identifiers.</li>
+<li>Fixed coarse family, operation, scope, mutation state, and Result Kind.</li>
+<li>Fixed coarse finding codes, confidence, call sequences, suspected time, and Guidance Rule IDs.</li>
+<li>Dropped call count.</li>
+</ul>
+<p>The sender preserves safe lowercase tool identifiers instead of collapsing them to a family. A name can reveal an integration or capability.</p>
+<h2>Omitted data</h2>
+<p>Remote data omits:</p>
+<ul>
+<li>Local <code>taskId</code> and <code>sessionId</code>.</li>
+<li>Local Fingerprints.</li>
+<li>Guidance Rule text.</li>
+<li>Raw task prompts.</li>
+<li>Raw tool inputs and action strings.</li>
+<li>Raw tool results.</li>
+<li>File contents, database rows, and raw project paths.</li>
+<li>Unknown or extra trace, call, and finding fields.</li>
+</ul>
+<p>The sender omits project IDs and remote task IDs. Exact timestamps and metadata can still support correlation with other logs.</p>
+<h2>Delivery behavior</h2>
+<p>The extension uses a bounded in-memory set of pending requests:</p>
+<ul>
+<li>Default maximum: 8 pending requests.</li>
+<li>Per-request timeout: <code>remote.timeoutMs</code>.</li>
+<li>Retries: none.</li>
+<li>Persistent remote queue: none.</li>
+<li>Redirects: rejected.</li>
+</ul>
+<p>When all eight slots are busy, the sender drops the next Remote Trace and increments its dropped count. A failed request records a redacted error for status output. HTTP response errors retain only the status code. Other request errors become <code>Remote request failed.</code></p>
+<p>The sender treats any HTTP response with <code>ok: true</code> as success. In standard Fetch behavior, this means a 2xx status. It does not read or use the response body.</p>
+<p>The extension flushes current pending requests during normal session shutdown. A process crash, forced termination, timeout, or network failure can lose a Remote Trace.</p>
+<p>There is no delivery identifier or exactly-once guarantee. A receiver must tolerate missing records. It should also tolerate duplicate records from external replay or custom hosting behavior.</p>
+<h2>Receiver duties</h2>
+<p>The receiver operator must:</p>
+<ol>
+<li>Require authentication when the endpoint is not intentionally public.</li>
+<li>Terminate TLS with a valid certificate for non-loopback endpoints.</li>
+<li>Validate the envelope type, schema version, fixed enums, arrays, and numeric bounds.</li>
+<li>Set request and stored-record size limits.</li>
+<li>Return a 2xx response only after accepting responsibility for the record.</li>
+<li>Restrict access to exact timestamps, normalized tool identifiers, and timing metadata.</li>
+<li>Define retention, deletion, backup, incident response, and access-log policies.</li>
+<li>Avoid adding raw prompts, payloads, results, project IDs, or fingerprints during enrichment.</li>
+<li>Document how a user requests deletion when no remote task or session ID exists.</li>
+</ol>
+<p>Remote Export transfers data to the trust boundary of the receiver. This repository does not control receiver storage, logs, backups, or subprocessors.</p>
+<h2>Disable export</h2>
+<p>Set the environment override:</p>
+<pre><code class="language-bash">export PI_TOOLTIME_REMOTE_ENABLED=false
+</code></pre>
+<p>Then restart Pi. You can also disable <code>remote.enabled</code> in eligible user-global config and run <code>/tooltime reload</code> when no environment override enables it.</p>
+<p>Disabling export does not delete records already delivered. Contact the receiver operator for deletion.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

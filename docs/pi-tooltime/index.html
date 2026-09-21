@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-tooltime</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-TOOLTIME</div>
+      <a class="current" href="index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a href="docs/core-api.html"><span class="marker">&#9671;</span>Core API</a>
+      <a href="docs/data-and-privacy.html"><span class="marker">&#9671;</span>Data and privacy</a>
+      <a href="docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a href="docs/remote-export.html"><span class="marker">&#9671;</span>Remote Export</a>
+      <a href="docs/terminology.html"><span class="marker">&#9671;</span>Terminology</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">WORKFLOW</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
+      <div class="md"><h1>Pi Tooltime</h1>
+<p><a href="https://github.com/Jeecabs/pi-tooltime/actions/workflows/ci.yml"><img src="https://github.com/Jeecabs/pi-tooltime/actions/workflows/ci.yml/badge.svg" alt="CI"></a></p>
+<p><a href="https://jeecabs.github.io/pi-tooltime/">Website</a> · <a href="docs/core-api.html">Core API</a> · <a href="docs/data-and-privacy.html">Data and privacy</a></p>
+<p>Pi Tooltime is a <a href="https://github.com/earendil-works/pi">Pi</a> extension for local tool-time analytics and optional prompt coaching. It measures tool occupancy for each task. It also detects fixed patterns that might indicate avoidable work.</p>
+<p>Local analytics are on by default. Coach mode is a separate opt-in. Remote Export stays off until the user enables it.</p>
+<h2>Requirements and security</h2>
+<ul>
+<li>Pi 0.83.0 or later.</li>
+<li>Node.js 22.19.0 or later.</li>
+<li>Git access to GitHub. This package is not published to npm.</li>
+</ul>
+<p>Pi extensions run with your full user permissions. Review the source and selected Git ref before installation.</p>
+<p>Pi Tooltime inspects task prompts, tool inputs, and tool results in memory. It persists only allowlisted analytics fields. Read <a href="docs/data-and-privacy.html">Data and privacy</a> before use in a sensitive project.</p>
+<h2>Install</h2>
+<p>Install the pinned stable v1.0.0 release:</p>
+<pre><code class="language-bash">pi install git:github.com/Jeecabs/pi-tooltime@v1.0.0
+</code></pre>
+<p>Pin the exact tag and review the changelog before an upgrade.</p>
+<p>Package update commands keep this ref pinned. They can reset its checkout to the selected ref, but they do not select a newer release.</p>
+<p>To follow the default branch, install the unpinned edge version:</p>
+<pre><code class="language-bash">pi install git:github.com/Jeecabs/pi-tooltime
+</code></pre>
+<p>The edge version can change without a release tag. Restart Pi or run <code>/reload</code> after installation.</p>
+<h2>Get the first report</h2>
+<ol>
+<li><p>Start Pi in a project.</p>
+</li>
+<li><p>Check the active mode and storage path:</p>
+<pre><code class="language-text">/tooltime status
+</code></pre>
+</li>
+<li><p>Submit a normal task and wait for Pi to finish.</p>
+</li>
+<li><p>Show the session report:</p>
+<pre><code class="language-text">/tooltime report session
+</code></pre>
+</li>
+</ol>
+<p>Analytics mode is the default. It records task analytics without changing the system prompt.</p>
+<p>A report can look like this:</p>
+<pre><code class="language-text">Tooltime report · session
+tasks: 3
+task wall: 4m 18s
+tool wall: 2m 6s (49% of task wall)
+tool call sum: 2m 41s
+calls: 18 (1 failed)
+suspected avoidable wall: 28s
+
+Top tools:
+- bash: 1m 28s across 6 calls, 1 failed
+- read: 42s across 7 calls
+- grep: 31s across 5 calls
+
+Efficiency findings:
+- repeat.expensive-identical (high): 2 tasks, 20s suspected
+- search.slow-empty (medium): 1 task, 8.0s suspected
+</code></pre>
+<p>This sample is illustrative. A finding is evidence, not proof that work was avoidable.</p>
+<h2>Modes</h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Record new Task Traces</th>
+<th>Change the system prompt</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>off</code></td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>analytics</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>coach</code></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+<p>Coach mode appends at most the configured number of fixed Guidance Rules. It does not block or rewrite tool calls. Observed guidance requires repeated, high-confidence findings that meet both promotion thresholds.</p>
+<h3>What Coach Mode inserts</h3>
+<p>With default settings, Pi Tooltime appends this 346-character suffix to the existing Pi system prompt before each task. This initial example applies when no observed guidance qualifies:</p>
+<pre><code class="language-text">Tool economy:
+- Match the tool to the source: repository facts → find/grep/read; current public docs → browser_read; live state → database tools.
+- Use targeted searches and tests while iterating. Broaden only after evidence, and run full suites near handoff.
+- After two empty or repeated calls, stop and change the source, scope, or hypothesis.
+</code></pre>
+<p>Repeated high-confidence findings can replace baseline lines with other fixed registry lines. Defaults limit the suffix to three rules and 500 characters. It never includes captured prompts, tool inputs, results, paths, fingerprints, or timing metrics. Run <code>/tooltime prompt</code> to preview the exact current suffix before the next task.</p>
+<p>Select a mode for the current Pi session:</p>
+<pre><code class="language-text">/tooltime mode coach
+</code></pre>
+<p>The change applies to the next task. A valid <code>PI_TOOLTIME_MODE</code> value is authoritative. The command cannot override it. See <a href="docs/configuration.html">Configuration</a> for mode precedence and persistence.</p>
+<h2>Commands</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/tooltime</code> or <code>/tooltime status</code></td>
+<td>Show mode, config sources, storage, promotion thresholds, and Remote Export status.</td>
+</tr>
+<tr>
+<td><code>/tooltime mode off|analytics|coach</code></td>
+<td>Select the mode for the current session.</td>
+</tr>
+<tr>
+<td><code>/tooltime report [session|project|Nd]</code></td>
+<td>Show measured totals. The default scope is <code>project</code>.</td>
+</tr>
+<tr>
+<td><code>/tooltime analyze [session|project|Nd]</code></td>
+<td>Send a model-safe aggregate report to the current model for analysis.</td>
+</tr>
+<tr>
+<td><code>/tooltime findings</code></td>
+<td>Show finding candidates and active observed guidance.</td>
+</tr>
+<tr>
+<td><code>/tooltime prompt</code></td>
+<td>Preview the current coach prompt.</td>
+</tr>
+<tr>
+<td><code>/tooltime reload</code></td>
+<td>Reload Tooltime config and local traces.</td>
+</tr>
+</tbody></table>
+<p><code>Nd</code> selects the last <code>N</code> days, such as <code>7d</code>. The accepted range is 1 to 3,650 days.</p>
+<p><code>/tooltime analyze</code> creates a model-visible user message that contains the report. The report can also persist in the Pi session. Pi Tooltime excludes the resulting analysis task from its own Task Traces.</p>
+<p>The other report and status commands use Pi notifications. They do not register a permanent model tool.</p>
+<h2>Measurements</h2>
+<p>Pi Tooltime reports two tool-time values:</p>
+<ul>
+<li><code>toolWallMs</code> is the union of all Tool Spans. Parallel calls count once.</li>
+<li><code>toolCallMs</code> is the sum of all Tool Spans. Parallel calls can make this value exceed Task Wall Time.</li>
+</ul>
+<p>Use <code>toolWallMs</code> for user-visible tool occupancy. Use <code>toolCallMs</code> to inspect aggregate tool work.</p>
+<p>The current detectors cover these patterns:</p>
+<ul>
+<li>Repeated expensive calls with the same process-local fingerprint.</li>
+<li>Repeated full test suites.</li>
+<li>Searches at root or outside the project.</li>
+<li>Slow searches that return an empty or error Result Kind.</li>
+<li>Source-routing mismatches for an explicit single-source task intent.</li>
+</ul>
+<p>See <a href="docs/terminology.html">Terminology</a> for exact report and API names.</p>
+<h2>Configuration, data, and Remote Export</h2>
+<p>The Pi agent directory comes from <code>PI_CODING_AGENT_DIR</code> when set. Its default is <code>~/.pi/agent</code>.</p>
+<p>Global config is at <code>&lt;agent-dir&gt;/tooltime.json</code>. A trusted project can add local settings at <code>.pi/tooltime.json</code>.</p>
+<ul>
+<li><a href="docs/configuration.html">Configuration</a> lists every key, range, environment variable, and precedence rule.</li>
+<li><a href="docs/data-and-privacy.html">Data and privacy</a> lists transient, local, remote, and model-visible data.</li>
+<li><a href="docs/remote-export.html">Remote Export</a> defines the HTTP contract and receiver duties.</li>
+</ul>
+<p>Remote Export is off by default. Project config cannot control it. File-based remote config requires an absolute agent directory. Both the configured and resolved directory and config paths must stay outside the project. User environment variables remain available in all agent-directory locations.</p>
+<h2>Updates</h2>
+<p>A pinned Git ref stays pinned during <code>pi update --extensions</code> and <code>pi update --all</code>. These commands can reconcile the checkout to that ref.</p>
+<p>To move a pinned installation, set <code>NEW_TAG</code> to the next reviewed release tag and run:</p>
+<pre><code class="language-bash">pi install &quot;git:github.com/Jeecabs/pi-tooltime@${NEW_TAG:?set NEW_TAG first}&quot;
+</code></pre>
+<p>Update an unpinned edge installation with:</p>
+<pre><code class="language-bash">pi update --extensions
+</code></pre>
+<p>Restart Pi or run <code>/reload</code> after the checkout changes.</p>
+<h2>Core API</h2>
+<p>The package includes compiled JavaScript and declarations in <code>dist/</code>. Eval harnesses can use the Pi-independent Node.js core without loading the extension.</p>
+<p>See <a href="docs/core-api.html">Core API</a> for the stable Core v1 interface and lifecycle contract. It also defines decoding, optional peer behavior, and compatibility.</p>
+<h2>Architecture</h2>
+<p>The package has three parts:</p>
+<ol>
+<li>A Pi-independent core records traces, calculates timing, detects findings, aggregates evidence, and builds guidance.</li>
+<li>A Pi adapter connects lifecycle events, commands, session mode, and prompt injection.</li>
+<li>Internal storage and remote adapters persist local traces and send the smaller remote subset when enabled.</li>
+</ol>
+<p>See <a href="docs/architecture.html">Architecture</a> for event ordering, trace boundaries, promotion, and eval use.</p>
+<h2>Development and project policy</h2>
+<pre><code class="language-bash">pnpm install --frozen-lockfile
+pnpm verify
+pi -e .
+</code></pre>
+<p><code>pnpm verify</code> runs the native TypeScript check, focused tests, rebuild, packed Core contract, package linters, and package-content check.</p>
+<ul>
+<li><a href="CHANGELOG.html">Changelog</a></li>
+<li><a href="CONTRIBUTING.html">Contributing</a></li>
+<li><a href="docs/releasing.html">Release process</a></li>
+<li><a href="SUPPORT.html">Support</a></li>
+<li><a href="SECURITY.html">Security policy</a></li>
+<li><a href="CODE_OF_CONDUCT.html">Code of Conduct</a></li>
+</ul>
+<h2>License</h2>
+<p>Pi Tooltime uses the <code>MIT</code> License. See <a href="LICENSE">LICENSE</a>.</p>
+<h2>Uninstall and delete data</h2>
+<p>Use the same package source that appears in <code>pi list</code>. For the pinned global install above, run:</p>
+<pre><code class="language-bash">pi remove git:github.com/Jeecabs/pi-tooltime@v1.0.0
+</code></pre>
+<p>For a project-local install, include both the source and <code>-l</code>:</p>
+<pre><code class="language-bash">pi remove git:github.com/Jeecabs/pi-tooltime@v1.0.0 -l
+</code></pre>
+<p>Omit <code>@v1.0.0</code> if you installed the unpinned source. Restart Pi or run <code>/reload</code> after removal.</p>
+<p>The remove command does not delete analytics or config. Stop all Pi processes before the next commands. They permanently delete local Tooltime data and user-global Tooltime config.</p>
+<pre><code class="language-bash">agent_dir=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
+rm -rf -- &quot;$agent_dir/state/pi-tooltime&quot;
+rm -f -- &quot;$agent_dir/tooltime.json&quot;
+</code></pre>
+<p>Also complete these steps when applicable:</p>
+<ol>
+<li>Delete <code>.pi/tooltime.json</code> from each project that has one.</li>
+<li>Remove all <code>PI_TOOLTIME_*</code> definitions from shell profiles, service config, and secret stores.</li>
+<li>Delete affected Pi session files if you must remove persisted mode entries or <code>/tooltime analyze</code> reports.</li>
+<li>Ask the Remote Export receiver operator to delete exported records.</li>
+</ol>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>
