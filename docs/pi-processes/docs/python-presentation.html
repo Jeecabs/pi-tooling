@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-processes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-PROCESSES</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/README.html"><span class="marker">&#9671;</span>docs</a>
+      <a href="../docs/future-cleanup-hooks.html"><span class="marker">&#9671;</span>Future Cleanup Hooks</a>
+      <a href="../docs/future-persistent-manager.html"><span class="marker">&#9671;</span>Future Persistent Manager</a>
+      <a href="../docs/notifications.html"><span class="marker">&#9671;</span>Process notifications</a>
+      <a class="current" href="../docs/python-presentation.html"><span class="marker">&#9671;</span>Python presentation</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
+      <div class="md"><h1>Python presentation</h1>
+<p>No Block gives direct Python scripts a compact view inside its existing Bash tool. It does not add an executor or change command bytes.</p>
+<h2>Supported commands</h2>
+<p>The interpreter can be <code>python</code>, <code>python3</code>, a versioned name such as <code>python3.12</code>, or a path to one. Examples include <code>.venv/bin/python</code>, <code>./.venv/bin/python3</code>, and <code>/opt/venv/bin/python</code>.</p>
+<p>The command must contain one direct invocation with one of these script forms:</p>
+<ul>
+<li><code>-c</code> with literal source.</li>
+<li>A quoted heredoc delimiter with standard input as the script.</li>
+<li>A literal <code>.py</code> path. No Block does not read the script file for presentation.</li>
+</ul>
+<p>Recognition accepts common flags such as <code>-u</code>, <code>-B</code>, and <code>-I</code>. It rejects substitutions, environment assignments, pipelines, extra commands, and other redirects. Wrappers such as <code>uv run</code> and activation chains such as <code>source .venv/bin/activate &amp;&amp; python script.py</code> keep the normal Bash view.</p>
+<p>Recognition is conservative. An unsupported form still executes through the same Bash runner.</p>
+<h2>Collapsed and expanded views</h2>
+<p>The header shows <code>py</code>, the supplied <code>name</code> or script path, and the run status. Inline scripts without a name use <code>inline script</code>.</p>
+<p>The body shows up to three nonempty output lines. A Python traceback preview shows the exception and source location when available. Typical success results occupy two content rows. Pi adds its separator row.</p>
+<p>Expansion shows highlighted inline source, the original command, captured output, and stdout and stderr log paths. Long lines wrap. Existing output and log limits still apply.</p>
+<p>Printed results come from the script. A message such as <code>3 files updated</code> is not an independent check of file changes.</p>
+<h2>Lifecycle and compatibility</h2>
+<p>Short scripts return through the foreground tool result. Live jobs that exceed the foreground wait show <code>background</code>, not success. No Block still owns their completion notification.</p>
+<p>The tool result includes versioned <code>details.noBlock</code> metadata with the process ID, phase, timestamps, exit code, and log paths. Pi uses these details for display and session replay. They do not add text to model-visible output.</p>
+<p>Thrown failures retain their metadata through a Bash-scoped <code>tool_result</code> hook. Historical results without this metadata do not receive a success status.</p>
+<p>Ordinary Bash commands retain Pi&#39;s Bash renderer and framing. No Block does not create another panel or open an overlay. Session shutdown still stops live jobs.</p>
+<h2>Code map</h2>
+<ul>
+<li><code>extensions/no-block/python-command.ts</code>: <code>recognizePython</code> classifies the original shell command without evaluation.</li>
+<li><code>extensions/no-block/render.ts</code>: <code>createNoBlockRenderers</code> selects Python or native Bash presentation.</li>
+<li><code>extensions/no-block/run-details.ts</code>: <code>buildRunDetails</code> captures process metadata.</li>
+<li><code>extensions/no-block/index.ts</code>: <code>FiniteCommandRun</code> retains execution and notification ownership.</li>
+</ul>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

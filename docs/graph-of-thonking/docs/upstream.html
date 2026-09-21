@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>graph-of-thonking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/graph-of-thonking">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">GRAPH-OF-THONKING</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a class="current" href="../docs/upstream.html"><span class="marker">&#9671;</span>Upstream contract</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/graph-of-thonking"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">WORKFLOW</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/graph-of-thonking">Jeecabs/graph-of-thonking &nearr;</a></div>
+      <div class="md"><h1>Upstream contract</h1>
+<p>Verification target: Ripwire 0.4.0, released binary for macOS arm64. The release archive passed its published SHA-256 check.</p>
+<h2>Sources</h2>
+<ul>
+<li><a href="https://github.com/redhat-et/ripwire/releases/tag/v0.4.0">Release</a></li>
+<li><a href="https://github.com/redhat-et/ripwire/blob/v0.4.0/src/cli.h">CLI flag table</a></li>
+<li><a href="https://github.com/redhat-et/ripwire/blob/v0.4.0/docs/COMMANDS.md">Command reference</a></li>
+<li><a href="https://github.com/redhat-et/ripwire/blob/v0.4.0/src/ingest_cache.h">Parse cache implementation</a></li>
+<li><a href="https://github.com/redhat-et/ripwire/blob/v0.4.0/src/quality.h">Cache directories and quality snapshots</a></li>
+</ul>
+<p>The executable&#39;s <code>--help</code> output is the flag authority. The wrapper uses explicit operations rather than a raw argument interface.</p>
+<h2>Budget semantics</h2>
+<p><code>--max-tokens</code> shapes the default map and recalled documents. Their <code>--token-budget</code> option is a gate, not a shaping request. Search, task packs, trace bundles, and review bundles use <code>--token-budget</code> to shape output.</p>
+<p><code>--top-k</code> does not constrain the normal search bundle. The wrapper rejects that combination instead of presenting an inert control. Expand retains upstream&#39;s automatic choice between a symbol bundle and the smaller whole file.</p>
+<h2>Shared checkouts</h2>
+<p>The parse cache publishes through per-process temporary files and atomic rename. Quality cache writes also use unique temporary names. The cache directory selection starts with <code>TMPDIR</code>, then <code>XDG_CACHE_HOME</code>.</p>
+<p>The wrapper supplies private values for both variables. Each extension instance owns its directory, and each child process owns its output files. This avoids depending on shared cross-session cache eviction or publication behavior.</p>
+<p>Bare <code>--quality-delta</code> can delete a stale <code>.ripwire_quality_baseline</code> file. Explicit committed delta input does not read, write, or delete that baseline. The wrapper exposes only the explicit form.</p>
+<p>The wrapper does not prevent concurrent source edits. Ripwire scans a live directory, not a transactional snapshot. Results therefore include a reminder to re-run after concurrent edits.</p>
+<h2>Exit codes</h2>
+<ul>
+<li>Exit 4 from <code>--test-gate</code> means test or coverage obligations exist.</li>
+<li>Exit 2 from <code>--quality-delta</code> means gating regressions exist.</li>
+<li>Exit 0 is not a test-success claim or a guarantee about new debt.</li>
+</ul>
+<p>The wrapper preserves these reports and labels their outcomes. Other nonzero codes become execution errors.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

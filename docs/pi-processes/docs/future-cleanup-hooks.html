@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-processes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-PROCESSES</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/README.html"><span class="marker">&#9671;</span>docs</a>
+      <a class="current" href="../docs/future-cleanup-hooks.html"><span class="marker">&#9671;</span>Future Cleanup Hooks</a>
+      <a href="../docs/future-persistent-manager.html"><span class="marker">&#9671;</span>Future Persistent Manager</a>
+      <a href="../docs/notifications.html"><span class="marker">&#9671;</span>Process notifications</a>
+      <a href="../docs/python-presentation.html"><span class="marker">&#9671;</span>Python presentation</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
+      <div class="md"><h1>Future Cleanup Hooks</h1>
+<p>This document captures a future design for generic cleanup hooks in <code>pi-processes</code>.</p>
+<h2>Problem</h2>
+<p>Some managed commands are not the whole workload. They may start, control, tail, or connect to something else. Stopping the managed process can therefore stop only the visible wrapper while leaving the underlying work unchanged.</p>
+<p>This is not specific to remote commands or web servers. It can happen with daemons, services, containers, workers, log tailers, command wrappers, and other process-control tools.</p>
+<h2>Non-goals</h2>
+<ul>
+<li>No remote runner abstraction.</li>
+<li>No port-specific model.</li>
+<li>No automatic destructive cleanup inferred from command text.</li>
+<li>No special-case handling for a specific transport or framework.</li>
+<li>No tmux/session abstraction.</li>
+</ul>
+<h2>Tool Data Model</h2>
+<p><code>process start</code> should accept an optional <code>cleanup</code> object:</p>
+<pre><code class="language-ts">cleanup?: {
+  command: string;
+  timeoutMs?: number;
+}
+</code></pre>
+<p>Rules:</p>
+<ul>
+<li><code>cleanup</code> is optional.</li>
+<li>If <code>cleanup</code> is present, <code>cleanup.command</code> is required.</li>
+<li><code>cleanup.timeoutMs</code> is optional. Decide the default during implementation.</li>
+<li>Cleanup commands run with the same working directory as the original process by default.</li>
+<li>Cleanup output is stored in the same process logs, with clear cleanup markers.</li>
+<li>There is no <code>onFailure</code> option. Cleanup failure is always reported.</li>
+</ul>
+<h2>Stop Semantics</h2>
+<p>When cleanup exists, stopping should be a two-step lifecycle:</p>
+<ol>
+<li>Stop the managed process group using existing manager behavior.</li>
+<li>Run the cleanup command.</li>
+</ol>
+<p>The stop result succeeds only if both steps succeed.</p>
+<p>If cleanup exits non-zero or times out, the stop result fails. The result should only state that cleanup failed or timed out. It should not speculate about what remains running.</p>
+<p>Example:</p>
+<pre><code class="language-text">Stopped worker-tail (proc_4).
+Cleanup command failed with exit code 1.
+</code></pre>
+<h2>Architecture</h2>
+<p>Keep cleanup in the core extension layer first, not in <code>src/manager</code>.</p>
+<p>Likely files:</p>
+<pre><code class="language-text">extensions/processes/cleanup/
+  registry.ts
+  run-cleanup.ts
+  stop-with-cleanup.ts
+</code></pre>
+<p>The cleanup registry stores cleanup config by process id, similar to the notification registry.</p>
+<p>The shared stop helper should be used by:</p>
+<ul>
+<li><code>process stop</code></li>
+<li><code>/no-block:kill</code> through the core command protocol</li>
+<li>future UI stop actions</li>
+</ul>
+<h2>Updating Cleanup After Start</h2>
+<p>A later part of this feature should let the agent or user attach, replace, or possibly remove cleanup metadata for an already-running process.</p>
+<p>This is needed because a nudge system may detect a command that likely needs cleanup only after the command has already started.</p>
+<p>Potential model:</p>
+<pre><code class="language-ts">process update {
+  id: string;
+  cleanup?: {
+    command: string;
+    timeoutMs?: number;
+  } | null;
+}
+</code></pre>
+<p>Open question: should users get a slash command for adding cleanup to an existing process?</p>
+<h2>Future Command Nudging</h2>
+<p>After explicit cleanup exists, add a separate feature that detects commands that might need cleanup and warns the agent/user when no cleanup is registered.</p>
+<p>This detection must be advisory only. It must not infer or execute cleanup.</p>
+<p>Potential warning:</p>
+<pre><code class="language-text">This command may start or control work outside the managed process. Consider adding a cleanup command so stop can clean it up explicitly.
+</code></pre>
+<p>This warning should be visible both in the tool result for the LLM and in the user-facing UI.</p>
+<h2>Open Questions</h2>
+<ol>
+<li>Should cleanup run on session shutdown/reload, or only on explicit stop actions?</li>
+<li>What should the default cleanup timeout be?</li>
+<li>Should cleanup run for already-finished processes?</li>
+<li>Should cleanup metadata be removable with <code>cleanup: null</code>?</li>
+<li>Should stop-failure notifications include cleanup output?</li>
+</ol>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-processes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-PROCESSES</div>
+      <a class="current" href="index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="docs/README.html"><span class="marker">&#9671;</span>docs</a>
+      <a href="docs/future-cleanup-hooks.html"><span class="marker">&#9671;</span>Future Cleanup Hooks</a>
+      <a href="docs/future-persistent-manager.html"><span class="marker">&#9671;</span>Future Persistent Manager</a>
+      <a href="docs/notifications.html"><span class="marker">&#9671;</span>Process notifications</a>
+      <a href="docs/python-presentation.html"><span class="marker">&#9671;</span>Python presentation</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
+      <div class="md"><p align="center">
+  <img src="./assets/no-block-logo.png" alt="No Block mascot vaulting over a blocked terminal command" width="280">
+</p><h1>No Block</h1>
+<p>Run finite Bash jobs without blocking Pi while they finish.</p>
+<p>No Block replaces Pi&#39;s Bash tool for commands that must return an exit code. Quick commands return normally. A slow command yields after 30 seconds, remains supervised, and reports its terminal result when it exits.</p>
+<p>No Block builds on <a href="https://github.com/aliou/pi-processes">aliou/pi-processes</a>. It retains the process panel, bounded logs, process-group cleanup, stdin support, and log watches from that project.</p>
+<h2>Choose the correct process lane</h2>
+<table>
+<thead>
+<tr>
+<th>Command type</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tests, checks, migrations, exports, archives, and other finite jobs</td>
+<td>No Block <code>bash</code></td>
+</tr>
+<tr>
+<td>Dev servers, watchers, local APIs, tunnels, port forwards, and log tails</td>
+<td>A service process manager such as whiskd</td>
+</tr>
+<tr>
+<td>Docker or Podman workloads</td>
+<td>The native container lifecycle</td>
+</tr>
+</tbody></table>
+<p>A finite job has a meaningful terminal result. An indefinite service is successful while it stays alive. Do not use No Block as a service manager.</p>
+<h2>Installation</h2>
+<p>From npm after the first release:</p>
+<pre><code class="language-bash">pi install npm:@jeecabs/no-block
+</code></pre>
+<p>From git:</p>
+<pre><code class="language-bash">pi install git:github.com/Jeecabs/no-block
+</code></pre>
+<h2>Bash behavior</h2>
+<p>The <code>bash</code> tool accepts these fields:</p>
+<pre><code class="language-ts">type BashInput = {
+  command: string;
+  name?: string;
+  backgroundAfter?: number;
+  timeout?: number;
+};
+</code></pre>
+<ul>
+<li><code>command</code> is the finite shell command.</li>
+<li><code>name</code> is an optional job name.</li>
+<li><code>backgroundAfter</code> is the foreground wait in seconds. The default is <code>30</code>.</li>
+<li><code>timeout</code> is a hard lifetime limit in seconds.</li>
+</ul>
+<p>No Block starts every Bash job in the process manager.</p>
+<p>If the job exits before <code>backgroundAfter</code>, Bash returns its output and exit status normally. No Block does not send a lifecycle notification because the tool result already reports the terminal state.</p>
+<p>If the job is still running at <code>backgroundAfter</code>, Bash returns its process ID and log paths. The agent can continue other work. No Block sends one follow-up when the process exits.</p>
+<p>A hard <code>timeout</code> remains active after background handoff. When it expires, No Block stops the process group and reports the terminal event once.</p>
+<h2>Python output</h2>
+<p>Direct Python commands use a compact view inside the existing Bash tool. Virtualenv paths such as <code>.venv/bin/python</code> work too.</p>
+<p>The collapsed view shows the job name, status, and up to three output lines. Expand the tool result to inspect inline source, the original command, output, and log paths.</p>
+<p>No Block executes the original command without changes. Python uses the same foreground wait, timeout, cancellation, and background notifications as other Bash jobs. Compound commands and unsupported Python invocations keep the normal Bash view.</p>
+<p>See <a href="docs/python-presentation.html">Python presentation</a> for supported commands and limits.</p>
+<h2>Completion delivery</h2>
+<p>No Block uses <code>followUp</code> for an unobserved background completion. It does not steer an active tool batch.</p>
+<p>Lifecycle delivery uses explicit states:</p>
+<pre><code class="language-text">pending -&gt; publishing -&gt; published
+             |
+             +-&gt; pending after a synchronous enqueue failure
+</code></pre>
+<p>A transient synchronous enqueue failure schedules a bounded retry. No Block marks a notification as published only after Pi accepts the message.</p>
+<p>Pi does not provide a provider-turn acknowledgment. No Block can guarantee retryable message enqueue, not exactly-once model processing.</p>
+<h2>Inspect a yielded job</h2>
+<p>Use <code>/no-block</code> to open the job panel. It shows running and recently finished finite jobs.</p>
+<p>Use <code>/no-block:logs [id]</code> for retained output. Use <code>/no-block:kill [id]</code> to stop a job. Use <code>/no-block:clear</code> to remove finished entries and their log storage.</p>
+<p>The model can use the inherited <code>process</code> tool to list jobs and inspect output. It can also write stdin, update log watches, stop jobs, and clear finished entries.</p>
+<h2>Output and cleanup</h2>
+<p>No Block stores stdout, stderr, and combined logs. Each log file has a 64 MiB cap. Model-visible output remains bounded.</p>
+<p>Commands run in detached POSIX process groups. A stop targets the full group. Session shutdown stops live jobs and removes temporary manager state.</p>
+<p>No Block supports macOS and Linux. It does not support Windows.</p>
+<h2>Configuration</h2>
+<p>Use <code>/no-block:settings</code> for inherited process settings. These settings control shell path, output limits, panel size, follow mode, dock behavior, and the optional status widget.</p>
+<p>The inherited background-command interception option blocks shell patterns such as <code>&amp;</code>, <code>nohup</code>, <code>disown</code>, and <code>setsid</code>. Keep service-shaped routing in the separate service manager integration.</p>
+<h2>Development</h2>
+<pre><code class="language-bash">pnpm install
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm test:e2e
+</code></pre>
+<p>The package uses TypeScript, Node.js 22.19 or newer, pnpm, Biome, Vitest, and Changesets.</p>
+<h2>Upstream and license</h2>
+<p>No Block is a fork of <a href="https://github.com/aliou/pi-processes"><code>@aliou/pi-processes</code></a>. The original process manager, user interface, protocol, and documentation structure remain under the MIT license.</p>
+<p>No Block is also MIT licensed.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

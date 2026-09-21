@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>micro-manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">MICRO-MANAGER</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a class="current" href="../docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="../docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a href="../docs/origin.html"><span class="marker">&#9671;</span>Origin and standalone boundary</a>
+      <a href="../docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a href="../docs/troubleshooting.html"><span class="marker">&#9671;</span>Troubleshooting</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
+      <div class="md"><h1>Architecture</h1>
+<h2>Goal</h2>
+<p>Run an independent reviewer without patching Pi internals. Keep its tools read-only, its data bounded, and its lifecycle separate from the primary turn.</p>
+<h2>Package boundary</h2>
+<p><a href="../src/index.ts"><code>src/index.ts</code></a> is the Pi extension entry point. The <code>pi.extensions</code> package manifest points to that TypeScript file.</p>
+<p>The package uses public types and functions from Pi peer dependencies. It does not read private session files or call private compaction APIs. Provider requests pass through Pi&#39;s model registry, so Pi keeps responsibility for provider registration and authentication.</p>
+<p>The only direct package dependency is <code>yaml</code>, which parses configuration files. Pi packages and <code>typebox</code> remain peer dependencies.</p>
+<h2>Modules</h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="../src/extension.ts"><code>src/extension.ts</code></a></td>
+<td>Register hooks, the process flag, the command, and the message renderer. Resolve trust, models, delivery, and status.</td>
+</tr>
+<tr>
+<td><a href="../src/micro-manager-runner.ts"><code>src/micro-manager-runner.ts</code></a></td>
+<td>Own one review conversation, queue, model loop, tool execution, retry policy, timeout, and usage.</td>
+</tr>
+<tr>
+<td><a href="../src/config.ts"><code>src/config.ts</code></a></td>
+<td>Discover and validate user and trusted project <code>MICRO_MANAGER</code> files.</td>
+</tr>
+<tr>
+<td><a href="../src/transcript.ts"><code>src/transcript.ts</code></a></td>
+<td>Track primary history, render deltas, bound input, and redact common secrets.</td>
+</tr>
+<tr>
+<td><a href="../src/emission-guard.ts"><code>src/emission-guard.ts</code></a></td>
+<td>Suppress duplicate, empty, content-free, and over-budget reports.</td>
+</tr>
+<tr>
+<td><a href="../src/message-format.ts"><code>src/message-format.ts</code></a></td>
+<td>Normalize notes and make XML-safe primary messages.</td>
+</tr>
+<tr>
+<td><a href="../src/renderer.ts"><code>src/renderer.ts</code></a></td>
+<td>Render compact micro-manager cards in the TUI.</td>
+</tr>
+<tr>
+<td><a href="../src/prompt.ts"><code>src/prompt.ts</code></a></td>
+<td>Build the review system prompt from fixed and configured instructions.</td>
+</tr>
+<tr>
+<td><a href="../src/workspace-tools.ts"><code>src/workspace-tools.ts</code></a></td>
+<td>Wrap Pi read-only tools and reject paths that escape the trusted workspace.</td>
+</tr>
+</tbody></table>
+<p><code>MicroManagerRunner</code> is the main deep module. Its interface is <code>enqueue</code>, <code>reset</code>, <code>dispose</code>, <code>waitForIdle</code>, <code>stats</code>, and <code>dump</code>. It hides provider calls, tool rounds, context limits, retries, and cancellation.</p>
+<h2>Lifecycle</h2>
+<pre><code class="language-text">project_trust
+  -&gt; inspect candidate metadata only
+  -&gt; ask before project MICRO_MANAGER content loads
+
+session_start
+  -&gt; resolve explicit project trust
+  -&gt; load and validate MICRO_MANAGER files
+  -&gt; resolve review models
+  -&gt; create read-only tools and one runner per active manager
+
+turn_end
+  -&gt; snapshot the primary branch
+  -&gt; render only the new bounded delta
+  -&gt; enqueue the delta for each runner
+  -&gt; return immediately
+
+background drain
+  -&gt; append the update to private in-memory context
+  -&gt; call the configured model
+  -&gt; execute bounded read-only tool rounds
+  -&gt; accept at most one report call
+  -&gt; route the note to the primary session
+
+session_compact or session_tree
+  -&gt; reset the primary transcript cursor
+  -&gt; clear private review context and note history
+
+model_select
+  -&gt; rebuild runners that inherit the primary model
+  -&gt; seed the transcript cursor at current history
+
+agent_settled in print or JSON mode
+  -&gt; wait for final review work, with a 60-second cap
+  -&gt; flush a JSON card or append print-mode report metadata
+
+session_shutdown
+  -&gt; invalidate callbacks
+  -&gt; abort model calls
+  -&gt; clear queues and status
+</code></pre>
+<p>The <code>turn_end</code> hook does not await background review. One slow or failed manager does not block the primary TUI loop or another manager.</p>
+<h2>Model seam</h2>
+<p>The runner calls <code>ctx.modelRegistry.complete()</code>. This call preserves Pi provider registration, authentication, headers, and custom model behavior.</p>
+<p>The runner supplies Pi definitions for <code>read</code>, <code>grep</code>, <code>find</code>, and <code>ls</code>. A wrapper rejects paths and symbolic links that resolve outside the trusted workspace. The runner validates model-generated arguments before execution. Unknown tools return an error to the review model.</p>
+<p>The runner implements the <code>report</code> tool locally. It normalizes and filters each note before any primary-session effect. It accepts at most one useful report per update.</p>
+<h2>Queue and retry model</h2>
+<p>Each runner drains its own queue. A drain combines pending updates before the next review call. The queue stores up to five pending slots. Later updates coalesce into the final slot.</p>
+<p>A provider failure rolls private context back to its state before the update. The runner then retries the same bounded update. Each attempt gets its own <code>timeout_ms</code> budget. Shutdown, reset, and session replacement abort work without another retry.</p>
+<p>A final failure records the latest error and releases that update. A later update can run again and clear the error after success.</p>
+<h2>Context model</h2>
+<p>Each runner keeps an in-memory Pi AI message list. New primary deltas append to this list. Tool calls and results stay in private context so later updates retain review continuity.</p>
+<p>Before an update, the runner compares the serialized message estimate with <code>max_context_chars</code>. If the update cannot fit, it clears private context and starts with the bounded update. This reset also clears report deduplication because the model lost prior context.</p>
+<p>A single update cannot use more than half of <code>max_context_chars</code>. Each tool result has a context-derived text limit between 500 and 8,000 characters. Images become omission markers.</p>
+<p>The runner does not use private compaction APIs. A clean reset keeps the package independent from Pi session internals.</p>
+<h2>Primary transcript cursor</h2>
+<p><code>TranscriptCursor</code> stores primary entry IDs. Append-only history produces only new entries. A shorter or changed prefix marks a rewrite and causes a bounded replay.</p>
+<p>The transcript renderer includes visible user and assistant text, tool calls, text tool results, compaction summaries, and selected primary context. It omits hidden reasoning, images, and prior micro-manager messages.</p>
+<p>The extension resets the cursor after compaction and tree navigation. It seeds the cursor after manual enable, configuration reload, and inherited model changes. These actions do not replay old work.</p>
+<h2>Delivery policy</h2>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th><code>nit</code></th>
+<th><code>concern</code></th>
+<th><code>blocker</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Primary active in TUI or RPC</td>
+<td>Follow-up</td>
+<td>Steer</td>
+<td>Steer</td>
+</tr>
+<tr>
+<td>Primary idle in TUI or RPC</td>
+<td>Visible card</td>
+<td>Visible card</td>
+<td>Triggered steer</td>
+</tr>
+<tr>
+<td>Primary idle in JSON</td>
+<td>Visible card</td>
+<td>Visible card</td>
+<td>Visible card</td>
+</tr>
+<tr>
+<td>Primary idle in print</td>
+<td>Session metadata</td>
+<td>Session metadata</td>
+<td>Session metadata</td>
+</tr>
+<tr>
+<td>Interruption immunity active</td>
+<td>Follow-up or card</td>
+<td>Follow-up or card</td>
+<td>Follow-up or card</td>
+</tr>
+</tbody></table>
+<p>Headless reports remain buffered while the primary agent runs. This rule prevents hidden continuations. Print mode uses extension session metadata so a custom message cannot replace primary stdout.</p>
+<p>The extension escapes note content before it enters primary-model context. The card renderer removes terminal controls from structured details.</p>
+<h2>Trust seam</h2>
+<p>User <code>MICRO_MANAGER</code> files are user-controlled and do not require project trust.</p>
+<p>Project <code>MICRO_MANAGER</code> files are repository-controlled. The extension requires explicit Pi project trust. A root configuration file does not always trigger Pi&#39;s built-in trust detector. The extension checks file metadata and asks in the TUI before it reads content.</p>
+<p>The extension rejects symbolic links and files larger than 64 KiB. It rejects unknown YAML keys, unsafe tools, invalid types, and out-of-range limits.</p>
+<h2>Data limits</h2>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th align="right">Limit</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Configuration file</td>
+<td align="right">64 KiB</td>
+</tr>
+<tr>
+<td>Named managers</td>
+<td align="right">8 merged definitions</td>
+</tr>
+<tr>
+<td>Primary update</td>
+<td align="right">Smaller of <code>max_input_chars</code> and half of <code>max_context_chars</code></td>
+</tr>
+<tr>
+<td>Private model context</td>
+<td align="right"><code>max_context_chars</code>, default 100,000 characters</td>
+</tr>
+<tr>
+<td>Model output</td>
+<td align="right"><code>max_output_tokens</code>, default 512 tokens</td>
+</tr>
+<tr>
+<td>Read-only tool rounds</td>
+<td align="right"><code>max_tool_rounds</code>, default 3</td>
+</tr>
+<tr>
+<td>Provider attempts</td>
+<td align="right"><code>max_attempts</code>, default 2</td>
+</tr>
+<tr>
+<td>One provider attempt</td>
+<td align="right"><code>timeout_ms</code>, default 30 seconds</td>
+</tr>
+<tr>
+<td>Executable read-only calls per response</td>
+<td align="right">8</td>
+</tr>
+<tr>
+<td>Tool-result text</td>
+<td align="right">Context-derived, from 500 to 8,000 characters</td>
+</tr>
+<tr>
+<td>Pending update slots</td>
+<td align="right">5. Later updates coalesce into the final slot.</td>
+</tr>
+<tr>
+<td>Headless final wait</td>
+<td align="right">60 seconds maximum</td>
+</tr>
+</tbody></table>
+<h2>Persistence</h2>
+<p>The extension stores private review context, usage, errors, and recent note identities in memory. It writes no separate transcript or analytics data.</p>
+<p>Visible cards and print-mode report metadata use normal Pi session persistence. Session shutdown clears all private runner state.</p>
+<h2>Verification map</h2>
+<p>Tests follow the module boundaries:</p>
+<ul>
+<li><a href="../tests/config.test.ts"><code>tests/config.test.ts</code></a> covers validation, merge order, aliases, limits, and symbolic links.</li>
+<li><a href="../tests/extension.test.ts"><code>tests/extension.test.ts</code></a> covers registration, delivery, immunity, trust, and headless settlement.</li>
+<li><a href="../tests/runner.test.ts"><code>tests/runner.test.ts</code></a> covers tools, deduplication, retries, limits, aborts, and usage.</li>
+<li><a href="../tests/transcript.test.ts"><code>tests/transcript.test.ts</code></a> covers deltas, rewrites, redaction, omission, and hard bounds.</li>
+<li><a href="../tests/workspace-tools.test.ts"><code>tests/workspace-tools.test.ts</code></a> covers path and symbolic-link confinement.</li>
+<li><a href="../tests/renderer.test.ts"><code>tests/renderer.test.ts</code></a> covers card sanitization and display.</li>
+</ul>
+<p>Run <code>pnpm verify</code> to execute the TypeScript check, all tests, and the package dry run.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

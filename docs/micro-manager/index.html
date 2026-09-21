@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>micro-manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">MICRO-MANAGER</div>
+      <a class="current" href="index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a href="docs/origin.html"><span class="marker">&#9671;</span>Origin and standalone boundary</a>
+      <a href="docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a href="docs/troubleshooting.html"><span class="marker">&#9671;</span>Troubleshooting</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
+      <div class="md"><h1>The Micro Manager</h1>
+<p align="center">
+  <img src="./assets/micro-manager.png" alt="The Micro Manager" width="320">
+</p><p>The Micro Manager is a Pi extension that reviews completed coding turns in the background. One or more independent models can inspect bounded session updates with read-only tools. They report only a concrete <code>nit</code>, <code>concern</code>, or <code>blocker</code>.</p>
+<p>The package uses public Pi APIs. It does not require oh-my-pi or another extension at run time.</p>
+<h2>Requirements</h2>
+<ul>
+<li>Pi 0.84.0 or later</li>
+<li>Node.js 22.12.0 or later</li>
+</ul>
+<h2>Install and start</h2>
+<p>Install the package from GitHub:</p>
+<pre><code class="language-sh">pi install git:github.com/Jeecabs/micro-manager
+</code></pre>
+<p>Pi packages run with your user permissions. Review the source before installation.</p>
+<p>The extension is disabled by default. Enable review for one Pi process:</p>
+<pre><code class="language-sh">pi --micro-manager
+</code></pre>
+<p>The flag overrides <code>enabled</code> for that process. If no named managers exist, the extension creates a default manager. It uses the primary session model, low thinking, and all four read-only tools.</p>
+<p>For persistent configuration, create <code>~/.pi/agent/MICRO_MANAGER.yml</code>:</p>
+<pre><code class="language-yaml">enabled: true
+thinking: low
+tools: [read, grep, find, ls]
+</code></pre>
+<p>Start Pi, complete a coding turn, and run <code>/micro-manager status</code>. The reviewer stays silent when it finds no useful issue.</p>
+<p>See <a href="./docs/configuration.html">Configuration</a> for model selectors, named managers, limits, file precedence, and project trust.</p>
+<h2>What it does</h2>
+<ul>
+<li>Reviews completed primary-agent turns through a bounded background queue.</li>
+<li>Runs multiple named managers with separate models and instructions.</li>
+<li>Provides workspace-confined <code>read</code>, <code>grep</code>, <code>find</code>, and <code>ls</code> tools.</li>
+<li>Suppresses duplicate and content-free reports.</li>
+<li>Steers a material concern into an active primary turn.</li>
+<li>Preserves late reports without silently starting a completed headless run.</li>
+<li>Tracks backlog, token use, cost, and failures for each manager.</li>
+</ul>
+<p>The extension does not edit files or run commands for a review model. It does not block a primary TUI turn while review work runs.</p>
+<h2>Configure a project</h2>
+<p>Add project configuration at <code>.pi/MICRO_MANAGER.yml</code>:</p>
+<pre><code class="language-yaml">enabled: true
+model: anthropic/claude-sonnet-4-6
+thinking: low
+
+instructions: |
+  Verify every claim against repository evidence.
+
+managers:
+  - name: Architecture
+    model: anthropic/claude-sonnet-4-6:medium
+    tools: [read, grep, find, ls]
+    instructions: |
+      Check module seams, ownership, and public-interface growth.
+
+  - name: Tests
+    model: openai/gpt-5.4:low
+    tools: [read, grep, find]
+    instructions: |
+      Find untested behavior and weak verification.
+</code></pre>
+<p>Add repository-specific priorities at <code>.pi/MICRO_MANAGER.md</code>:</p>
+<pre><code class="language-markdown"># Review priorities
+
+- Watch for writes that bypass the durable queue.
+- Require a focused regression test for each bug fix.
+</code></pre>
+<p>Project files can select models, add instructions, and grant models read-only access to workspace files. The extension reads them only after Pi grants project trust.</p>
+<h2>Commands</h2>
+<p>Use these commands in an interactive Pi session:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/micro-manager</code></td>
+<td>Show current status.</td>
+</tr>
+<tr>
+<td><code>/micro-manager status</code></td>
+<td>Show configuration, models, backlog, token use, cost, and errors.</td>
+</tr>
+<tr>
+<td><code>/micro-manager on</code></td>
+<td>Enable review for this session. Do not replay old history.</td>
+</tr>
+<tr>
+<td><code>/micro-manager off</code></td>
+<td>Stop review for this session.</td>
+</tr>
+<tr>
+<td><code>/micro-manager reload</code></td>
+<td>Reload configuration and rebuild manager runtimes.</td>
+</tr>
+<tr>
+<td><code>/micro-manager dump</code></td>
+<td>Open each manager&#39;s in-memory transcript.</td>
+</tr>
+<tr>
+<td><code>/micro-manager config</code></td>
+<td>Show configuration paths and a small example.</td>
+</tr>
+</tbody></table>
+<p>The process flag overrides <code>enabled</code> for one Pi process:</p>
+<pre><code class="language-sh">pi --micro-manager -p &quot;Review this change.&quot;
+</code></pre>
+<h2>Report delivery</h2>
+<p>Delivery depends on severity and primary-agent state:</p>
+<table>
+<thead>
+<tr>
+<th>Report</th>
+<th>Primary agent active</th>
+<th>Primary agent idle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>nit</code></td>
+<td>Queue a follow-up note.</td>
+<td>Show a card.</td>
+</tr>
+<tr>
+<td><code>concern</code></td>
+<td>Steer the active turn.</td>
+<td>Show a card.</td>
+</tr>
+<tr>
+<td><code>blocker</code></td>
+<td>Steer the active turn.</td>
+<td>Start an interactive correction turn.</td>
+</tr>
+</tbody></table>
+<p><code>immune_turns</code> prevents repeated interruption loops. During immunity, later concerns and blockers become follow-up notes or cards.</p>
+<p>Print and JSON modes buffer reports until the primary agent settles. They wait for review work for at most 60 seconds. They never start a hidden primary turn. JSON mode emits a final micro-manager card. Print mode keeps primary stdout unchanged and stores report metadata in the Pi session.</p>
+<p>See <a href="./docs/architecture.html">Architecture</a> for lifecycle, context, delivery, and limit details.</p>
+<h2>Data and safety</h2>
+<p>Each manager receives a bounded transcript excerpt. The excerpt can contain:</p>
+<ul>
+<li>Visible user and assistant text.</li>
+<li>Tool names, arguments, and text results.</li>
+<li>Selected primary context messages.</li>
+</ul>
+<p>The excerpt excludes hidden reasoning, images, and prior micro-manager messages. Read-tool images become an omission marker. Best-effort redaction removes common credential forms and sensitive argument fields. It cannot detect every secret.</p>
+<p>Each configured model can read and search text in the trusted workspace. The tool wrapper rejects paths and symbolic links that resolve outside that workspace. Do not use a model or provider that must not receive project data.</p>
+<p>Private review conversations, usage, and errors stay in memory. Visible cards and print-mode report metadata use normal Pi session persistence. The extension writes no separate transcript or analytics database.</p>
+<h2>Troubleshoot</h2>
+<p>Start with:</p>
+<pre><code class="language-text">/micro-manager status
+</code></pre>
+<p>The status shows whether review is disabled, active, paused, unavailable, or in error. It also shows loaded files and project-trust state.</p>
+<p>See <a href="./docs/troubleshooting.html">Troubleshooting</a> for missing reports, model resolution, trust, timeout, and headless-mode problems.</p>
+<h2>Update or remove</h2>
+<p>Update installed Pi packages:</p>
+<pre><code class="language-sh">pi update --extensions
+</code></pre>
+<p>Remove this package:</p>
+<pre><code class="language-sh">pi remove git:github.com/Jeecabs/micro-manager
+</code></pre>
+<p>Remove unused <code>MICRO_MANAGER.yml</code>, <code>MICRO_MANAGER.yaml</code>, and <code>MICRO_MANAGER.md</code> files separately.</p>
+<h2>Develop</h2>
+<p>Run a local checkout once without installation:</p>
+<pre><code class="language-sh">pi --no-extensions -e /absolute/path/to/micro-manager
+</code></pre>
+<p>Install dependencies and run all repository checks:</p>
+<pre><code class="language-sh">pnpm install
+pnpm verify
+</code></pre>
+<p><code>pnpm verify</code> runs the TypeScript check, test suite, and package dry run.</p>
+<p>See <a href="./CONTRIBUTING.html">Contributing</a> for change guidelines. Maintainers must follow the <a href="./docs/releasing.html">release procedure</a>.</p>
+<h2>Origin and license</h2>
+<p>The implementation adapts MIT-licensed concepts and selected logic from the original review feature in <a href="https://github.com/can1357/oh-my-pi"><code>can1357/oh-my-pi</code></a>. It replaces upstream runtime integration with public Pi APIs and local modules.</p>
+<p>See <a href="./docs/origin.html">Origin and standalone boundary</a>, the <a href="./CHANGELOG.html">changelog</a>, and <a href="./THIRD_PARTY_NOTICES.html">third-party notices</a>.</p>
+<p>Security reports follow the <a href="./SECURITY.html">security policy</a>. The repository uses the <a href="./LICENSE.html">MIT license</a>.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

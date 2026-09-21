@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>micro-manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">MICRO-MANAGER</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="../docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a href="../docs/origin.html"><span class="marker">&#9671;</span>Origin and standalone boundary</a>
+      <a href="../docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a class="current" href="../docs/troubleshooting.html"><span class="marker">&#9671;</span>Troubleshooting</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
+      <div class="md"><h1>Troubleshooting</h1>
+<p>Run this command first in an interactive session:</p>
+<pre><code class="language-text">/micro-manager status
+</code></pre>
+<p>The output shows the extension state, loaded configuration, project-trust state, manager models, backlog, usage, cost, and latest errors.</p>
+<h2>The extension is disabled</h2>
+<p>Configuration defaults to <code>enabled: false</code>.</p>
+<p>Use one of these options:</p>
+<pre><code class="language-text">/micro-manager on
+</code></pre>
+<pre><code class="language-sh">pi --micro-manager
+</code></pre>
+<pre><code class="language-yaml">enabled: true
+</code></pre>
+<p>The command and flag affect the current session or process. YAML configuration persists for later sessions.</p>
+<h2>The extension is enabled but unavailable</h2>
+<p>This state means that no manager runtime has a resolved model.</p>
+<p>Check these conditions:</p>
+<ol>
+<li>Make sure the primary session has a model when a manager inherits it.</li>
+<li>Use a full <code>provider/model</code> selector for each explicit model.</li>
+<li>Remove an unsupported thinking suffix.</li>
+<li>Make sure at least one named manager has <code>enabled: true</code>.</li>
+<li>Run <code>/micro-manager reload</code> after the fix.</li>
+</ol>
+<p>A bare model ID resolves only when one registered provider has that ID.</p>
+<h2>No report appears</h2>
+<p>The reviewer intentionally stays silent when it finds no concrete issue. Duplicate and content-free reports are also suppressed.</p>
+<p>Review starts after a completed primary-agent turn. Manual enable, configuration reload, and inherited model changes seed current history. They do not review old turns.</p>
+<p>Check <code>/micro-manager status</code> for a backlog or error. Use <code>/micro-manager dump</code> to inspect the manager&#39;s in-memory conversation.</p>
+<h2>Project configuration is ignored</h2>
+<p>Status reports <code>project config: ignored until project trust is granted</code> when project files exist but are inactive.</p>
+<p>Open the project in the Pi TUI and grant trust. A root <code>MICRO_MANAGER</code> file can trigger an extension-specific trust prompt. Use <code>/trust</code> to manage the saved Pi decision.</p>
+<p>Headless modes cannot show the extension-specific prompt. Grant trust in the TUI first. If the project has a standard Pi trust-gated resource, <code>--approve</code> can also grant project trust.</p>
+<p>After a new trust decision, restart Pi if other project resources must also load.</p>
+<h2>Configuration reloads with warnings</h2>
+<p>The extension rejects unknown keys, unsafe tools, bad types, out-of-range limits, large files, and configuration symbolic links.</p>
+<p>Run <code>/micro-manager status</code> to get the warning count. The TUI notification shows the first warning with its file path and parser message.</p>
+<p>Fix the reported file, then run:</p>
+<pre><code class="language-text">/micro-manager reload
+</code></pre>
+<p>The extension skips a bad file and continues to load other configuration files. A more specific file can therefore appear ineffective when validation rejects it.</p>
+<h2>A model stays in error</h2>
+<p>Status shows the latest provider, timeout, output-limit, or tool-loop error for each manager.</p>
+<ol>
+<li>Confirm that Pi can use the selected provider and model.</li>
+<li>Check provider credentials and network access.</li>
+<li>Increase <code>timeout_ms</code> if the model or its tool calls need more time.</li>
+<li>Increase <code>max_output_tokens</code> if the response reaches its token limit.</li>
+<li>Reduce <code>max_tool_rounds</code>, thinking level, or manager instructions if work is too large.</li>
+<li>Run <code>/micro-manager reload</code> after configuration changes.</li>
+</ol>
+<p>The runner retries one update up to <code>max_attempts</code>. It does not retry after shutdown, reset, or session replacement.</p>
+<h2>A manager cannot read a path</h2>
+<p>Manager tools can access only the trusted workspace. The wrapper rejects:</p>
+<ul>
+<li>Absolute paths outside the workspace.</li>
+<li>Parent paths that escape the workspace.</li>
+<li>Symbolic links that resolve outside the workspace.</li>
+</ul>
+<p>Keep evidence inside the workspace. Do not grant a manager shell or write access as a workaround. Those tools are not supported.</p>
+<h2>Reports interrupt too often</h2>
+<p>A <code>concern</code> or <code>blocker</code> can steer an active primary turn. A blocker can also start an interactive correction turn while idle.</p>
+<p>Increase <code>immune_turns</code> to create a longer non-interrupting period:</p>
+<pre><code class="language-yaml">immune_turns: 5
+</code></pre>
+<p>Set it to <code>0</code> to disable immunity. During immunity, reports still arrive as follow-up notes or cards.</p>
+<h2>Print output has no report text</h2>
+<p>Print mode preserves primary stdout. The extension stores reports as <code>micro-manager-report</code> session metadata instead of appending text to stdout.</p>
+<p>JSON mode emits a final micro-manager card. Both headless modes wait for final review work for at most 60 seconds. They do not start hidden primary turns.</p>
+<p>Use JSON mode or inspect the saved Pi session when automation must consume report data.</p>
+<h2>Review uses too much time or money</h2>
+<p>Each named manager has an independent model conversation. More managers increase provider calls and cost.</p>
+<p>Use <code>/micro-manager status</code> to compare token use and cost. Then apply one or more changes:</p>
+<ul>
+<li>Disable low-value managers.</li>
+<li>Lower the thinking level.</li>
+<li>Reduce <code>max_input_chars</code> or <code>max_context_chars</code>.</li>
+<li>Reduce <code>max_tool_rounds</code>.</li>
+<li>Reduce <code>max_attempts</code>.</li>
+<li>Use a less expensive review model.</li>
+</ul>
+<p>Small limits can reduce review quality. Change one limit at a time and inspect the resulting reports.</p>
+<h2>The in-memory transcript disappeared</h2>
+<p>The extension clears private manager context after compaction, tree navigation, reload, model rebuild, reset, or shutdown. This behavior prevents stale review context from crossing primary-session history changes.</p>
+<p>The extension does not write a separate review transcript database.</p>
+<h2>Report a defect</h2>
+<p>Before opening an issue, run:</p>
+<pre><code class="language-sh">pnpm verify
+</code></pre>
+<p>Include these details in the report:</p>
+<ul>
+<li>Pi version and Node.js version.</li>
+<li>Session mode: TUI, print, or JSON.</li>
+<li>Redacted <code>MICRO_MANAGER.yml</code> content.</li>
+<li><code>/micro-manager status</code> output.</li>
+<li>Minimal reproduction steps.</li>
+</ul>
+<p>Do not include provider credentials, secrets, or a private transcript. Open the report in the repository&#39;s GitHub issue tracker.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

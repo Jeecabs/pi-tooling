@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-tooltime</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-TOOLTIME</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="../docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a href="../docs/core-api.html"><span class="marker">&#9671;</span>Core API</a>
+      <a href="../docs/data-and-privacy.html"><span class="marker">&#9671;</span>Data and privacy</a>
+      <a href="../docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a href="../docs/remote-export.html"><span class="marker">&#9671;</span>Remote Export</a>
+      <a class="current" href="../docs/terminology.html"><span class="marker">&#9671;</span>Terminology</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">WORKFLOW</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
+      <div class="md"><h1>Terminology</h1>
+<p>Pi Tooltime uses these names in reports, config, APIs, and project discussions.</p>
+<h2>Task Trace</h2>
+<p>A record for one accepted Pi task run. It starts before the agent starts and ends after the agent settles.</p>
+<p>A Task Trace can include multiple model turns, retries, continuations, and parallel tool calls. A Pi session can contain many Task Traces.</p>
+<p>Do not use <em>session</em> or <em>turn</em> as a synonym.</p>
+<h2>Tool Span</h2>
+<p>The elapsed interval from a tool execution start event to its matching end event.</p>
+<p>Do not use <em>tool result</em> or <em>command duration</em> as a synonym.</p>
+<h2>Task Wall Time</h2>
+<p>Elapsed time from Task Trace start to completion.</p>
+<p>The API field is <code>taskWallMs</code>.</p>
+<h2>Tool Wall Time</h2>
+<p>The union of all Tool Spans in a Task Trace. Overlapping Tool Spans count once.</p>
+<p>This value measures how long at least one tool was active. The API field is <code>toolWallMs</code>.</p>
+<p>Do not call this value <em>total tool time</em>.</p>
+<h2>Tool Call Time</h2>
+<p>The sum of all Tool Span durations. Overlapping Tool Spans count more than once.</p>
+<p>This value can exceed Task Wall Time when tools run in parallel. The API field is <code>toolCallMs</code>.</p>
+<p>Do not use <em>Tool Wall Time</em> as a synonym.</p>
+<h2>Tool Identifier</h2>
+<p>The normalized stored tool name in <code>toolName</code>.</p>
+<p>Pi Tooltime preserves names that match <code>[a-z][a-z0-9_-]{0,63}</code>. An unsafe name becomes a known family or <code>other</code>.</p>
+<p>A Tool Identifier is not always coarse. It can reveal an integration or capability.</p>
+<p>Local human reports preserve normalized Tool Identifiers. Model-visible analysis reports keep built-in labels but group custom identifiers into fixed model-safe labels.</p>
+<h2>Tool Family</h2>
+<p>A fixed coarse source or capability class:</p>
+<pre><code class="language-text">repository, web, database, issues, process, test, shell, other
+</code></pre>
+<p>The API field is <code>family</code>.</p>
+<h2>Tool Operation</h2>
+<p>A fixed coarse action class:</p>
+<pre><code class="language-text">read, search, analyze, mutate, interact, query, request, command,
+test-targeted, test-full, report, unknown
+</code></pre>
+<p>The API field is <code>operation</code>. A raw custom-tool <code>action</code> is not stored.</p>
+<p>The classifier maps unknown actions to <code>unknown</code> and mutating.</p>
+<h2>Tool Scope</h2>
+<p>A fixed coarse target scope:</p>
+<pre><code class="language-text">targeted, project, outside, root, full, unknown
+</code></pre>
+<p>The optional API field is <code>scope</code>.</p>
+<h2>Result Kind</h2>
+<p>A fixed coarse tool-result classification:</p>
+<pre><code class="language-text">nonempty, empty, error, unknown
+</code></pre>
+<p>The API field is <code>resultKind</code>.</p>
+<h2>Source Intent</h2>
+<p>A fixed coarse class inferred from explicit words in a task prompt:</p>
+<pre><code class="language-text">repository, web, database
+</code></pre>
+<p>The optional API field is <code>intent</code>. Pi Tooltime leaves it absent when it finds no intent or more than one intent.</p>
+<h2>Efficiency Finding</h2>
+<p>Deterministic evidence that some tool work might have been avoidable. A finding is not proof of waste or poor behavior.</p>
+<p>Each finding uses a fixed code. In the current schema, <code>signature</code> equals <code>code</code>.</p>
+<p>Do not use <em>violation</em> or <em>bad call</em> as a synonym.</p>
+<h2>Suspected Avoidable Wall Time</h2>
+<p>The union of Tool Spans referenced by Efficiency Findings. The API field is <code>suspectedWasteMs</code>.</p>
+<p>This value is an estimate from fixed detectors. It is not a causal measurement.</p>
+<h2>Guidance Rule</h2>
+<p>A short fixed tool-use instruction. Repeated high-confidence Efficiency Findings can select an observed Guidance Rule.</p>
+<p>A Guidance Rule does not contain a captured prompt, tool input, tool result, path, or fingerprint.</p>
+<h2>Guidance Rule ID</h2>
+<p>A fixed identifier for one Guidance Rule. The API field is <code>guidanceId</code> in findings and <code>id</code> in prompt rules.</p>
+<p>Multiple finding codes can map to the same Guidance Rule ID.</p>
+<h2>Baseline Guidance</h2>
+<p>A fixed set of Guidance Rules. Coach Mode can use these rules before project evidence meets promotion thresholds.</p>
+<p>Baseline Guidance does not come from local data.</p>
+<h2>Policy Version</h2>
+<p>A 12-character SHA-256 prefix over the selected Guidance Rule IDs and text.</p>
+<p>The optional Task Trace field is <code>policyVersion</code>. It identifies prompt policy content, not a package release.</p>
+<h2>Analytics Mode</h2>
+<p>The passive mode that records Task Traces and computes Efficiency Findings. It does not change the system prompt.</p>
+<p>The config value is <code>analytics</code>.</p>
+<h2>Coach Mode</h2>
+<p>The active mode that includes analytics and appends a bounded set of Guidance Rules to the system prompt.</p>
+<p>Coach Mode does not block or rewrite tool calls. The config value is <code>coach</code>.</p>
+<h2>Off Mode</h2>
+<p>The mode that stops new Task Traces and prompt guidance. It does not delete existing data.</p>
+<p>The config value is <code>off</code>.</p>
+<h2>Local Fingerprint</h2>
+<p>A process-keyed HMAC over a bounded canonical form of one tool name and input. It has the prefix <code>h1:</code>.</p>
+<p>The key and canonical input are not stored. Fingerprints from separate processes are intentionally not comparable.</p>
+<p>Local Fingerprints never enter the Remote Trace.</p>
+<h2>Remote Trace</h2>
+<p>The explicit Task Trace subset eligible for Remote Export.</p>
+<p>A Remote Trace omits task and session IDs, Local Fingerprints, guidance text, and extra fields. It includes exact timestamps, mode, policy, timing, normalized calls, and coarse findings.</p>
+<p>See <a href="remote-export.html">Remote Export</a> for the exact schema.</p>
+<h2>Remote Export</h2>
+<p>An explicit user opt-in that sends Remote Traces to a user-selected server. Local Task Traces remain independent.</p>
+<p>Remote Export is off by default. Project config cannot control it.</p>
+<h2>Relationships</h2>
+<ul>
+<li>A Task Trace contains zero or more Tool Spans.</li>
+<li>Tool Wall Time measures tool occupancy without double-counting overlap.</li>
+<li>Tool Call Time measures aggregate work and can count overlap more than once.</li>
+<li>An Efficiency Finding references one or more Tool Spans.</li>
+<li>Repeated high-confidence findings can select an observed Guidance Rule.</li>
+<li>Coach Mode can inject Guidance Rules but cannot enforce them.</li>
+<li>Remote Export sends Remote Traces, not complete local Task Traces.</li>
+</ul>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

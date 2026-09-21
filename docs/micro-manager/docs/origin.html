@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>micro-manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">MICRO-MANAGER</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a href="../docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a class="current" href="../docs/origin.html"><span class="marker">&#9671;</span>Origin and standalone boundary</a>
+      <a href="../docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a href="../docs/troubleshooting.html"><span class="marker">&#9671;</span>Troubleshooting</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
+      <div class="md"><h1>Origin and standalone boundary</h1>
+<p>The Micro Manager is an independent Pi extension. It derives from the MIT-licensed review feature in <a href="https://github.com/can1357/oh-my-pi"><code>can1357/oh-my-pi</code></a> at source commit <a href="https://github.com/can1357/oh-my-pi/commit/896bf5f33e0b67bdd0cf951c82739a28e75d0823"><code>896bf5f33e0b67bdd0cf951c82739a28e75d0823</code></a>.</p>
+<h2>Adapted behavior</h2>
+<p>The implementation retains these review concepts and selected logic:</p>
+<ul>
+<li>Bounded background review.</li>
+<li>Named review models.</li>
+<li>Severity-aware notes.</li>
+<li>Duplicate and filler suppression.</li>
+<li>Read-only investigation.</li>
+<li>Late-result delivery.</li>
+<li>Project-specific review priorities.</li>
+</ul>
+<p>The code has changed to fit Pi&#39;s public extension surface and this package&#39;s smaller scope. Tests in this repository cover the adapted behavior.</p>
+<h2>Standalone implementation</h2>
+<p>This package replaces upstream runtime integration with public Pi APIs and local modules. It has no run-time import, build dependency, service dependency, transcript format dependency, or configuration dependency on oh-my-pi.</p>
+<p>The package does not require oh-my-pi to install, start, configure, update, or remove The Micro Manager.</p>
+<h2>Excluded upstream scope</h2>
+<p>This package does not include:</p>
+<ul>
+<li>Mutating review tools.</li>
+<li>Cursor bridges.</li>
+<li>MCP resources.</li>
+<li>Service tiers or credential rotation.</li>
+<li>Task-agent hooks or Agent Hub integration.</li>
+<li>Private compaction integration.</li>
+<li>Separate review transcript persistence.</li>
+<li>A full-screen configuration interface.</li>
+</ul>
+<p>These exclusions define the current package boundary. They are not compatibility promises for either project.</p>
+<h2>License records</h2>
+<p>The repository keeps the required copyright and permission text in <a href="../LICENSE.html"><code>LICENSE.md</code></a>. It records the adapted source and source commit in <a href="../THIRD_PARTY_NOTICES.html"><code>THIRD_PARTY_NOTICES.md</code></a>.</p>
+<p>See <a href="./architecture.html"><code>docs/architecture.md</code></a> for the current module and API boundary.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

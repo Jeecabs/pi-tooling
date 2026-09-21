@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/aura">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">AURA</div>
+      <a class="current" href="index.html"><span class="marker">&#9670;</span>README</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/aura"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">INTERFACE</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/aura">Jeecabs/aura &nearr;</a></div>
+      <div class="md"><p align="center">
+  <img src="logo.png" width="200" alt="aura">
+</p><h1>aura</h1>
+<p>A <a href="https://github.com/badlogic/pi-mono">pi</a> extension that gives the input frame an aura. It breathes with your music. It samples your Mac&#39;s system-audio loudness and glows the frame in time: dim when it&#39;s quiet, laser cyan through hot pink to white-hot when it&#39;s loud.</p>
+<p>Aura uses the same compact rounded frame as Lohan&#39;s Land. With both packages active, Aura decorates the integrated frame. It does not replace the editor. Status colors and editor content stay untouched.</p>
+<p>macOS only. Everywhere else it&#39;s a silent no-op.</p>
+<h2>Install</h2>
+<pre><code class="language-bash">pi install https://github.com/Jeecabs/aura
+</code></pre>
+<h3>Local development</h3>
+<pre><code class="language-bash">git clone https://github.com/Jeecabs/aura.git ~/.pi/agent/extensions/aura
+cd ~/.pi/agent/extensions/aura
+pnpm install
+</code></pre>
+<p>Reload pi if it&#39;s already running:</p>
+<pre><code class="language-text">/reload
+</code></pre>
+<h2>Use</h2>
+<pre><code class="language-text">/aura          toggle the aura on/off
+/aura on
+/aura off
+/aura status   show state and the current dB reading
+</code></pre>
+<p>The setting survives restarts. If it was on when you quit, it comes back on.</p>
+<h2>Editor compatibility</h2>
+<p>Aura changes editor rendering only. With Lohan&#39;s Land, Powerline retains its input, shell, stash, autocomplete, and status behavior. Aura colors only the frame glyphs.</p>
+<p>Without Lohan&#39;s Land, Aura wraps the current custom editor instance. If no custom editor exists, Aura supplies the same rounded frame.</p>
+<h2>Requirements</h2>
+<ul>
+<li><strong>Pi 0.84.x.</strong> Editor wrapping and inter-extension decoration use the Pi 0.84 editor API.</li>
+<li><strong>macOS.</strong> Audio capture uses ScreenCaptureKit; the extension does nothing on other platforms.</li>
+<li><strong>A truecolor terminal.</strong> The frame only glows with 24-bit color. <code>/aura on</code> warns you if your terminal can&#39;t do it.</li>
+<li><strong>Swift toolchain</strong> (<code>swiftc</code>, ships with Xcode / Command Line Tools). On first use it compiles a tiny helper.</li>
+<li><strong>Screen Recording permission.</strong> ScreenCaptureKit captures system audio through the screen-recording API, so macOS will prompt for it the first time.</li>
+</ul>
+<h2>How it works</h2>
+<p>On first run the extension writes a small Swift helper to a temp dir and compiles it with <code>swiftc</code> (cached by content hash, so it&#39;s a one-time cost). The helper opens a ScreenCaptureKit audio stream, computes RMS loudness per frame, and prints the dB level to stdout. The extension reads that stream and drives the glow.</p>
+<p>System audio is heavily compressed, so a fixed dB→brightness mapping just pins the glow to white. Instead it runs an adaptive auto-gain: a slow floor and ceiling track the quiet and loud passages of whatever&#39;s playing, and each sample is mapped against that moving window. Fast attack on transients, gentle release, so the frame pulses with the beat instead of flickering.</p>
+<p>There&#39;s only one honest signal here, loudness, so it&#39;s shown as one thing: intensity. No fake spectrum.</p>
+<h2>Layout</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>src/index.ts</code></td>
+<td>The extension: <code>/aura</code>, auto-gain, editor wrapping, and Lohan&#39;s Land composition.</td>
+</tr>
+<tr>
+<td><code>src/editor-chrome.ts</code></td>
+<td>The shared rounded frame shape and frame-only glow renderer.</td>
+</tr>
+<tr>
+<td><code>src/system-audio.ts</code></td>
+<td><code>SystemAudioSampler</code>, compiles and runs the Swift helper, exposes a <code>db()</code> reading.</td>
+</tr>
+</tbody></table>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

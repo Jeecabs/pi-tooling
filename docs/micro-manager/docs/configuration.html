@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>micro-manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">MICRO-MANAGER</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/architecture.html"><span class="marker">&#9671;</span>Architecture</a>
+      <a class="current" href="../docs/configuration.html"><span class="marker">&#9671;</span>Configuration</a>
+      <a href="../docs/origin.html"><span class="marker">&#9671;</span>Origin and standalone boundary</a>
+      <a href="../docs/releasing.html"><span class="marker">&#9671;</span>Releasing</a>
+      <a href="../docs/troubleshooting.html"><span class="marker">&#9671;</span>Troubleshooting</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
+      <div class="md"><h1>Configuration</h1>
+<p>The Micro Manager loads YAML settings and Markdown review priorities. User files apply to all projects. Project files apply only after Pi grants project trust.</p>
+<h2>Quick configuration</h2>
+<p>Create <code>~/.pi/agent/MICRO_MANAGER.yml</code>:</p>
+<pre><code class="language-yaml">enabled: true
+thinking: low
+tools: [read, grep, find, ls]
+</code></pre>
+<p>When no later file defines named managers, this configuration creates one default manager. It uses the primary session model.</p>
+<p>Run <code>/micro-manager reload</code> after you change a file in an active session.</p>
+<h2>YAML settings</h2>
+<p>Top-level settings control the extension and all manager runtimes.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th align="right">Default</th>
+<th>Accepted value</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>enabled</code></td>
+<td align="right"><code>false</code></td>
+<td>Boolean</td>
+<td>Enable review when the session starts.</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td align="right">Primary model</td>
+<td>Model selector</td>
+<td>Set the inherited review model.</td>
+</tr>
+<tr>
+<td><code>thinking</code></td>
+<td align="right"><code>low</code></td>
+<td>Pi thinking level</td>
+<td>Set the inherited thinking level.</td>
+</tr>
+<tr>
+<td><code>tools</code></td>
+<td align="right">All four tools</td>
+<td>Tool-name array</td>
+<td>Set the inherited investigation tools.</td>
+</tr>
+<tr>
+<td><code>timeout_ms</code></td>
+<td align="right"><code>30000</code></td>
+<td>1,000 to 120,000</td>
+<td>Limit one provider attempt, including its tool rounds.</td>
+</tr>
+<tr>
+<td><code>max_input_chars</code></td>
+<td align="right"><code>24000</code></td>
+<td>2,000 to 100,000</td>
+<td>Limit one primary transcript update.</td>
+</tr>
+<tr>
+<td><code>max_output_tokens</code></td>
+<td align="right"><code>512</code></td>
+<td>64 to 4,096</td>
+<td>Limit each provider response.</td>
+</tr>
+<tr>
+<td><code>max_tool_rounds</code></td>
+<td align="right"><code>3</code></td>
+<td>0 to 8</td>
+<td>Limit read-only investigation rounds for one update.</td>
+</tr>
+<tr>
+<td><code>max_context_chars</code></td>
+<td align="right"><code>100000</code></td>
+<td>8,000 to 500,000</td>
+<td>Limit one manager&#39;s private conversation.</td>
+</tr>
+<tr>
+<td><code>max_attempts</code></td>
+<td align="right"><code>2</code></td>
+<td>1 to 3</td>
+<td>Set the number of provider attempts for one update.</td>
+</tr>
+<tr>
+<td><code>immune_turns</code></td>
+<td align="right"><code>3</code></td>
+<td>0 to 20</td>
+<td>Set non-interrupting turns after an interrupting report.</td>
+</tr>
+<tr>
+<td><code>instructions</code></td>
+<td align="right">None</td>
+<td>Nonempty string</td>
+<td>Add shared instructions to every manager.</td>
+</tr>
+<tr>
+<td><code>managers</code></td>
+<td align="right">None</td>
+<td>Manager array</td>
+<td>Replace the default manager with named managers.</td>
+</tr>
+</tbody></table>
+<p>Accepted thinking levels are <code>off</code>, <code>minimal</code>, <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, and <code>max</code>. Pi clamps the level to the selected model&#39;s capabilities.</p>
+<p>Accepted tools are <code>read</code>, <code>grep</code>, <code>find</code>, and <code>ls</code>. <code>search</code> maps to <code>grep</code>. <code>glob</code> maps to <code>find</code>. An empty tool array disables file investigation but keeps the internal <code>report</code> tool.</p>
+<p><code>timeout_ms</code> covers all model calls and tool work in one attempt. Each retry starts a new timeout.</p>
+<p>A primary update cannot exceed half of <code>max_context_chars</code>. This rule applies even when <code>max_input_chars</code> is larger.</p>
+<h2>Model selectors</h2>
+<p>Use a provider and model ID when you select a model:</p>
+<pre><code class="language-yaml">model: anthropic/claude-sonnet-4-6
+</code></pre>
+<p>Add a thinking suffix to override the inherited thinking level:</p>
+<pre><code class="language-yaml">model: anthropic/claude-sonnet-4-6:medium
+</code></pre>
+<p>A bare model ID works only when exactly one registered provider has that ID. Use <code>provider/model</code> to avoid ambiguity.</p>
+<p>If you omit <code>model</code>, the manager follows the primary session model. The extension rebuilds inherited-model managers after primary model selection changes. It starts from current history and does not replay earlier turns.</p>
+<h2>Named managers</h2>
+<p>Use named managers for separate review concerns:</p>
+<pre><code class="language-yaml">enabled: true
+model: anthropic/claude-sonnet-4-6
+thinking: low
+tools: [read, grep, find, ls]
+
+instructions: |
+  Report only claims supported by repository evidence.
+
+managers:
+  - name: Architecture
+    thinking: medium
+    instructions: |
+      Check ownership, state transitions, and module boundaries.
+
+  - name: Tests
+    model: openai/gpt-5.4:low
+    tools: [read, grep, find]
+    instructions: |
+      Check regression coverage and failure paths.
+
+  - name: Paused example
+    enabled: false
+</code></pre>
+<p>Each manager accepts these keys:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th align="right">Default</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>name</code></td>
+<td align="right">Required</td>
+<td>Set the display name and merge identity. Maximum length is 80 characters.</td>
+</tr>
+<tr>
+<td><code>enabled</code></td>
+<td align="right"><code>true</code></td>
+<td>Start or pause this manager.</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td align="right">Top-level model</td>
+<td>Override the model selector.</td>
+</tr>
+<tr>
+<td><code>thinking</code></td>
+<td align="right">Top-level thinking</td>
+<td>Override the thinking level.</td>
+</tr>
+<tr>
+<td><code>tools</code></td>
+<td align="right">Top-level tools</td>
+<td>Override the investigation tools.</td>
+</tr>
+<tr>
+<td><code>instructions</code></td>
+<td align="right">None</td>
+<td>Add instructions after shared instructions.</td>
+</tr>
+</tbody></table>
+<p>When <code>managers</code> contains any definitions, the extension does not create the default manager. If all named managers are paused, no review model runs.</p>
+<p>Configuration retains at most eight merged manager definitions. If file merging produces more than eight, the extension keeps the eight most specific definitions and reports a warning.</p>
+<h2>Markdown priorities</h2>
+<p>Put project-specific review priorities in <code>MICRO_MANAGER.md</code>:</p>
+<pre><code class="language-markdown"># Review priorities
+
+- Check that durable writes finish before success is reported.
+- Require terminal text to remove control characters.
+- Require a package smoke test before release.
+</code></pre>
+<p>The extension wraps each Markdown file as an attention block in the system prompt. It appends all nonempty blocks in load order.</p>
+<p>Treat these files as model instructions. Do not put secrets in them.</p>
+<h2>File locations and load order</h2>
+<p>The extension checks these user files first:</p>
+<ol>
+<li><code>~/.pi/agent/MICRO_MANAGER.yml</code> or <code>MICRO_MANAGER.yaml</code></li>
+<li><code>~/.pi/agent/MICRO_MANAGER.md</code></li>
+</ol>
+<p>For a Git worktree, it then walks from the repository root to the current directory. At each directory, it checks:</p>
+<ol>
+<li><code>MICRO_MANAGER.yml</code> or <code>MICRO_MANAGER.yaml</code></li>
+<li><code>MICRO_MANAGER.md</code></li>
+<li><code>.pi/MICRO_MANAGER.yml</code> or <code>.pi/MICRO_MANAGER.yaml</code></li>
+<li><code>.pi/MICRO_MANAGER.md</code></li>
+</ol>
+<p>When both YAML suffixes exist at one location, <code>.yml</code> takes precedence. The extension does not read the <code>.yaml</code> file at that location.</p>
+<p>Later YAML settings replace earlier top-level settings. Shared <code>instructions</code> values accumulate in load order.</p>
+<p>Manager names use a normalized lowercase identity. A later manager replaces the complete earlier definition with the same identity. The replacement then inherits the final top-level model, thinking level, and tools.</p>
+<p>For example, <code>Architecture</code>, <code>architecture</code>, and <code>Architecture /</code> normalize to the same identity. Use stable, distinct names across configuration levels.</p>
+<p>Outside a Git worktree, the extension checks only the current directory and its <code>.pi</code> directory for project files.</p>
+<h2>Project trust</h2>
+<p>Project <code>MICRO_MANAGER</code> files are repository-controlled model instructions. They can select providers and grant read-only access to workspace files. The extension requires explicit Pi project trust before it reads their content.</p>
+<p>The extension checks file metadata to detect a project configuration. It does not read configuration content during that check.</p>
+<p>In the TUI, the extension asks for trust when a root <code>MICRO_MANAGER</code> file is the only project resource. A saved <code>/trust</code> decision applies to later sessions.</p>
+<p>Print and JSON modes cannot show this extension&#39;s trust prompt. Grant trust in an interactive session before a headless run. <code>--approve</code> can grant trust when the project also contains a standard Pi trust-gated resource, such as <code>.pi/settings.json</code>.</p>
+<p>User files do not require project trust.</p>
+<h2>Validation and failure rules</h2>
+<p>The parser rejects:</p>
+<ul>
+<li>Unknown YAML keys.</li>
+<li>Duplicate YAML keys.</li>
+<li>Values with the wrong type.</li>
+<li>Limits outside their accepted range.</li>
+<li>Tools other than the four read-only tools and their aliases.</li>
+<li>Manager names with control or formatting characters.</li>
+<li>YAML files larger than 64 KiB.</li>
+<li>Symbolic links and non-regular configuration files.</li>
+</ul>
+<p>A bad file produces a configuration warning. The extension skips that file and continues with other files. Run <code>/micro-manager status</code> to see the warning count and loaded source paths.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pi-processes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">PI-PROCESSES</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/README.html"><span class="marker">&#9671;</span>docs</a>
+      <a href="../docs/future-cleanup-hooks.html"><span class="marker">&#9671;</span>Future Cleanup Hooks</a>
+      <a class="current" href="../docs/future-persistent-manager.html"><span class="marker">&#9671;</span>Future Persistent Manager</a>
+      <a href="../docs/notifications.html"><span class="marker">&#9671;</span>Process notifications</a>
+      <a href="../docs/python-presentation.html"><span class="marker">&#9671;</span>Python presentation</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose">
+      <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
+      <div class="md"><h1>Future Persistent Manager</h1>
+<p>The current implementation does not keep processes alive across <code>/reload</code>, <code>/new</code>, or <code>/fork</code>. The core extension owns one <code>ProcessManager</code> in its extension closure and shuts it down with <code>manager.killAll()</code> and <code>manager.cleanup()</code> during <code>session_shutdown</code>.</p>
+<p>This document describes how to add cross-session persistence later if we decide the UX is worth the extra lifecycle complexity.</p>
+<h2>Assumptions</h2>
+<ul>
+<li><code>ProcessManager</code> should stay Pi-agnostic. It should not know about sessions, reloads, extension APIs, settings, or <code>globalThis</code>.</li>
+<li>Persistence is an extension lifecycle policy, not a per-process option and not a tool parameter.</li>
+<li>UI extensions should still talk to the core extension through <code>pi.events</code>; they should not import the manager.</li>
+<li>All Pi event listeners must still be disposed on <code>session_shutdown</code>, even when the manager survives.</li>
+</ul>
+<h2>Recommended Design</h2>
+<p>Keep the singleton outside <code>src/manager</code>. Add a small lifecycle module in the core extension layer, for example <code>extensions/processes/manager-lifetime.ts</code>.</p>
+<p>That module can own:</p>
+<ul>
+<li>A <code>globalThis</code> key such as <code>Symbol.for(&quot;@aliou/pi-processes/core-manager&quot;)</code></li>
+<li>A record containing <code>{ manager, generation, getConfiguredShellPath }</code></li>
+<li>Functions such as <code>getExtensionManager({ persistent, getConfiguredShellPath })</code> and <code>shutdownExtensionManager({ persistent, manager })</code></li>
+</ul>
+<p>For non-persistent mode, return a fresh manager and require the extension shutdown hook to kill and clean it up.</p>
+<p>For persistent mode, store the manager on <code>globalThis</code> and return the existing instance on reload. Do not store Pi APIs, event buses, config objects, or UI subscribers globally. Those belong to the current extension instance and must be recreated every reload.</p>
+<h2>Shutdown Rules</h2>
+<p>On <code>session_shutdown</code>:</p>
+<ol>
+<li>Remove all Pi listeners and manager event bridge listeners for the current extension instance.</li>
+<li>Clear any log subscriber maps owned by the current extension instance.</li>
+<li>If persistence is disabled, call <code>manager.killAll()</code> and <code>manager.cleanup()</code>.</li>
+<li>If persistence is enabled, leave the manager running but do not leave stale Pi callbacks attached to it.</li>
+</ol>
+<p>On actual Node process exit, kill all live processes regardless of persistence. Persistence should only survive Pi session reloads, not application exit.</p>
+<h2>Tests To Add</h2>
+<ul>
+<li>Persistent reload returns the same manager instance.</li>
+<li>Persistent shutdown removes listeners but does not call <code>killAll()</code>.</li>
+<li>Non-persistent shutdown calls <code>killAll()</code> and <code>cleanup()</code> on the extension-owned manager.</li>
+<li>Reloading the core extension does not duplicate event bridge notifications.</li>
+<li>Config changes still affect shell selection through a lazy <code>getConfiguredShellPath</code> callback.</li>
+<li>UI log subscribers are not persisted and must re-subscribe after reload.</li>
+</ul>
+<h2>Known Footgun</h2>
+<p>Do not add a <code>shutdownManager(false)</code> helper that looks only in <code>globalThis</code>. A non-persistent manager is usually owned by the extension closure, so a global-only shutdown helper cannot find it. Either pass the active manager to shutdown or keep shutdown in the extension disposer that already closes over that manager.</p>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>
