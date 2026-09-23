@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -52,8 +53,8 @@
 <li><strong>The project store admits.</strong> The proposal is revalidated and commits only if the captured branch digest still matches current memory.</li>
 <li><strong>Pi reports.</strong> An open Pi shows project-local progress and receives the terminal result. Otherwise, the next project session displays the result.</li>
 </ol>
-<p><a href="/external-mode-explainer.svg"><img src="/external-mode-explainer.svg" alt="External mode durability and authority flow"></a></p>
-<p><a href="/external-mode-explainer.svg">Open the full-size diagram</a></p>
+<p><a href="https://jeecabs.github.io/no-forgetti/external-mode-explainer.svg"><img src="https://jeecabs.github.io/no-forgetti/external-mode-explainer.svg" alt="External mode durability and authority flow"></a></p>
+<p><a href="https://jeecabs.github.io/no-forgetti/external-mode-explainer.svg">Open the full-size diagram</a></p>
 <h2>What does not change</h2>
 <ul>
 <li>Foreground <code>project_memory</code> writes remain immediate inside Pi.</li>
@@ -64,7 +65,7 @@
 <li>Historical Pi sessions are not imported automatically.</li>
 </ul>
 <h2>Choose an authority mode</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Mode</th>

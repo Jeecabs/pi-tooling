@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pi-tooltime</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
@@ -28,25 +29,25 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
       <div class="md"><h1>Configuration</h1>
 <p>Pi Tooltime uses JSON config, environment variables, and optional session mode state. Unknown or invalid values produce warnings. They do not replace the last valid value.</p>
 <h2>Config files</h2>
 <p>The user-global file is:</p>
-<pre><code class="language-text">&lt;agent-dir&gt;/tooltime.json
+<pre tabindex="0"><code class="language-text">&lt;agent-dir&gt;/tooltime.json
 </code></pre>
 <p><code>&lt;agent-dir&gt;</code> is the value of <code>PI_CODING_AGENT_DIR</code> when set. The default path is <code>~/.pi/agent/tooltime.json</code>.</p>
 <p>File-based Remote Export config has an extra location check. The configured agent directory must be absolute. Both the configured and resolved agent directory and <code>tooltime.json</code> paths must be outside the current project directory.</p>
 <p>When this check fails, Pi Tooltime still reads other settings from the file. It ignores the complete <code>remote</code> value and produces a warning. <code>PI_TOOLTIME_REMOTE_*</code> environment variables still work.</p>
 <p>The project file is:</p>
-<pre><code class="language-text">.pi/tooltime.json
+<pre tabindex="0"><code class="language-text">.pi/tooltime.json
 </code></pre>
 <p>Pi Tooltime reads project config only after Pi trusts the project. It does not read this file in an untrusted project.</p>
 <p>A trusted project can change local analytics and coach settings. It cannot change Remote Export. Pi Tooltime ignores the complete project <code>remote</code> value and produces a warning.</p>
 <h2>Example</h2>
-<pre><code class="language-json">{
+<pre tabindex="0"><code class="language-json">{
   &quot;mode&quot;: &quot;analytics&quot;,
   &quot;retentionDays&quot;: 30,
   &quot;maxTasks&quot;: 2000,
@@ -67,7 +68,7 @@
 <p>Put <code>remote</code> only in an eligible user-global file. Put the bearer token in <code>PI_TOOLTIME_REMOTE_TOKEN</code>, not in JSON.</p>
 <h2>Keys</h2>
 <p>All numeric values must be integers.</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Key</th>
@@ -172,7 +173,7 @@
 <p><code>maxCallsPerTask</code> bounds stored call details. Timing totals still include calls omitted after this limit. <code>droppedCallCount</code> contains the omitted count.</p>
 <p>Storage has separate byte limits. See <a href="data-and-privacy.html">Data and privacy</a> for exact local limits and retention behavior.</p>
 <h2>Environment variables</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Variable</th>
@@ -233,7 +234,7 @@
 <h2>Reload behavior</h2>
 <p>Pi Tooltime does not watch config files.</p>
 <p>After you edit a JSON file, run:</p>
-<pre><code class="language-text">/tooltime reload
+<pre tabindex="0"><code class="language-text">/tooltime reload
 </code></pre>
 <p>This command waits for current agent work to finish. It closes incomplete Tooltime work, flushes pending writes, reads config, and reloads local traces.</p>
 <p>Use <code>/reload</code> after you install or update the extension. This command reconstructs the extension and reads config again.</p>

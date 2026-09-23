@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pi-tooltime</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
@@ -28,7 +29,7 @@
       <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
       <div class="md"><h1>Pi Tooltime</h1>
@@ -46,12 +47,12 @@
 <p>Pi Tooltime inspects task prompts, tool inputs, and tool results in memory. It persists only allowlisted analytics fields. Read <a href="docs/data-and-privacy.html">Data and privacy</a> before use in a sensitive project.</p>
 <h2>Install</h2>
 <p>Install the pinned stable v1.0.0 release:</p>
-<pre><code class="language-bash">pi install git:github.com/Jeecabs/pi-tooltime@v1.0.0
+<pre tabindex="0"><code class="language-bash">pi install git:github.com/Jeecabs/pi-tooltime@v1.0.0
 </code></pre>
 <p>Pin the exact tag and review the changelog before an upgrade.</p>
 <p>Package update commands keep this ref pinned. They can reset its checkout to the selected ref, but they do not select a newer release.</p>
 <p>To follow the default branch, install the unpinned edge version:</p>
-<pre><code class="language-bash">pi install git:github.com/Jeecabs/pi-tooltime
+<pre tabindex="0"><code class="language-bash">pi install git:github.com/Jeecabs/pi-tooltime
 </code></pre>
 <p>The edge version can change without a release tag. Restart Pi or run <code>/reload</code> after installation.</p>
 <h2>Get the first report</h2>
@@ -59,19 +60,19 @@
 <li><p>Start Pi in a project.</p>
 </li>
 <li><p>Check the active mode and storage path:</p>
-<pre><code class="language-text">/tooltime status
+<pre tabindex="0"><code class="language-text">/tooltime status
 </code></pre>
 </li>
 <li><p>Submit a normal task and wait for Pi to finish.</p>
 </li>
 <li><p>Show the session report:</p>
-<pre><code class="language-text">/tooltime report session
+<pre tabindex="0"><code class="language-text">/tooltime report session
 </code></pre>
 </li>
 </ol>
 <p>Analytics mode is the default. It records task analytics without changing the system prompt.</p>
 <p>A report can look like this:</p>
-<pre><code class="language-text">Tooltime report · session
+<pre tabindex="0"><code class="language-text">Tooltime report · session
 tasks: 3
 task wall: 4m 18s
 tool wall: 2m 6s (49% of task wall)
@@ -90,7 +91,7 @@ Efficiency findings:
 </code></pre>
 <p>This sample is illustrative. A finding is evidence, not proof that work was avoidable.</p>
 <h2>Modes</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Mode</th>
@@ -117,18 +118,18 @@ Efficiency findings:
 <p>Coach mode appends at most the configured number of fixed Guidance Rules. It does not block or rewrite tool calls. Observed guidance requires repeated, high-confidence findings that meet both promotion thresholds.</p>
 <h3>What Coach Mode inserts</h3>
 <p>With default settings, Pi Tooltime appends this 346-character suffix to the existing Pi system prompt before each task. This initial example applies when no observed guidance qualifies:</p>
-<pre><code class="language-text">Tool economy:
+<pre tabindex="0"><code class="language-text">Tool economy:
 - Match the tool to the source: repository facts → find/grep/read; current public docs → browser_read; live state → database tools.
 - Use targeted searches and tests while iterating. Broaden only after evidence, and run full suites near handoff.
 - After two empty or repeated calls, stop and change the source, scope, or hypothesis.
 </code></pre>
 <p>Repeated high-confidence findings can replace baseline lines with other fixed registry lines. Defaults limit the suffix to three rules and 500 characters. It never includes captured prompts, tool inputs, results, paths, fingerprints, or timing metrics. Run <code>/tooltime prompt</code> to preview the exact current suffix before the next task.</p>
 <p>Select a mode for the current Pi session:</p>
-<pre><code class="language-text">/tooltime mode coach
+<pre tabindex="0"><code class="language-text">/tooltime mode coach
 </code></pre>
 <p>The change applies to the next task. A valid <code>PI_TOOLTIME_MODE</code> value is authoritative. The command cannot override it. See <a href="docs/configuration.html">Configuration</a> for mode precedence and persistence.</p>
 <h2>Commands</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Command</th>
@@ -195,10 +196,10 @@ Efficiency findings:
 <h2>Updates</h2>
 <p>A pinned Git ref stays pinned during <code>pi update --extensions</code> and <code>pi update --all</code>. These commands can reconcile the checkout to that ref.</p>
 <p>To move a pinned installation, set <code>NEW_TAG</code> to the next reviewed release tag and run:</p>
-<pre><code class="language-bash">pi install &quot;git:github.com/Jeecabs/pi-tooltime@${NEW_TAG:?set NEW_TAG first}&quot;
+<pre tabindex="0"><code class="language-bash">pi install &quot;git:github.com/Jeecabs/pi-tooltime@${NEW_TAG:?set NEW_TAG first}&quot;
 </code></pre>
 <p>Update an unpinned edge installation with:</p>
-<pre><code class="language-bash">pi update --extensions
+<pre tabindex="0"><code class="language-bash">pi update --extensions
 </code></pre>
 <p>Restart Pi or run <code>/reload</code> after the checkout changes.</p>
 <h2>Core API</h2>
@@ -213,31 +214,31 @@ Efficiency findings:
 </ol>
 <p>See <a href="docs/architecture.html">Architecture</a> for event ordering, trace boundaries, promotion, and eval use.</p>
 <h2>Development and project policy</h2>
-<pre><code class="language-bash">pnpm install --frozen-lockfile
+<pre tabindex="0"><code class="language-bash">pnpm install --frozen-lockfile
 pnpm verify
 pi -e .
 </code></pre>
 <p><code>pnpm verify</code> runs the native TypeScript check, focused tests, rebuild, packed Core contract, package linters, and package-content check.</p>
 <ul>
-<li><a href="CHANGELOG.html">Changelog</a></li>
-<li><a href="CONTRIBUTING.html">Contributing</a></li>
+<li><a href="https://github.com/Jeecabs/pi-tooltime/blob/HEAD/CHANGELOG.md">Changelog</a></li>
+<li><a href="https://github.com/Jeecabs/pi-tooltime/blob/HEAD/CONTRIBUTING.md">Contributing</a></li>
 <li><a href="docs/releasing.html">Release process</a></li>
-<li><a href="SUPPORT.html">Support</a></li>
-<li><a href="SECURITY.html">Security policy</a></li>
-<li><a href="CODE_OF_CONDUCT.html">Code of Conduct</a></li>
+<li><a href="https://github.com/Jeecabs/pi-tooltime/blob/HEAD/SUPPORT.md">Support</a></li>
+<li><a href="https://github.com/Jeecabs/pi-tooltime/blob/HEAD/SECURITY.md">Security policy</a></li>
+<li><a href="https://github.com/Jeecabs/pi-tooltime/blob/HEAD/CODE_OF_CONDUCT.md">Code of Conduct</a></li>
 </ul>
 <h2>License</h2>
 <p>Pi Tooltime uses the <code>MIT</code> License. See <a href="LICENSE">LICENSE</a>.</p>
 <h2>Uninstall and delete data</h2>
 <p>Use the same package source that appears in <code>pi list</code>. For the pinned global install above, run:</p>
-<pre><code class="language-bash">pi remove git:github.com/Jeecabs/pi-tooltime@v1.0.0
+<pre tabindex="0"><code class="language-bash">pi remove git:github.com/Jeecabs/pi-tooltime@v1.0.0
 </code></pre>
 <p>For a project-local install, include both the source and <code>-l</code>:</p>
-<pre><code class="language-bash">pi remove git:github.com/Jeecabs/pi-tooltime@v1.0.0 -l
+<pre tabindex="0"><code class="language-bash">pi remove git:github.com/Jeecabs/pi-tooltime@v1.0.0 -l
 </code></pre>
 <p>Omit <code>@v1.0.0</code> if you installed the unpinned source. Restart Pi or run <code>/reload</code> after removal.</p>
 <p>The remove command does not delete analytics or config. Stop all Pi processes before the next commands. They permanently delete local Tooltime data and user-global Tooltime config.</p>
-<pre><code class="language-bash">agent_dir=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
+<pre tabindex="0"><code class="language-bash">agent_dir=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
 rm -rf -- &quot;$agent_dir/state/pi-tooltime&quot;
 rm -f -- &quot;$agent_dir/tooltime.json&quot;
 </code></pre>

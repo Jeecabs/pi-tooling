@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>da-browser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/da-browser">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">DA-BROWSER</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a class="current" href="../docs/agent-browser-v0.34.0.html"><span class="marker">&#9671;</span>agent-browser 0.34.0 deep dive</a>
+      <a href="../docs/tools.html"><span class="marker">&#9671;</span>da-browser tools and advanced setup</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/da-browser"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose" id="content">
+      <div class="doc-meta"><span class="cat">BROWSER &amp; QA</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/da-browser">Jeecabs/da-browser &nearr;</a></div>
+      <div class="md"><h1>agent-browser 0.34.0 deep dive</h1>
+<h2>Decision</h2>
+<p>da-browser now requires agent-browser <strong>0.34.0</strong> and enables strict <code>--pin-tab</code> on every CDP-backed invocation. This release directly fixes da-browser&#39;s highest-risk shared-Chrome failure mode: one Pi session silently adopting or navigating another session&#39;s tab.</p>
+<h2>What 0.34.0 changes</h2>
+<h3>Persistent session-to-tab binding</h3>
+<p>A named agent-browser session now persists its active tab as a CDP <code>targetId</code> and restores that target after a daemon restart. The binding is stored as a per-session <code>.target</code> JSON file in the socket directory. Writes are atomic, owner-only on Unix, and contain a sanitized last URL plus the sticky <code>pinned</code> setting.</p>
+<p>Sources:</p>
+<ul>
+<li><a href="https://github.com/vercel-labs/agent-browser/releases/tag/v0.34.0">v0.34.0 release notes</a></li>
+<li><a href="https://github.com/vercel-labs/agent-browser/pull/1589">PR #1589</a></li>
+<li><a href="https://github.com/vercel-labs/agent-browser/blob/v0.34.0/cli/src/native/tab_binding.rs"><code>tab_binding.rs</code> at v0.34.0</a></li>
+</ul>
+<p>The binding is about <strong>tab selection</strong>, not browser-profile isolation. Sessions attached to the same Chrome still share cookies, storage, and authentication context.</p>
+<h3>Strict <code>--pin-tab</code></h3>
+<p><code>--pin-tab</code> adds the safety boundary needed by da-browser:</p>
+<ul>
+<li>A new pinned session opens a fresh tab instead of adopting an existing tab.</li>
+<li>Tabs discovered from the user or another session are listed but cannot steal the pinned session&#39;s active target.</li>
+<li>Closing the bound tab produces <code>tab_gone</code> instead of falling back to a neighboring tab.</li>
+<li><code>tab list</code>, <code>tab new</code>, and explicit <code>tab &lt;ref&gt;</code> remain available for recovery.</li>
+<li>The pin is sticky across later commands and daemon restarts; <code>--no-pin-tab</code> disables it.</li>
+</ul>
+<p>Sources:</p>
+<ul>
+<li><a href="https://github.com/vercel-labs/agent-browser/blob/v0.34.0/docs/src/app/cdp-mode/page.mdx">CDP mode: Tab pinning</a></li>
+<li><a href="https://github.com/vercel-labs/agent-browser/blob/v0.34.0/docs/src/app/sessions/page.mdx">Sessions: Tab pinning in a shared browser</a></li>
+<li><a href="https://github.com/vercel-labs/agent-browser/blob/v0.34.0/cli/src/native/browser.rs"><code>BrowserManager</code> binding behavior</a></li>
+<li><a href="https://github.com/vercel-labs/agent-browser/blob/v0.34.0/cli/src/native/actions.rs">Daemon attach/persistence behavior</a></li>
+</ul>
+<h3>Structured recovery data</h3>
+<p>With <code>--json</code>, a missing pinned tab returns:</p>
+<pre tabindex="0"><code class="language-json">{
+  &quot;success&quot;: false,
+  &quot;code&quot;: &quot;tab_gone&quot;,
+  &quot;data&quot;: {
+    &quot;targetId&quot;: &quot;...&quot;,
+    &quot;lastUrl&quot;: &quot;https://example.com/path&quot;
+  }
+}
+</code></pre>
+<p>Batch output carries the recovery object under <code>result</code>. <code>lastUrl</code> is intentionally limited to <code>about:blank</code> or HTTP(S) URLs with credentials, query, and fragment removed; opaque URLs are omitted.</p>
+<p>Sources:</p>
+<ul>
+<li><a href="https://github.com/vercel-labs/agent-browser/pull/1589">PR #1589 structured-output summary</a></li>
+<li><a href="https://github.com/vercel-labs/agent-browser/blob/v0.34.0/cli/src/native/actions.rs"><code>attach_tab_gone_data</code></a></li>
+<li><a href="https://github.com/vercel-labs/agent-browser/blob/v0.34.0/cli/tests/pin_tab_cli.rs">CLI pin-tab integration tests</a></li>
+</ul>
+<h3>Durable target references</h3>
+<p><code>tab list --json</code> exposes each tab&#39;s <code>targetId</code>. In 0.34, that target id is accepted by tab switch and close commands. Unlike <code>t&lt;N&gt;</code> ids, target ids survive daemon restarts, making them the correct coordination/recovery handle.</p>
+<p>Source: <a href="https://github.com/vercel-labs/agent-browser/blob/v0.34.0/docs/src/app/commands/page.mdx">v0.34.0 tab command documentation</a></p>
+<h3>Other release items</h3>
+<p>The new Remote Agent Browser provider guide is documentation for cloud-provider workflows and does not change da-browser&#39;s local Arc/CDP contract. The <code>agent-browser doctor</code> Chrome-version hang fix improves a suggested diagnostic path, but needs no wrapper change because da-browser&#39;s normal compatibility probe is <code>agent-browser --version</code>.</p>
+<p>Source: <a href="https://github.com/vercel-labs/agent-browser/releases/tag/v0.34.0">v0.34.0 release notes</a></p>
+<h2>da-browser integration</h2>
+<p>The extension takes the release on board as follows:</p>
+<ol>
+<li><strong>Named session before first attach</strong> — every CDP command uses the deterministic, Pi-session-derived <code>pi-&lt;hash&gt;</code> session inside the <code>da-browser</code> namespace.</li>
+<li><strong>Pin before attach</strong> — <code>--pin-tab</code> is included before <code>--cdp</code> on every invocation, including the first probe. Repeating the sticky flag also upgrades an already-running daemon safely.</li>
+<li><strong>No safety downgrade through <code>browser_command</code></strong> — raw commands cannot supply <code>--pin-tab</code> or <code>--no-pin-tab</code>; the wrapper owns the isolation policy.</li>
+<li><strong>No silent recovery from <code>tab_gone</code></strong> — it is classified separately from transient target loss and never enters automatic page-target creation/retry.</li>
+<li><strong>Structured diagnostics</strong> — single-command JSON, batch JSON, and human output are parsed for <code>targetId</code> and sanitized <code>lastUrl</code>.</li>
+<li><strong>Explicit recovery</strong> — <code>browser_tab</code> can list, create, or switch by durable target id while in <code>tab_gone</code>. <code>browser_connect</code> is treated as an explicit request for a fresh controlled tab and re-binds one if the old target is gone.</li>
+<li><strong>Correct close semantics</strong> — closing the current pinned tab remains a successful mutation. The extension records the unbound state instead of probing a neighbor and misreporting the close as a failure.</li>
+<li><strong>Visible binding state</strong> — status/state output reports strict pinning, the deterministic daemon session, current durable target id, and tab-gone recovery metadata. Because upstream <code>session info --json</code> does not yet expose binding fields, da-browser actively re-probes previously known bindings without creating a tab for a brand-new status request. A non-<code>tab_gone</code> binding probe failure is reported as <code>binding: error</code> and marks the session disconnected instead of claiming a fresh verification.</li>
+<li><strong>Version gate</strong> — older CLIs are rejected because they cannot provide the safety guarantee.</li>
+</ol>
+<h2>Verification</h2>
+<h3>Upstream ignored E2E tests</h3>
+<p>The two upstream CLI E2E cases are marked <code>#[ignore]</code>, so they were run explicitly against the v0.34.0 source:</p>
+<pre tabindex="0"><code class="language-bash">cd /tmp/agent-browser-v0.34.0/cli
+cargo test --test pin_tab_cli -- --ignored --nocapture
+</code></pre>
+<p>Result: <strong>2 passed, 0 failed</strong>.</p>
+<p>They cover:</p>
+<ul>
+<li><code>--pin-tab</code> taking effect before CDP attach even when the daemon already exists.</li>
+<li><code>tab_gone</code> recovery metadata in single-command and batch JSON, including last-URL sanitization.</li>
+</ul>
+<h3>da-browser E2E</h3>
+<p><code>tests/pin-tab.e2e.ts</code> launches an isolated browser and a self-validating HTTP server on an OS-assigned port. It first proves direct CDP navigation works, then exercises the exact argument builder used by da-browser.</p>
+<pre tabindex="0"><code class="language-bash">pnpm test:e2e
+</code></pre>
+<p>The test verifies:</p>
+<ul>
+<li>pin-before-attach;</li>
+<li>two Pi sessions cannot steal each other&#39;s tabs;</li>
+<li>the same target is restored after daemon restart;</li>
+<li>external tab closure fails with structured <code>tab_gone</code> instead of adopting a neighbor;</li>
+<li><code>tab list</code> remains available while unbound;</li>
+<li><code>tab new</code> explicitly recovers onto a different target.</li>
+</ul>
+<p>Result: <strong>1 passed, 0 failed</strong>.</p>
+<h3>Unit and type checks</h3>
+<pre tabindex="0"><code class="language-bash">pnpm check
+pnpm test
+</code></pre>
+<p>Results: type-check passed; <strong>38 tests passed, 0 failed</strong>.</p>
+<h2>Operational notes</h2>
+<ul>
+<li>Strict pinning protects target selection; it does not provide separate cookies/storage when sessions share the user&#39;s Chrome.</li>
+<li>A CDP target id survives an agent-browser daemon restart, not closure of the tab or browser process.</li>
+<li><code>tab_gone</code> is a successful safety stop. Prefer explicit recovery over weakening the pin.</li>
+<li>The installed global CLI was upgraded and verified as <code>agent-browser 0.34.0</code>.</li>
+</ul>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

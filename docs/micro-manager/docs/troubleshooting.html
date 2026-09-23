@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>micro-manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
@@ -26,22 +27,22 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
       <div class="md"><h1>Troubleshooting</h1>
 <p>Run this command first in an interactive session:</p>
-<pre><code class="language-text">/micro-manager status
+<pre tabindex="0"><code class="language-text">/micro-manager status
 </code></pre>
 <p>The output shows the extension state, loaded configuration, project-trust state, manager models, backlog, usage, cost, and latest errors.</p>
 <h2>The extension is disabled</h2>
 <p>Configuration defaults to <code>enabled: false</code>.</p>
 <p>Use one of these options:</p>
-<pre><code class="language-text">/micro-manager on
+<pre tabindex="0"><code class="language-text">/micro-manager on
 </code></pre>
-<pre><code class="language-sh">pi --micro-manager
+<pre tabindex="0"><code class="language-sh">pi --micro-manager
 </code></pre>
-<pre><code class="language-yaml">enabled: true
+<pre tabindex="0"><code class="language-yaml">enabled: true
 </code></pre>
 <p>The command and flag affect the current session or process. YAML configuration persists for later sessions.</p>
 <h2>The extension is enabled but unavailable</h2>
@@ -68,7 +69,7 @@
 <p>The extension rejects unknown keys, unsafe tools, bad types, out-of-range limits, large files, and configuration symbolic links.</p>
 <p>Run <code>/micro-manager status</code> to get the warning count. The TUI notification shows the first warning with its file path and parser message.</p>
 <p>Fix the reported file, then run:</p>
-<pre><code class="language-text">/micro-manager reload
+<pre tabindex="0"><code class="language-text">/micro-manager reload
 </code></pre>
 <p>The extension skips a bad file and continues to load other configuration files. A more specific file can therefore appear ineffective when validation rejects it.</p>
 <h2>A model stays in error</h2>
@@ -93,7 +94,7 @@
 <h2>Reports interrupt too often</h2>
 <p>A <code>concern</code> or <code>blocker</code> can steer an active primary turn. A blocker can also start an interactive correction turn while idle.</p>
 <p>Increase <code>immune_turns</code> to create a longer non-interrupting period:</p>
-<pre><code class="language-yaml">immune_turns: 5
+<pre tabindex="0"><code class="language-yaml">immune_turns: 5
 </code></pre>
 <p>Set it to <code>0</code> to disable immunity. During immunity, reports still arrive as follow-up notes or cards.</p>
 <h2>Print output has no report text</h2>
@@ -117,7 +118,7 @@
 <p>The extension does not write a separate review transcript database.</p>
 <h2>Report a defect</h2>
 <p>Before opening an issue, run:</p>
-<pre><code class="language-sh">pnpm verify
+<pre tabindex="0"><code class="language-sh">pnpm verify
 </code></pre>
 <p>Include these details in the report:</p>
 <ul>

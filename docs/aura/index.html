@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>aura</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/aura">GitHub</a></nav>
@@ -21,7 +22,7 @@
       <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/aura"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">INTERFACE</span>
       <a class="repo-link" href="https://github.com/Jeecabs/aura">Jeecabs/aura &nearr;</a></div>
       <div class="md"><p align="center">
@@ -31,18 +32,18 @@
 <p>Aura uses the same compact rounded frame as Lohan&#39;s Land. With both packages active, Aura decorates the integrated frame. It does not replace the editor. Status colors and editor content stay untouched.</p>
 <p>macOS only. Everywhere else it&#39;s a silent no-op.</p>
 <h2>Install</h2>
-<pre><code class="language-bash">pi install https://github.com/Jeecabs/aura
+<pre tabindex="0"><code class="language-bash">pi install https://github.com/Jeecabs/aura
 </code></pre>
 <h3>Local development</h3>
-<pre><code class="language-bash">git clone https://github.com/Jeecabs/aura.git ~/.pi/agent/extensions/aura
+<pre tabindex="0"><code class="language-bash">git clone https://github.com/Jeecabs/aura.git ~/.pi/agent/extensions/aura
 cd ~/.pi/agent/extensions/aura
 pnpm install
 </code></pre>
 <p>Reload pi if it&#39;s already running:</p>
-<pre><code class="language-text">/reload
+<pre tabindex="0"><code class="language-text">/reload
 </code></pre>
 <h2>Use</h2>
-<pre><code class="language-text">/aura          toggle the aura on/off
+<pre tabindex="0"><code class="language-text">/aura          toggle the aura on/off
 /aura on
 /aura off
 /aura status   show state and the current dB reading
@@ -64,7 +65,7 @@ pnpm install
 <p>System audio is heavily compressed, so a fixed dB→brightness mapping just pins the glow to white. Instead it runs an adaptive auto-gain: a slow floor and ceiling track the quiet and loud passages of whatever&#39;s playing, and each sample is mapped against that moving window. Fast attack on transients, gentle release, so the frame pulses with the beat instead of flickering.</p>
 <p>There&#39;s only one honest signal here, loudness, so it&#39;s shown as one thing: intensity. No fake spectrum.</p>
 <h2>Layout</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>File</th>

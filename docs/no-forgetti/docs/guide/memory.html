@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -69,7 +70,7 @@ Store a fact when it should still help in a future session and does not already 
 <p>Each entry has <code>high</code>, <code>normal</code>, or <code>low</code> importance. Importance measures the cost of forgetting. It does not measure certainty, age, or urgency.</p>
 <h2>How memory changes</h2>
 <p>No Forgetti has two write paths:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Path</th>
@@ -106,7 +107,7 @@ Store a fact when it should still help in a future session and does not already 
 <p>No Forgetti advances the review position only through evidence in the selected window. This prevents a truncated window from skipping evidence.</p>
 <h2>Capacity controls</h2>
 <p>Memory has four capacity controls:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Control</th>
@@ -137,7 +138,7 @@ Store a fact when it should still help in a future session and does not already 
 </tbody></table>
 <p>Automatic review below the working target cannot cross it. At or above the target, review can keep the same size or shrink toward the maintenance goal. Direct writes can use the reserved capacity up to the hard limit. Exact duplicate entries have no effect.</p>
 <h2>Inspect and undo</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Command</th>
@@ -165,10 +166,10 @@ Store a fact when it should still help in a future session and does not already 
 <h2>Use a separate memory branch</h2>
 <p>Pi <code>/fork</code> and <code>/clone</code> commands create session histories. They do not create memory branches.</p>
 <p>Create an independent copy of the active memory branch when an experiment needs different facts:</p>
-<pre><code class="language-text">/memory fork experiment
+<pre tabindex="0"><code class="language-text">/memory fork experiment
 </code></pre>
 <p>This command switches only the current Pi session to the new branch. Switch the session back to <code>main</code> when the experiment ends:</p>
-<pre><code class="language-text">/memory use main
+<pre tabindex="0"><code class="language-text">/memory use main
 </code></pre>
 <p>No Forgetti stores the selected branch in Pi session state. If Pi does not persist the session, the selection lasts only for the current process.</p>
 <h2>Project scope</h2>

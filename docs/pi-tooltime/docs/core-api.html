@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pi-tooltime</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
@@ -28,7 +29,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
       <div class="md"><h1>Core API</h1>
@@ -41,14 +42,14 @@
 <li>A pinned Git dependency. Pi Tooltime is not published to npm.</li>
 </ul>
 <p>Add a release tag to a consuming project:</p>
-<pre><code class="language-json">{
+<pre tabindex="0"><code class="language-json">{
   &quot;dependencies&quot;: {
     &quot;pi-tooltime&quot;: &quot;github:Jeecabs/pi-tooltime#v1.0.0&quot;
   }
 }
 </code></pre>
 <p>The package has two exports:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Export</th>
@@ -71,14 +72,14 @@
 <p>Do not import <code>src/*.ts</code>, <code>dist/core/*.js</code>, or undeclared package subpaths. Those files are implementation details.</p>
 <h2>Runtime interface</h2>
 <p>The root exports five runtime values:</p>
-<pre><code class="language-text">TooltimeLifecycleError
+<pre tabindex="0"><code class="language-text">TooltimeLifecycleError
 analyzeTraces
 createTaskRecorder
 decodeTaskTrace
 formatAnalysis
 </code></pre>
 <p>The root exports these named types:</p>
-<pre><code class="language-text">DecodeIssue
+<pre tabindex="0"><code class="language-text">DecodeIssue
 DecodeIssueCode
 DecodeTaskTraceResult
 FormatAnalysisOptions
@@ -95,7 +96,7 @@ TraceAnalysis
 <p>Adding an accidental helper to an internal module does not add it to this interface.</p>
 <h2>Record one task</h2>
 <p><code>createTaskRecorder</code> accepts raw lifecycle events. It classifies task intent, tool calls, and results. It also calculates fingerprints, interval timing, and findings.</p>
-<pre><code class="language-ts">import {
+<pre tabindex="0"><code class="language-ts">import {
   analyzeTraces,
   createTaskRecorder,
   formatAnalysis,
@@ -131,7 +132,7 @@ console.log(formatAnalysis(analysis, {
 }));
 </code></pre>
 <p>Use an <code>update</code> event when a host hook changes the final tool name or input:</p>
-<pre><code class="language-ts">task.record({
+<pre tabindex="0"><code class="language-ts">task.record({
   type: &quot;update&quot;,
   callId: &quot;call-1&quot;,
   toolName: &quot;read&quot;,
@@ -140,7 +141,7 @@ console.log(formatAnalysis(analysis, {
 </code></pre>
 <p>Raw prompts, current working directories, call IDs, tool inputs, and tool results do not enter the returned Task Trace.</p>
 <h2>Recorder options</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Option</th>
@@ -210,7 +211,7 @@ console.log(formatAnalysis(analysis, {
 <p>A custom monotonic clock must return finite nondecreasing numbers from one clock domain. A custom wall clock must return a valid <code>Date</code>. Tool Wall Time is the interval union. Tool Call Sum includes overlap and can exceed Task Wall Time.</p>
 <h2>Decode persisted traces</h2>
 <p>Treat parsed JSON and older local records as untrusted input:</p>
-<pre><code class="language-ts">import { decodeTaskTrace } from &quot;pi-tooltime&quot;;
+<pre tabindex="0"><code class="language-ts">import { decodeTaskTrace } from &quot;pi-tooltime&quot;;
 
 const decoded = decodeTaskTrace(JSON.parse(line));
 if (!decoded.ok) {
@@ -231,7 +232,7 @@ if (!decoded.ok) {
 <p>Decoder issue codes do not contain input values.</p>
 <h2>Analyze traces</h2>
 <p><code>analyzeTraces</code> accepts any iterable. It decodes every item before aggregation.</p>
-<pre><code class="language-ts">const analysis = analyzeTraces(rows.map((row) =&gt; JSON.parse(row)));
+<pre tabindex="0"><code class="language-ts">const analysis = analyzeTraces(rows.map((row) =&gt; JSON.parse(row)));
 console.log(analysis.taskCount);
 console.log(analysis.rejectedTraceCount);
 </code></pre>
@@ -246,7 +247,7 @@ console.log(analysis.rejectedTraceCount);
 <p>The returned analysis and nested values are deeply frozen.</p>
 <h2>Format analysis</h2>
 <p>The caller must select an audience:</p>
-<pre><code class="language-ts">formatAnalysis(analysis, { audience: &quot;human&quot;, title: &quot;Local report&quot; });
+<pre tabindex="0"><code class="language-ts">formatAnalysis(analysis, { audience: &quot;human&quot;, title: &quot;Local report&quot; });
 formatAnalysis(analysis, { audience: &quot;model&quot; });
 </code></pre>
 <p>Human reports can contain normalized custom tool identifiers. Human titles remove control characters and have a 120-character limit.</p>

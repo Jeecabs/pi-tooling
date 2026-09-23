@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>micro-manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
@@ -26,7 +27,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
       <div class="md"><h1>Releasing</h1>
@@ -45,26 +46,26 @@
 <li><p>Install locked dependencies with <code>pnpm install --frozen-lockfile</code>.</p>
 </li>
 <li><p>Run the full verification suite.</p>
-<pre><code class="language-sh">pnpm verify
+<pre tabindex="0"><code class="language-sh">pnpm verify
 </code></pre>
 </li>
 <li><p>Review the package contents in the <code>npm pack --dry-run</code> output.</p>
 </li>
 <li><p>Commit the version and changelog changes.</p>
-<pre><code class="language-sh">git add package.json CHANGELOG.md
+<pre tabindex="0"><code class="language-sh">git add package.json CHANGELOG.md
 git commit -m &quot;chore: release vX.Y.Z&quot;
 </code></pre>
 </li>
 <li><p>Create an annotated tag on that commit.</p>
-<pre><code class="language-sh">git tag -a vX.Y.Z -m &quot;vX.Y.Z&quot;
+<pre tabindex="0"><code class="language-sh">git tag -a vX.Y.Z -m &quot;vX.Y.Z&quot;
 </code></pre>
 </li>
 <li><p>Push the release commit to the main branch.</p>
-<pre><code class="language-sh">git push origin main
+<pre tabindex="0"><code class="language-sh">git push origin main
 </code></pre>
 </li>
 <li><p>Push the tag.</p>
-<pre><code class="language-sh">git push origin vX.Y.Z
+<pre tabindex="0"><code class="language-sh">git push origin vX.Y.Z
 </code></pre>
 </li>
 </ol>
@@ -90,7 +91,7 @@ git commit -m &quot;chore: release vX.Y.Z&quot;
 <li>The repository has a configured npm trusted publisher or an approved publication token.</li>
 </ul>
 <p>Until then, users install from GitHub:</p>
-<pre><code class="language-sh">pi install git:github.com/Jeecabs/micro-manager
+<pre tabindex="0"><code class="language-sh">pi install git:github.com/Jeecabs/micro-manager
 </code></pre>
 </div>
     </article>

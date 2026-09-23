@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-block</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
@@ -26,7 +27,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
       <div class="md"><h1>Process notifications</h1>
@@ -60,7 +61,7 @@ custom message during tool execution would place it between the assistant
 <h2>Per-process notify config</h2>
 <p>Registered by the <code>process start</code> and <code>process update</code> tools
 (<code>normalizeNotifyConfig</code> in <code>extensions/processes/tools/notify.ts</code>):</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Field</th>
@@ -90,7 +91,7 @@ custom message during tool execution would place it between the assistant
 </tr>
 </tbody></table>
 <p>Each <code>LogMatcherConfig</code>:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Field</th>
@@ -130,7 +131,7 @@ execution, output retention, and UI — none of it changes attention or delivery
 <h2>Attention levels</h2>
 <p>An attention level is resolved per event and mapped to Pi send options by
 <code>attentionToSendOptions</code> (<code>extensions/processes/notification-sender.ts</code>):</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Attention</th>
@@ -181,7 +182,7 @@ first). It classifies the end, resolves attention from the per-process config
 or defaults, and either emits or suppresses.</p>
 <h3>Classification</h3>
 <p><code>classifyProcessEnd</code> (<code>extensions/processes/notifications/classify.ts</code>):</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th><code>ProcessInfo.status</code> / <code>endReason</code></th>
@@ -216,7 +217,7 @@ tool result (<code>KillResult.reason: &quot;timeout&quot;</code>) instead.</p>
 <h3>Attention resolution</h3>
 <p><code>resolveAttention</code> picks the config field for the kind, falling back to
 <code>DEFAULT_ATTENTION</code>:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Kind</th>
@@ -279,7 +280,7 @@ intentional-stop marker is consumed back and the normal path runs.</p>
 a <code>CHANNELS.NOTIFICATION</code> payload with the shown attention; the delivery
 listener then sends it as a Pi message.</p>
 <h4>Normal success</h4>
-<pre><code>child process exits 0
+<pre tabindex="0"><code>child process exits 0
   ProcessRuntimeController.child.on(&quot;close&quot;)          src/manager/process-runtime-controller.ts
     transition(managed, &quot;exited&quot;)
       emit process_ended
@@ -293,7 +294,7 @@ listener then sends it as a Pi message.</p>
 <p>Default: a turn. <code>onSuccess: &quot;context&quot;</code> downgrades to a context message.
 <code>onSuccess: &quot;ignore&quot;</code> suppresses.</p>
 <h4>Normal failure (non-zero exit)</h4>
-<pre><code>child process exits non-zero
+<pre tabindex="0"><code>child process exits non-zero
   ProcessRuntimeController child.on(&quot;close&quot;)
     transition(managed, &quot;exited&quot;)
       emit process_ended
@@ -307,7 +308,7 @@ listener then sends it as a Pi message.</p>
 <p>Default: a turn. <code>onFailure: &quot;ignore&quot;</code> becomes a context message (never fully
 silent).</p>
 <h4>Spawn error / missing pid / lost</h4>
-<pre><code>spawn error (or liveness tick detects lost/missing_pid)
+<pre tabindex="0"><code>spawn error (or liveness tick detects lost/missing_pid)
   handleSpawnError / livenessTick
     transition(managed, &quot;exited&quot;)
       emit process_ended
@@ -319,7 +320,7 @@ silent).</p>
 </code></pre>
 <p>Same as normal failure: defaults to turn, <code>ignore</code> forced to context.</p>
 <h4>External kill (signal from outside the manager)</h4>
-<pre><code>external signal kills the process group
+<pre tabindex="0"><code>external signal kills the process group
   child.on(&quot;close&quot;, code, signal)
     transition(managed, &quot;killed&quot;)                signal branch
       emit process_ended
@@ -334,7 +335,7 @@ silent).</p>
 <p>Default: a context message (no turn). <code>onKilled: &quot;turn</code> promotes to a turn.
 <code>onKilled: &quot;ignore&quot;</code> suppresses.</p>
 <h4>Intentional stop (config bypass)</h4>
-<pre><code>/no-block panel &quot;x&quot; | /no-block:kill | process stop tool
+<pre tabindex="0"><code>/no-block panel &quot;x&quot; | /no-block:kill | process stop tool
   requestKill / executeStop
     COMMAND_KILL handler                         extensions/processes/handlers/commands.ts
       killIntentionally                          extensions/processes/handlers/kill-process.ts
@@ -349,7 +350,7 @@ silent).</p>
 </code></pre>
 <p>Always a context message. Config is ignored. The agent is not woken.</p>
 <h4>Kill timeout (terminate_timeout)</h4>
-<pre><code>manager.kill SIGTERM grace period expires, process still alive
+<pre tabindex="0"><code>manager.kill SIGTERM grace period expires, process still alive
   ProcessRuntimeController.kill                     src/manager/process-runtime-controller.ts
     endReason = &quot;kill_timeout&quot;; endTime = Date.now()
     transition(managed, &quot;terminate_timeout&quot;)       (no process_ended emit — not exited/killed)
@@ -362,7 +363,7 @@ silent).</p>
 <code>process_output_changed</code> event. It syncs the compiled matcher set for the
 process, evaluates matchers against the appended text, and emits one
 <code>log_match</code> payload per match with the matcher&#39;s <code>on</code> attention.</p>
-<pre><code>process emits output
+<pre tabindex="0"><code>process emits output
   ProcessOutput append
     emit process_output_changed { id, appendedText }
       NotificationService.handleOutputChanged
@@ -392,7 +393,7 @@ value when a match is useful later but requires no immediate response.</p>
 <p>The delivery listener caps live <code>log_match</code> deliveries at 20 per 60s window
 (<code>MAX_LOG_MATCH_NOTIFICATIONS_PER_WINDOW</code>, <code>NOTIFICATION_WINDOW_MS</code>). Overflows
 are counted and flushed as a single summary at window end:</p>
-<pre><code>log_match payload arrives
+<pre tabindex="0"><code>log_match payload arrives
   delivery listener
     window expired or new? flush prior suppressed summary (kind=log_match_suppressed, attention=context)
     sentInWindow &gt;= 20? suppressed++; return
@@ -402,7 +403,7 @@ are counted and flushed as a single summary at window end:</p>
 </code></pre>
 <p>The summary is always <code>context</code>.</p>
 <h2>Summary matrix</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>End state</th>

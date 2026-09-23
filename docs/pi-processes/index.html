@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-block</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
@@ -26,7 +27,7 @@
       <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
       <div class="md"><p align="center">
@@ -36,7 +37,7 @@
 <p>No Block replaces Pi&#39;s Bash tool for commands that must return an exit code. Quick commands return normally. A slow command yields after 30 seconds, remains supervised, and reports its terminal result when it exits.</p>
 <p>No Block builds on <a href="https://github.com/aliou/pi-processes">aliou/pi-processes</a>. It retains the process panel, bounded logs, process-group cleanup, stdin support, and log watches from that project.</p>
 <h2>Choose the correct process lane</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Command type</th>
@@ -59,14 +60,14 @@
 <p>A finite job has a meaningful terminal result. An indefinite service is successful while it stays alive. Do not use No Block as a service manager.</p>
 <h2>Installation</h2>
 <p>From npm after the first release:</p>
-<pre><code class="language-bash">pi install npm:@jeecabs/no-block
+<pre tabindex="0"><code class="language-bash">pi install npm:@jeecabs/no-block
 </code></pre>
 <p>From git:</p>
-<pre><code class="language-bash">pi install git:github.com/Jeecabs/no-block
+<pre tabindex="0"><code class="language-bash">pi install git:github.com/Jeecabs/no-block
 </code></pre>
 <h2>Bash behavior</h2>
 <p>The <code>bash</code> tool accepts these fields:</p>
-<pre><code class="language-ts">type BashInput = {
+<pre tabindex="0"><code class="language-ts">type BashInput = {
   command: string;
   name?: string;
   backgroundAfter?: number;
@@ -91,7 +92,7 @@
 <h2>Completion delivery</h2>
 <p>No Block uses <code>followUp</code> for an unobserved background completion. It does not steer an active tool batch.</p>
 <p>Lifecycle delivery uses explicit states:</p>
-<pre><code class="language-text">pending -&gt; publishing -&gt; published
+<pre tabindex="0"><code class="language-text">pending -&gt; publishing -&gt; published
              |
              +-&gt; pending after a synchronous enqueue failure
 </code></pre>
@@ -109,7 +110,7 @@
 <p>Use <code>/no-block:settings</code> for inherited process settings. These settings control shell path, output limits, panel size, follow mode, dock behavior, and the optional status widget.</p>
 <p>The inherited background-command interception option blocks shell patterns such as <code>&amp;</code>, <code>nohup</code>, <code>disown</code>, and <code>setsid</code>. Keep service-shaped routing in the separate service manager integration.</p>
 <h2>Development</h2>
-<pre><code class="language-bash">pnpm install
+<pre tabindex="0"><code class="language-bash">pnpm install
 pnpm typecheck
 pnpm lint
 pnpm test

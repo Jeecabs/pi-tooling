@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pi-tooltime</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
@@ -28,7 +29,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
       <div class="md"><h1>Remote Export</h1>
@@ -39,7 +40,7 @@
 <p>User-global config is <code>&lt;agent-dir&gt;/tooltime.json</code>. The default agent directory is <code>~/.pi/agent</code>. <code>PI_CODING_AGENT_DIR</code> replaces that directory when set.</p>
 <p>File-based remote config is eligible only when the configured agent directory is absolute. Both the configured and resolved agent directory and config paths must be outside the current project directory.</p>
 <p>If this check fails, Pi Tooltime reads other file settings but ignores the complete <code>remote</code> value. It produces a warning. Environment Remote Export variables still work.</p>
-<pre><code class="language-json">{
+<pre tabindex="0"><code class="language-json">{
   &quot;remote&quot;: {
     &quot;enabled&quot;: true,
     &quot;endpoint&quot;: &quot;https://telemetry.example.com/pi-tooltime&quot;,
@@ -48,7 +49,7 @@
 }
 </code></pre>
 <p>Optional environment variables are:</p>
-<pre><code class="language-bash">export PI_TOOLTIME_REMOTE_ENABLED=true
+<pre tabindex="0"><code class="language-bash">export PI_TOOLTIME_REMOTE_ENABLED=true
 export PI_TOOLTIME_REMOTE_ENDPOINT=https://telemetry.example.com/pi-tooltime
 export PI_TOOLTIME_REMOTE_TOKEN=&#39;receiver-token&#39;
 </code></pre>
@@ -70,18 +71,18 @@ export PI_TOOLTIME_REMOTE_TOKEN=&#39;receiver-token&#39;
 <h2>Request</h2>
 <p>The sender makes one <code>POST</code> for each completed Task Trace.</p>
 <p>Headers:</p>
-<pre><code class="language-http">Content-Type: application/json
+<pre tabindex="0"><code class="language-http">Content-Type: application/json
 User-Agent: pi-tooltime/1.0.0
 Authorization: Bearer &lt;PI_TOOLTIME_REMOTE_TOKEN&gt;
 </code></pre>
 <p><code>Authorization</code> is absent when the trimmed token is empty or unset.</p>
 <p>A nonempty token must match:</p>
-<pre><code class="language-text">^[A-Za-z0-9\-._~+/]+=*$
+<pre tabindex="0"><code class="language-text">^[A-Za-z0-9\-._~+/]+=*$
 </code></pre>
 <p>This permits letters, digits, <code>-._~+/</code>, and trailing <code>=</code> padding. An unsupported character rejects exporter setup with a generic error. The error does not repeat the token.</p>
 <p>The token does not appear in request JSON, Tooltime status, or Tooltime error messages.</p>
 <p>The request body is one JSON envelope:</p>
-<pre><code class="language-json">{
+<pre tabindex="0"><code class="language-json">{
   &quot;schemaVersion&quot;: 1,
   &quot;type&quot;: &quot;pi-tooltime.task-trace&quot;,
   &quot;sentAt&quot;: &quot;2026-08-05T12:00:06.000Z&quot;,
@@ -157,19 +158,19 @@ Authorization: Bearer &lt;PI_TOOLTIME_REMOTE_TOKEN&gt;
 <p><code>intent</code>, <code>policyVersion</code>, and call <code>scope</code> are optional. The sender omits each field when it is absent.</p>
 <h2>Exact remote field set</h2>
 <p>The envelope contains only:</p>
-<pre><code class="language-text">schemaVersion, type, sentAt, trace
+<pre tabindex="0"><code class="language-text">schemaVersion, type, sentAt, trace
 </code></pre>
 <p>The Remote Trace contains only:</p>
-<pre><code class="language-text">schemaVersion, startedAt, completedAt, outcome, mode, intent?,
+<pre tabindex="0"><code class="language-text">schemaVersion, startedAt, completedAt, outcome, mode, intent?,
 policyVersion?, injectedRuleIds, taskWallMs, toolWallMs, toolCallMs,
 suspectedWasteMs, calls, findings, droppedCallCount
 </code></pre>
 <p>Each remote call contains only:</p>
-<pre><code class="language-text">toolName, family, operation, scope?, mutates, sequence,
+<pre tabindex="0"><code class="language-text">toolName, family, operation, scope?, mutates, sequence,
 startOffsetMs, durationMs, isError, resultKind
 </code></pre>
 <p>Each remote finding contains only:</p>
-<pre><code class="language-text">code, signature, confidence, callSequences,
+<pre tabindex="0"><code class="language-text">code, signature, confidence, callSequences,
 suspectedWasteMs, guidanceId
 </code></pre>
 <p>The sender sanitizes the local trace first. It then constructs new trace, call, and finding objects from these fields. Extra fields do not pass through.</p>
@@ -229,7 +230,7 @@ suspectedWasteMs, guidanceId
 <p>Remote Export transfers data to the trust boundary of the receiver. This repository does not control receiver storage, logs, backups, or subprocessors.</p>
 <h2>Disable export</h2>
 <p>Set the environment override:</p>
-<pre><code class="language-bash">export PI_TOOLTIME_REMOTE_ENABLED=false
+<pre tabindex="0"><code class="language-bash">export PI_TOOLTIME_REMOTE_ENABLED=false
 </code></pre>
 <p>Then restart Pi. You can also disable <code>remote.enabled</code> in eligible user-global config and run <code>/tooltime reload</code> when no environment override enables it.</p>
 <p>Disabling export does not delete records already delivered. Contact the receiver operator for deletion.</p>

@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pi-tooltime</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
@@ -28,7 +29,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
       <div class="md"><h1>Data and privacy</h1>
@@ -51,20 +52,20 @@
 <p>Most stored call values come from fixed vocabularies. These include family, operation, scope, mutation state, and Result Kind.</p>
 <p>An input <code>action</code> string is never stored. Recognized actions map to a fixed coarse operation. An unrecognized action maps to <code>unknown</code>, and the classifier treats it as mutating.</p>
 <p>Pi Tooltime preserves safe lowercase tool identifiers. The accepted form is:</p>
-<pre><code class="language-text">[a-z][a-z0-9_-]{0,63}
+<pre tabindex="0"><code class="language-text">[a-z][a-z0-9_-]{0,63}
 </code></pre>
 <p>An unsafe identifier collapses to a known family name or <code>other</code>. A preserved identifier such as <code>supabase_query</code> can reveal the integration in use. Both local and remote call records include the normalized tool identifier.</p>
 <p>The classifier inspects shell commands for fixed patterns. It does not store the raw command. The resulting family, operation, scope, mutation state, and fingerprint can still reveal coarse behavior.</p>
 <h2>Local Fingerprints</h2>
 <p>A Local Fingerprint has this form:</p>
-<pre><code class="language-text">h1:&lt;64 lowercase hexadecimal characters&gt;
+<pre tabindex="0"><code class="language-text">h1:&lt;64 lowercase hexadecimal characters&gt;
 </code></pre>
 <p>The extension creates a bounded canonical form of the tool name and input. It then calculates an HMAC-SHA-256 digest with a random process key.</p>
 <p>The process key exists only in memory. It is not stored or exported. Equal canonical inputs in one Node.js process produce equal fingerprints. Fingerprints from separate processes are intentionally not comparable.</p>
 <p>The fingerprint supports same-process repeated-call detection. It is not an identity, secret, cache key, or cross-run metric. Remote Traces omit it.</p>
 <h2>Local Task Trace schema</h2>
 <p>Each stored Task Trace can contain only these top-level fields:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Field</th>
@@ -141,11 +142,11 @@
 </tr>
 </tbody></table>
 <p>Each local call contains only these fields:</p>
-<pre><code class="language-text">toolName, fingerprint, family, operation, scope?, mutates,
+<pre tabindex="0"><code class="language-text">toolName, fingerprint, family, operation, scope?, mutates,
 sequence, startOffsetMs, durationMs, isError, resultKind
 </code></pre>
 <p>Each local finding contains only these fields:</p>
-<pre><code class="language-text">code, signature, confidence, callSequences, suspectedWasteMs,
+<pre tabindex="0"><code class="language-text">code, signature, confidence, callSequences, suspectedWasteMs,
 guidanceId, guidance
 </code></pre>
 <p>The sanitizer rebuilds each record from these fields. It discards extra top-level, call, and finding fields. It also replaces unknown classifications and guidance with fixed registry values.</p>
@@ -153,7 +154,7 @@ guidanceId, guidance
 <h2>Local storage path</h2>
 <p><code>PI_CODING_AGENT_DIR</code> sets the Pi agent directory. The default is <code>~/.pi/agent</code>.</p>
 <p>Tooltime stores traces below:</p>
-<pre><code class="language-text">&lt;agent-dir&gt;/state/pi-tooltime/&lt;project-key&gt;/&lt;session-id&gt;-&lt;writer-uuid&gt;.jsonl
+<pre tabindex="0"><code class="language-text">&lt;agent-dir&gt;/state/pi-tooltime/&lt;project-key&gt;/&lt;session-id&gt;-&lt;writer-uuid&gt;.jsonl
 </code></pre>
 <p><code>project-key</code> is the first 20 hexadecimal characters of SHA-256 over the resolved project path. The raw path is not in the Task Trace or file name.</p>
 <p>The project key can still support a dictionary guess when an attacker already knows likely paths. The file name contains the normalized local session ID and a random writer UUID. Do not treat path hashing as anonymization.</p>
@@ -199,7 +200,7 @@ guidanceId, guidance
 <p><code>/tooltime status</code>, <code>report</code>, <code>findings</code>, and <code>prompt</code> use Pi notifications. The extension does not register a model-visible Tooltime tool.</p>
 <h2>Delete local data</h2>
 <p>Stop all Pi processes first. Then run:</p>
-<pre><code class="language-bash">agent_dir=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
+<pre tabindex="0"><code class="language-bash">agent_dir=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
 rm -rf -- &quot;$agent_dir/state/pi-tooltime&quot;
 rm -f -- &quot;$agent_dir/tooltime.json&quot;
 </code></pre>
