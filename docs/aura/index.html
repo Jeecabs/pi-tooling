@@ -29,7 +29,7 @@
   <img src="logo.png" width="200" alt="aura">
 </p><h1>aura</h1>
 <p>A <a href="https://github.com/badlogic/pi-mono">pi</a> extension that gives the input frame an aura. It breathes with your music. It samples your Mac&#39;s system-audio loudness and glows the frame in time: dim when it&#39;s quiet, laser cyan through hot pink to white-hot when it&#39;s loud.</p>
-<p>Aura uses the same compact rounded frame as Lohan&#39;s Land. With both packages active, Aura decorates the integrated frame. It does not replace the editor. Status colors and editor content stay untouched.</p>
+<p>It works on stock pi with no other extensions. It does not replace the editor. Status colors and editor content stay untouched.</p>
 <p align="center">
   <img src="demo.gif" alt="The pi input frame glowing cyan and pink in time with music">
 </p><p>macOS only. Everywhere else it&#39;s a silent no-op.</p>
@@ -52,8 +52,7 @@ pnpm install
 </code></pre>
 <p>The setting survives restarts. If it was on when you quit, it comes back on.</p>
 <h2>Editor compatibility</h2>
-<p>Aura changes editor rendering only. With Lohan&#39;s Land, Powerline retains its input, shell, stash, autocomplete, and status behavior. Aura colors only the frame glyphs.</p>
-<p>Without Lohan&#39;s Land, Aura wraps the current custom editor instance. If no custom editor exists, Aura supplies the same rounded frame.</p>
+<p>Aura changes editor rendering only. On stock pi it supplies a compact rounded frame. If another extension already installed a custom editor, Aura wraps that editor and colors only the frame glyphs, so its input and status behavior stay intact.</p>
 <h2>Requirements</h2>
 <ul>
 <li><strong>Pi 0.84.x.</strong> Editor wrapping and inter-extension decoration use the Pi 0.84 editor API.</li>
@@ -76,7 +75,7 @@ pnpm install
 </thead>
 <tbody><tr>
 <td><code>src/index.ts</code></td>
-<td>The extension: <code>/aura</code>, auto-gain, editor wrapping, and Lohan&#39;s Land composition.</td>
+<td>The extension: <code>/aura</code>, auto-gain, and editor wrapping.</td>
 </tr>
 <tr>
 <td><code>src/editor-chrome.ts</code></td>
