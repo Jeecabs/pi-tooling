@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-block</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-block">GitHub</a></nav>
@@ -26,7 +27,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-block"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-block">Jeecabs/no-block &nearr;</a></div>
       <div class="md"><h1>Future Cleanup Hooks</h1>
@@ -44,7 +45,7 @@
 </ul>
 <h2>Tool Data Model</h2>
 <p><code>process start</code> should accept an optional <code>cleanup</code> object:</p>
-<pre><code class="language-ts">cleanup?: {
+<pre tabindex="0"><code class="language-ts">cleanup?: {
   command: string;
   timeoutMs?: number;
 }
@@ -67,13 +68,13 @@
 <p>The stop result succeeds only if both steps succeed.</p>
 <p>If cleanup exits non-zero or times out, the stop result fails. The result should only state that cleanup failed or timed out. It should not speculate about what remains running.</p>
 <p>Example:</p>
-<pre><code class="language-text">Stopped worker-tail (proc_4).
+<pre tabindex="0"><code class="language-text">Stopped worker-tail (proc_4).
 Cleanup command failed with exit code 1.
 </code></pre>
 <h2>Architecture</h2>
 <p>Keep cleanup in the core extension layer first, not in <code>src/manager</code>.</p>
 <p>Likely files:</p>
-<pre><code class="language-text">extensions/processes/cleanup/
+<pre tabindex="0"><code class="language-text">extensions/processes/cleanup/
   registry.ts
   run-cleanup.ts
   stop-with-cleanup.ts
@@ -89,7 +90,7 @@ Cleanup command failed with exit code 1.
 <p>A later part of this feature should let the agent or user attach, replace, or possibly remove cleanup metadata for an already-running process.</p>
 <p>This is needed because a nudge system may detect a command that likely needs cleanup only after the command has already started.</p>
 <p>Potential model:</p>
-<pre><code class="language-ts">process update {
+<pre tabindex="0"><code class="language-ts">process update {
   id: string;
   cleanup?: {
     command: string;
@@ -102,7 +103,7 @@ Cleanup command failed with exit code 1.
 <p>After explicit cleanup exists, add a separate feature that detects commands that might need cleanup and warns the agent/user when no cleanup is registered.</p>
 <p>This detection must be advisory only. It must not infer or execute cleanup.</p>
 <p>Potential warning:</p>
-<pre><code class="language-text">This command may start or control work outside the managed process. Consider adding a cleanup command so stop can clean it up explicitly.
+<pre tabindex="0"><code class="language-text">This command may start or control work outside the managed process. Consider adding a cleanup command so stop can clean it up explicitly.
 </code></pre>
 <p>This warning should be visible both in the tool result for the LLM and in the user-facing UI.</p>
 <h2>Open Questions</h2>

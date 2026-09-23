@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -60,7 +61,7 @@
 <p>Invalid model output does not become a no-change decision. No Forgetti retains the exact evidence and enters review backoff. It also quarantines malformed persisted proposals so one bad record cannot block project-skill commands.</p>
 <h2>Review and approval</h2>
 <p>A skill review produces at most one create, patch, or archive operation.</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Operation</th>
@@ -91,7 +92,7 @@ The external worker processes <strong>memory review only</strong>. Project-skill
 <p>The frozen corpus contains 31 labeled cases: 15 proposals and 16 no-change negatives. Admission requires every case to pass. It requires proposal-precision, negative-specificity, and paired non-inferiority lower bounds. It also requires complete dispatch accounting and bounded token and cost changes.</p>
 <h2>Manage skills</h2>
 <p>Run <code>/project-skills</code> without arguments to open the interactive browser, or use direct commands:</p>
-<pre><code class="language-text">/project-skills list
+<pre tabindex="0"><code class="language-text">/project-skills list
 /project-skills stats
 /project-skills read &lt;name&gt;
 /project-skills edit &lt;name&gt;

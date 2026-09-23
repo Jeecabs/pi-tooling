@@ -4,79 +4,119 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My glorious Pi setup</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
-  <nav><a href="#">Index</a><a href="https://github.com/Jeecabs">GitHub</a></nav>
+  <nav><a href="#picks">Picks</a><a href="#tools">All tools</a><a href="https://github.com/Jeecabs">GitHub</a></nav>
 </div>
-<main class="frame">
+<main class="frame home" id="content">
   <header class="hero">
-    <h1 class="display">My glorious <em>Pi</em> setup</h1>
-    <p class="lede">Extensions, packages, and skills for the
-    <a href="https://github.com/badlogic/pi-mono">Pi coding agent</a>. Every tool's
-    documentation is rendered here from its own repository.</p>
+    <h1 class="display"><span>My glorious</span> <span>Pi setup</span></h1>
+    <p class="lede">Extensions, packages, and skills I built for the
+    <a href="https://github.com/earendil-works/pi">Pi coding agent</a>.</p>
   </header>
-  <div class="index">
-  <a class="row" data-cat="ORCHESTRATION" href="gang/index.html">
-    <span class="name">gang</span>
-    <span class="desc">Minimal, observable subagent primitive for Pi: visible tmux members, cross-agent intercom, and a mission-control GUI.</span>
-    <span class="cat">ORCHESTRATION</span>
-    <span class="go">&rarr;</span>
-  </a>
-  <a class="row" data-cat="ORCHESTRATION" href="micro-manager/index.html">
-    <span class="name">micro-manager</span>
-    <span class="desc">The Micro Manager: bounded background review for Pi coding sessions.</span>
-    <span class="cat">ORCHESTRATION</span>
-    <span class="go">&rarr;</span>
-  </a>
-  <a class="row" data-cat="ORCHESTRATION" href="pi-processes/index.html">
-    <span class="name">no-block</span>
-    <span class="desc">Finite Bash jobs yield without blocking Pi and report their exit later.</span>
-    <span class="cat">ORCHESTRATION</span>
-    <span class="go">&rarr;</span>
-  </a>
-  <a class="row" data-cat="MEMORY" href="no-forgetti/index.html">
-    <span class="name">no-forgetti</span>
-    <span class="desc">Project-scoped persistent memory and self-forming skills for Pi.</span>
-    <span class="cat">MEMORY</span>
-    <span class="go">&rarr;</span>
-  </a>
-  <a class="row" data-cat="GUARDRAILS" href="moron-guard/index.html">
-    <span class="name">moron-guard</span>
-    <span class="desc">In-process destructive-command guard for pi.</span>
-    <span class="cat">GUARDRAILS</span>
-    <span class="go">&rarr;</span>
-  </a>
-  <a class="row" data-cat="INTERFACE" href="aura/index.html">
-    <span class="name">aura</span>
-    <span class="desc">Private pi package that adds an audio-reactive glow to Pi's input frame.</span>
-    <span class="cat">INTERFACE</span>
-    <span class="go">&rarr;</span>
-  </a>
-  <a class="row" data-cat="WORKFLOW" href="graph-of-thonking/index.html">
-    <span class="name">graph-of-thonking</span>
-    <span class="desc">Graph of Thonking: session-safe Ripwire code intelligence for Pi.</span>
-    <span class="cat">WORKFLOW</span>
-    <span class="go">&rarr;</span>
-  </a>
-  <a class="row" data-cat="WORKFLOW" href="pi-tooltime/index.html">
-    <span class="name">pi-tooltime</span>
-    <span class="desc">Pi tool-time analytics and prompt coaching.</span>
-    <span class="cat">WORKFLOW</span>
-    <span class="go">&rarr;</span>
-  </a>
-  <a class="row" data-cat="WORKFLOW" href="pilot-manual-enjoyer/index.html">
-    <span class="name">pilot-manual-enjoyer</span>
-    <span class="desc">Pi package for writing and linting clear technical prose with Simplified Technical English.</span>
-    <span class="cat">WORKFLOW</span>
-    <span class="go">&rarr;</span>
-  </a>
-  </div>
+  <section class="picks" id="picks" aria-labelledby="picks-title">
+    <div class="section-intro">
+      <h2 id="picks-title">Start with these</h2>
+    </div>
+    <article class="pick">
+      <figure class="pick-art"><img src="gang/assets/gang-logo.png" alt="A crew of animal agents coordinating work across terminal screens" width="640" height="640"></figure>
+      <div class="pick-copy">
+        <h3 class="pick-name"><a href="gang/index.html">gang</a></h3>
+        <p class="pitch">Put agents to work together without losing sight of them.</p>
+        <p class="what">Visible tmux agents, cross-agent messaging, and a mission-control interface for Pi.</p>
+        <pre class="install" tabindex="0"><code>pi install git:github.com/Jeecabs/gang</code></pre>
+        <a class="read" href="gang/index.html">Read the gang docs <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </article>
+    <article class="pick">
+      <figure class="pick-art"><img src="micro-manager/assets/micro-manager.png" alt="Grumpy mascot marking up terminal output with a pencil while holding a review checklist" width="640" height="640"></figure>
+      <div class="pick-copy">
+        <h3 class="pick-name"><a href="micro-manager/index.html">micro-manager</a></h3>
+        <p class="pitch">I want a reviewer on every turn, not only the ones I remember to check.</p>
+        <p class="what">Independent models read each finished turn with read-only tools and speak up only with a concrete nit, concern, or blocker.</p>
+        <pre class="install" tabindex="0"><code>pi install git:github.com/Jeecabs/micro-manager</code></pre>
+        <a class="read" href="micro-manager/index.html">Read the micro-manager docs <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </article>
+    <article class="pick">
+      <figure class="pick-art"><img src="pi-processes/assets/no-block-logo.png" alt="No Block mascot vaulting over a blocked terminal command" width="640" height="640"></figure>
+      <div class="pick-copy">
+        <h3 class="pick-name"><a href="pi-processes/index.html">no-block</a></h3>
+        <p class="pitch">A long test run should not hold the whole session hostage.</p>
+        <p class="what">Replaces Pi's Bash tool for finite jobs. Quick commands return normally. Slow ones yield after 30 seconds, stay supervised, and report back when they exit.</p>
+        <pre class="install" tabindex="0"><code>pi install git:github.com/Jeecabs/no-block</code></pre>
+        <a class="read" href="pi-processes/index.html">Read the no-block docs <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </article>
+    <article class="pick">
+      <figure class="pick-art"><img src="da-browser/assets/da-browser.png" alt="Tabby cat reaching for a cursor in a browser window" width="640" height="640"></figure>
+      <div class="pick-copy">
+        <h3 class="pick-name"><a href="da-browser/index.html">da-browser</a></h3>
+        <p class="pitch">An agent that builds frontends should be able to look at them.</p>
+        <p class="what">Browser-control tools powered by agent-browser. Connect Arc or Chromium over remote debugging and let Pi navigate, click, and inspect the page.</p>
+        <pre class="install" tabindex="0"><code>pi install git:github.com/Jeecabs/da-browser</code></pre>
+        <a class="read" href="da-browser/index.html">Read the da-browser docs <span aria-hidden="true">&rarr;</span></a>
+      </div>
+    </article>
+  </section>
+  <section class="directory" id="tools" aria-labelledby="tools-title">
+    <div class="section-intro">
+      <h2 id="tools-title">Everything else</h2>
+      <p>The rest of the public toolbox, grouped by what it helps with.</p>
+    </div>
+    <section class="shelf">
+      <h3 class="shelf-label">MEMORY</h3>
+      <ul class="shelf-list">
+        <li><a class="row" href="no-forgetti/index.html">
+          <span class="name">no-forgetti</span>
+          <span class="desc">Project-scoped persistent memory and self-forming skills for Pi.</span>
+        </a></li>
+      </ul>
+    </section>
+    <section class="shelf">
+      <h3 class="shelf-label">GUARDRAILS</h3>
+      <ul class="shelf-list">
+        <li><a class="row" href="moron-guard/index.html">
+          <span class="name">moron-guard</span>
+          <span class="desc">In-process destructive-command guard for pi.</span>
+        </a></li>
+      </ul>
+    </section>
+    <section class="shelf">
+      <h3 class="shelf-label">INTERFACE</h3>
+      <ul class="shelf-list">
+        <li><a class="row" href="aura/index.html">
+          <span class="name">aura</span>
+          <span class="desc">Private pi package that adds an audio-reactive glow to Pi's input frame.</span>
+        </a></li>
+      </ul>
+    </section>
+    <section class="shelf">
+      <h3 class="shelf-label">WORKFLOW</h3>
+      <ul class="shelf-list">
+        <li><a class="row" href="graph-of-thonking/index.html">
+          <span class="name">graph-of-thonking</span>
+          <span class="desc">Graph of Thonking: session-safe Ripwire code intelligence for Pi.</span>
+        </a></li>
+        <li><a class="row" href="pi-tooltime/index.html">
+          <span class="name">pi-tooltime</span>
+          <span class="desc">Pi tool-time analytics and prompt coaching.</span>
+        </a></li>
+        <li><a class="row" href="pilot-manual-enjoyer/index.html">
+          <span class="name">pilot-manual-enjoyer</span>
+          <span class="desc">Pi package for writing and linting clear technical prose with Simplified Technical English.</span>
+        </a></li>
+      </ul>
+    </section>
+  </section>
   <footer>
-    <span><a href="https://github.com/Jeecabs">github.com/Jeecabs</a></span>
+    <span>Made by Jeecabs</span>
+    <a href="https://github.com/Jeecabs">github.com/Jeecabs</a>
   </footer>
 </main>
 </body>

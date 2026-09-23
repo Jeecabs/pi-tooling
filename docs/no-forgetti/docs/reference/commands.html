@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,13 +35,13 @@
       <a href="../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
       <div class="md"><h1>Command reference</h1>
 <h2>Memory</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Command</th>
@@ -81,7 +82,7 @@
 </tr>
 </tbody></table>
 <h2>Project skills</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Command</th>
@@ -140,20 +141,20 @@
 <p>Use Pi’s native <code>/skill:&lt;name&gt;</code> command to invoke an active project skill. No Forgetti manages the skill lifecycle; Pi manages discovery and invocation.</p>
 <h2>Model tool</h2>
 <p>The foreground model receives <code>project_memory</code> with four actions:</p>
-<pre><code class="language-text">list
+<pre tabindex="0"><code class="language-text">list
 add(content, importance?)
 replace(oldText, content, importance?)
 remove(oldText)
 </code></pre>
 <p>For <code>replace</code> and <code>remove</code>, <code>oldText</code> must be a unique substring of one existing entry. Importance can be <code>high</code>, <code>normal</code>, or <code>low</code> and measures the cost of forgetting.</p>
 <h2>Doctor CLI</h2>
-<pre><code class="language-text">no-forgetti doctor [--json] [--agent-dir &lt;path&gt;] [--projects-root &lt;path&gt;]
+<pre tabindex="0"><code class="language-text">no-forgetti doctor [--json] [--agent-dir &lt;path&gt;] [--projects-root &lt;path&gt;]
 </code></pre>
 <p>The doctor checks the installed release, the global package source, project overrides, live Pi runtimes, and the external worker. It exits with status 1 if the machine has a stale or mixed installation.</p>
 <h2>Worker CLI</h2>
-<pre><code class="language-text">no-forgetti review [--once] [options]
+<pre tabindex="0"><code class="language-text">no-forgetti review [--once] [options]
 </code></pre>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Option</th>

@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -53,21 +54,21 @@
 </ul>
 <h2>Install</h2>
 <p>Install globally for all Pi projects:</p>
-<pre><code class="language-bash">pi install https://github.com/Jeecabs/no-forgetti
+<pre tabindex="0"><code class="language-bash">pi install https://github.com/Jeecabs/no-forgetti
 pi list
 </code></pre>
 <p>Restart Pi after the first install, or run <code>/reload</code> in an existing interactive session. Then verify:</p>
-<pre><code class="language-text">/memory status
+<pre tabindex="0"><code class="language-text">/memory status
 </code></pre>
 <p>Project-local install:</p>
-<pre><code class="language-bash">pi install -l https://github.com/Jeecabs/no-forgetti
+<pre tabindex="0"><code class="language-bash">pi install -l https://github.com/Jeecabs/no-forgetti
 </code></pre>
 <p>Try for one process without changing settings:</p>
-<pre><code class="language-bash">pi -e https://github.com/Jeecabs/no-forgetti
+<pre tabindex="0"><code class="language-bash">pi -e https://github.com/Jeecabs/no-forgetti
 </code></pre>
 <p>See <a href="docs/getting-started.html">Getting started</a> for requirements, install scopes, and the first-use walkthrough.</p>
 <h2>Review modes</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Mode</th>
@@ -101,7 +102,7 @@ pi list
 </ol>
 <p>No Forgetti never starts a daemon during package installation.</p>
 <h2>Core commands</h2>
-<pre><code class="language-text">/memory status
+<pre tabindex="0"><code class="language-text">/memory status
 /memory show
 /memory branches
 /memory fork &lt;name&gt;
@@ -132,15 +133,15 @@ pi list
 <li><a href="docs/guide/project-skills.html">Project skills</a></li>
 <li><a href="docs/external-mode/index.html">External mode</a></li>
 <li><a href="docs/reference/storage.html">Storage reference</a></li>
-<li><a href="SECURITY.html">Security model</a></li>
+<li><a href="https://github.com/Jeecabs/no-forgetti/blob/HEAD/SECURITY.md">Security model</a></li>
 <li><a href="docs/architecture/external-curator.html">External curator architecture</a></li>
-<li><a href="CONTRIBUTING.html">Contributing</a></li>
+<li><a href="https://github.com/Jeecabs/no-forgetti/blob/HEAD/CONTRIBUTING.md">Contributing</a></li>
 </ul>
 <h2>Design boundaries</h2>
 <p>Memory has a 4,000-character maintenance goal, a 4,500-character automatic-review target, a 6,000-character hard limit, and an 800-character per-entry limit. Foreground writes retain reserved capacity. Automatic review uses branch compare-and-swap, append-only revision history, and inverse-CAS undo that refuses to erase later conflicting writes.</p>
-<p>Accepted review evidence is bounded to 12 user turns and 32,000 sanitized characters. It excludes thinking, images, raw tool arguments and results, user Bash, provider headers, and diagnostics. Review <a href="SECURITY.html">SECURITY.md</a> before enabling external mode.</p>
+<p>Accepted review evidence is bounded to 12 user turns and 32,000 sanitized characters. It excludes thinking, images, raw tool arguments and results, user Bash, provider headers, and diagnostics. Review <a href="https://github.com/Jeecabs/no-forgetti/blob/HEAD/SECURITY.md">SECURITY.md</a> before enabling external mode.</p>
 <h2>Development</h2>
-<pre><code class="language-bash">git clone https://github.com/Jeecabs/no-forgetti.git
+<pre tabindex="0"><code class="language-bash">git clone https://github.com/Jeecabs/no-forgetti.git
 cd no-forgetti
 pnpm install --frozen-lockfile
 pnpm check
@@ -150,9 +151,9 @@ pnpm docs:build
 pi -e .
 </code></pre>
 <p>Run the documentation site locally:</p>
-<pre><code class="language-bash">pnpm docs:dev
+<pre tabindex="0"><code class="language-bash">pnpm docs:dev
 </code></pre>
-<p>No Forgetti is released under the <a href="LICENSE">MIT License</a>. Upstream inspiration is noted in <a href="NOTICE.html">NOTICE.md</a>.</p>
+<p>No Forgetti is released under the <a href="LICENSE">MIT License</a>. Upstream inspiration is noted in <a href="https://github.com/Jeecabs/no-forgetti/blob/HEAD/NOTICE.md">NOTICE.md</a>.</p>
 </div>
     </article>
   </div>

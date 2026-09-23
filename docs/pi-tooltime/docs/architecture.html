@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pi-tooltime</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
@@ -28,14 +29,14 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
       <div class="md"><h1>Architecture</h1>
 <h2>Goals</h2>
 <p>Pi Tooltime separates measurement from behavior change. Analytics Mode does not change the system prompt. Coach Mode uses a bounded fixed guidance policy.</p>
 <p>The feedback loop has six stages:</p>
-<pre><code class="language-text">observe -&gt; detect -&gt; aggregate -&gt; promote -&gt; inject -&gt; compare
+<pre tabindex="0"><code class="language-text">observe -&gt; detect -&gt; aggregate -&gt; promote -&gt; inject -&gt; compare
 </code></pre>
 <h2>Three parts</h2>
 <p>Pi Tooltime has three parts:</p>
@@ -68,7 +69,7 @@
 <h2>Parallel tool calls</h2>
 <p>Pi can run sibling tool calls in parallel. A sum of durations counts overlap more than once.</p>
 <p>For intervals <code>[start, end]</code>, the core calculates:</p>
-<pre><code class="language-text">toolWallMs = duration(union(intervals))
+<pre tabindex="0"><code class="language-text">toolWallMs = duration(union(intervals))
 toolCallMs = sum(duration(interval))
 </code></pre>
 <p><code>toolWallMs</code> measures time with at least one active tool. <code>toolCallMs</code> measures aggregate tool work.</p>
@@ -89,7 +90,7 @@ toolCallMs = sum(duration(interval))
 <h2>Detection</h2>
 <p>Detectors use fixed finding codes and fixed Guidance Rule mappings.</p>
 <p>The current detectors are:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Code</th>
@@ -138,7 +139,7 @@ toolCallMs = sum(duration(interval))
 <p>The sanitizer fixes <code>signature</code> to the finding code. Multiple finding codes can map to one Guidance Rule ID. The three route codes all map to <code>source-routing</code>.</p>
 <h2>Promotion</h2>
 <p>Only high-confidence aggregate findings can produce observed guidance. A finding group must meet both thresholds:</p>
-<pre><code class="language-text">taskCount &gt;= minTasks
+<pre tabindex="0"><code class="language-text">taskCount &gt;= minTasks
 totalWasteMs &gt;= minTotalDurationMs
 </code></pre>
 <p>Defaults require three affected tasks and 30 seconds of suspected time.</p>
@@ -175,7 +176,7 @@ totalWasteMs &gt;= minTotalDurationMs
 <h2>Eval integration</h2>
 <p>An eval harness can import the package root without loading Pi or the I/O adapters.</p>
 <p>A useful derived eval summary is:</p>
-<pre><code class="language-json">{
+<pre tabindex="0"><code class="language-json">{
   &quot;task_wall_ms&quot;: 120000,
   &quot;tool_wall_ms&quot;: 70000,
   &quot;tool_call_ms&quot;: 95000,

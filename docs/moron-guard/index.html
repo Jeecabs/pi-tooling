@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>moron-guard</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/moron-guard">GitHub</a></nav>
@@ -21,7 +22,7 @@
       <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/moron-guard"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">GUARDRAILS</span>
       <a class="repo-link" href="https://github.com/Jeecabs/moron-guard">Jeecabs/moron-guard &nearr;</a></div>
       <div class="md"><h1>Moron Guard</h1>
@@ -51,19 +52,19 @@ Moron Guard is a guardrail, not a sandbox. It can miss destructive behavior in g
 </ul>
 <h2>Install</h2>
 <p>Review the source before installing: Pi extensions run with your full user permissions.</p>
-<pre><code class="language-bash">pi install npm:moron-guard@0.1.0
+<pre tabindex="0"><code class="language-bash">pi install npm:moron-guard@0.1.0
 </code></pre>
 <p>Versioned installs stay pinned. You can also install the matching Git tag after reviewing its source:</p>
-<pre><code class="language-bash">pi install git:github.com/Jeecabs/moron-guard@v0.1.0
+<pre tabindex="0"><code class="language-bash">pi install git:github.com/Jeecabs/moron-guard@v0.1.0
 </code></pre>
 <p>Restart Pi after installation. To try the extension without adding it to Pi&#39;s settings:</p>
-<pre><code class="language-bash">pi -e npm:moron-guard@0.1.0
+<pre tabindex="0"><code class="language-bash">pi -e npm:moron-guard@0.1.0
 </code></pre>
 <p>To remove it:</p>
-<pre><code class="language-bash">pi remove npm:moron-guard
+<pre tabindex="0"><code class="language-bash">pi remove npm:moron-guard
 </code></pre>
 <h2>Commands</h2>
-<pre><code class="language-text">/moron status
+<pre tabindex="0"><code class="language-text">/moron status
 /moron doctor
 /moron rules
 /moron explain git reset --hard HEAD
@@ -80,7 +81,7 @@ Moron Guard is a guardrail, not a sandbox. It can miss destructive behavior in g
 <li><code>.pi/moron-guard.json</code> in the current project</li>
 </ol>
 <p>The legacy project path <code>.moron-guard.json</code> is accepted when <code>.pi/moron-guard.json</code> does not exist. Set <code>MORON_GUARD_CONFIG</code> to use one explicit file instead. Environment variables override file values. Run <code>/moron reload</code> after changing configuration.</p>
-<pre><code class="language-json">{
+<pre tabindex="0"><code class="language-json">{
   &quot;enabled&quot;: true,
   &quot;mode&quot;: &quot;enforce&quot;,
   &quot;failClosed&quot;: true,
@@ -99,7 +100,7 @@ Moron Guard is a guardrail, not a sandbox. It can miss destructive behavior in g
 </ul>
 <p>By default, project configuration can only strengthen the core switches. It can set <code>enabled</code>, <code>mode: &quot;enforce&quot;</code>, <code>failClosed</code>, or <code>userBash</code> to safe values. Moron Guard ignores project allowlists, category filters, parser limits, and weakening switch values. Set <code>MORON_GUARD_ALLOW_PROJECT_CONFIG=1</code> only when you trust the project. This setting applies its complete configuration. Global configuration, explicit configuration, and environment variables remain trusted policy sources.</p>
 <h3>Environment variables</h3>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Variable</th>
@@ -165,7 +166,7 @@ Moron Guard is a guardrail, not a sandbox. It can miss destructive behavior in g
 <p>Use <code>/moron rules</code> for the enabled family names and <code>/moron explain &lt;command&gt;</code> to inspect a decision without running the command.</p>
 <h2>Host-independent API</h2>
 <p>You can use the evaluator without Pi:</p>
-<pre><code class="language-ts">import { createGuard } from &quot;moron-guard&quot;;
+<pre tabindex="0"><code class="language-ts">import { createGuard } from &quot;moron-guard&quot;;
 
 const guard = createGuard({ context: { cwd: process.cwd() } });
 const decision = guard.evaluate(&quot;git reset --hard HEAD&quot;);
@@ -176,16 +177,16 @@ if (decision.enforce) {
 </code></pre>
 <p>A decision has an <code>action</code> of <code>allow</code>, <code>deny</code>, or <code>error</code>, an <code>enforce</code> compatibility boolean, <code>source: &quot;native&quot;</code>, and structured <code>diagnostics</code>. Treat <code>error</code> as blocking unless your host explicitly implements a fail-open policy.</p>
 <h2>Development</h2>
-<pre><code class="language-bash">git clone https://github.com/Jeecabs/moron-guard.git
+<pre tabindex="0"><code class="language-bash">git clone https://github.com/Jeecabs/moron-guard.git
 cd moron-guard
 pnpm install --frozen-lockfile
 pnpm check
 pnpm test
 pi -e ./src/index.ts
 </code></pre>
-<p>The tests parse and evaluate command strings. They do not execute candidate commands. See <a href="CONTRIBUTING.html">CONTRIBUTING.md</a> before you submit a change. Maintainers should follow <a href="RELEASING.html">RELEASING.md</a> when they publish a version.</p>
+<p>The tests parse and evaluate command strings. They do not execute candidate commands. See <a href="https://github.com/Jeecabs/moron-guard/blob/HEAD/CONTRIBUTING.md">CONTRIBUTING.md</a> before you submit a change. Maintainers should follow <a href="https://github.com/Jeecabs/moron-guard/blob/HEAD/RELEASING.md">RELEASING.md</a> when they publish a version.</p>
 <h2>Security and support</h2>
-<p>Report vulnerabilities according to <a href="SECURITY.html">SECURITY.md</a>. Use <a href="SUPPORT.html">SUPPORT.md</a> for usage questions and ordinary bug reports.</p>
+<p>Report vulnerabilities according to <a href="https://github.com/Jeecabs/moron-guard/blob/HEAD/SECURITY.md">SECURITY.md</a>. Use <a href="https://github.com/Jeecabs/moron-guard/blob/HEAD/SUPPORT.md">SUPPORT.md</a> for usage questions and ordinary bug reports.</p>
 <h2>License</h2>
 <p>See <a href="LICENSE">LICENSE</a>.</p>
 </div>

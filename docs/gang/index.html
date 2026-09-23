@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>gang</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/gang">GitHub</a></nav>
@@ -21,7 +22,7 @@
       <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/gang"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/gang">Jeecabs/gang &nearr;</a></div>
       <div class="md"><h1>gang</h1>
@@ -35,7 +36,7 @@ in your terminal (a Pi overlay) <strong>and</strong> in the browser.</p>
 <strong>v0.13.0</strong> (MIT). No external <code>pi-intercom</code> runtime dependency; npm deps install with the package.
 A dev-only version pin lets Dependabot flag new Intercom releases, while CI requires the vendored
 version marker to match. Targets <code>@earendil-works</code> Pi <strong>0.85.x</strong> (<code>&gt;=0.85.1 &lt;0.86.0</code>).</p>
-<pre><code>┌─ tmux panes ──────────────┐   raw per-agent view — watch each member&#39;s pi session
+<pre tabindex="0"><code>┌─ tmux panes ──────────────┐   raw per-agent view — watch each member&#39;s pi session
 │  superintendent │ worker        │
 │           │ reviewer      │
 └───────────┴───────────────┘
@@ -55,19 +56,19 @@ version marker to match. Targets <code>@earendil-works</code> Pi <strong>0.85.x<
 </ul>
 <h2>Install</h2>
 <h3>Option A — from npm (recommended)</h3>
-<pre><code class="language-sh">pi install pi-gang
+<pre tabindex="0"><code class="language-sh">pi install pi-gang
 pi list                                           # verify: should list  gang
 </code></pre>
 <h3>Option B — from GitHub</h3>
 <p>Pi packages run local extension code with your user permissions, so review the source before
 installing. Pi installs the package&#39;s runtime dependencies for you on a git install:</p>
-<pre><code class="language-sh">pi install https://github.com/Jeecabs/gang.git
+<pre tabindex="0"><code class="language-sh">pi install https://github.com/Jeecabs/gang.git
 pi list                                           # verify: should list  gang
 </code></pre>
 <p>SSH also works if your GitHub account is configured for it:
 <code>pi install ssh://git@github.com/Jeecabs/gang.git</code></p>
 <h3>Option C — local clone (to hack on it)</h3>
-<pre><code class="language-sh">git clone git@github.com:Jeecabs/gang.git
+<pre tabindex="0"><code class="language-sh">git clone git@github.com:Jeecabs/gang.git
 cd gang
 npm install                                       # REQUIRED — the broker + GUI run from node_modules
 pi install .                                       # persistent: registers it in your Pi settings
@@ -85,14 +86,14 @@ launches from its <code>node_modules</code>). A git/npm install handles deps aut
 <p>In any Pi session, ask for a member — or call the tool yourself. The session adopts the <strong><code>superintendent</code></strong>
 identity the first time you spawn (not before), so sessions where you never use gang keep their
 natural title in <code>pi -r</code>:</p>
-<pre><code>/gang spawn list the repo&#39;s largest files
+<pre tabindex="0"><code>/gang spawn list the repo&#39;s largest files
 /gang spawn @reviewer -t high review the diff carefully
 </code></pre>
 <p><code>gang spawn</code> returns immediately and opens a tmux pane. The member does the task in its own Pi
 session and sends the result <strong>back to superintendent as an intercom message</strong> (it does not return inline).
 Keep working; handle the result when it arrives.</p>
 <p>Watch the gang three ways:</p>
-<pre><code class="language-sh"># 1. in Pi — live mission-control overlay (members + status + feed)
+<pre tabindex="0"><code class="language-sh"># 1. in Pi — live mission-control overlay (members + status + feed)
 /gang watch            # or press  alt+g
 
 # 2. in the browser — the same feed, richer
@@ -103,7 +104,7 @@ open http://127.0.0.1:7717
 tail -f ~/.pi/agent/intercom/intercom.jsonl
 </code></pre>
 <h2>Commands &amp; tools</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Surface</th>
@@ -155,7 +156,7 @@ tail -f ~/.pi/agent/intercom/intercom.jsonl
 <p>The package includes a parallel review skill. It starts visible gang reviewers and returns
 patch-anchored P0-P3 findings, confidence scores, and a ship verdict. The skill does not
 run for a general review request. Start it explicitly:</p>
-<pre><code class="language-text">/skill:gang-review worktree
+<pre tabindex="0"><code class="language-text">/skill:gang-review worktree
 /skill:gang-review against main
 /skill:gang-review commit abc123
 /skill:gang-review https://github.com/owner/repo/pull/123
@@ -169,7 +170,7 @@ findings before it gives the verdict.</p>
 <p>The package includes an explicit best-of-N contest skill. Each gang contestant receives the same
 task and scoring rubric. The superintendent evaluates every valid submission, promotes one winner,
 and fires the others from the simulated run.</p>
-<pre><code class="language-text">/skill:adversarial-template 3 design a retry policy for this API client
+<pre tabindex="0"><code class="language-text">/skill:adversarial-template 3 design a retry policy for this API client
 </code></pre>
 <p>Contestants return independent answers, plans, or proposed patches. They do not edit the shared
 worktree. The skill selects a recommended solution but does not apply it.</p>
@@ -186,7 +187,7 @@ overlay, superintendent auto-naming, and the <code>gang-review</code> skill.</li
 <code>PI_SUBAGENT_*</code> env vars. Pass <code>--thinking &lt;level&gt;</code> to add Pi&#39;s <code>--thinking</code> flag for that member.
 The vendored intercom extension reads the env vars at child startup to register
 the member on the bus and unlock its <code>contact_supervisor</code> tool — that&#39;s the whole contract:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Env var</th>
@@ -232,7 +233,7 @@ may wait on a long tool call.</li>
 </li>
 </ul>
 <h2>Develop</h2>
-<pre><code class="language-sh">npm test             # vendored intercom suite + gang/tmux/tap/GUI/overlay tests
+<pre tabindex="0"><code class="language-sh">npm test             # vendored intercom suite + gang/tmux/tap/GUI/overlay tests
 npm run typecheck    # strict TypeScript check
 </code></pre>
 <h2>Credits</h2>

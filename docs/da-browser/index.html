@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>da-browser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<div class="topnav">
+  <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/da-browser">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">DA-BROWSER</div>
+      <a class="current" href="index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="docs/agent-browser-v0.34.0.html"><span class="marker">&#9671;</span>agent-browser 0.34.0 deep dive</a>
+      <a href="docs/tools.html"><span class="marker">&#9671;</span>da-browser tools and advanced setup</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/da-browser"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose" id="content">
+      <div class="doc-meta"><span class="cat">BROWSER &amp; QA</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/da-browser">Jeecabs/da-browser &nearr;</a></div>
+      <div class="md"><h1>da browser</h1>
+<p align="center">
+  <img src="assets/da-browser.png" alt="Tabby cat reaching for a cursor in a browser window" width="400" />
+</p><p><a href="https://github.com/earendil-works/pi">pi</a> extension for browser-control tools powered by <a href="https://github.com/vercel-labs/agent-browser"><code>agent-browser</code></a>.</p>
+<p><a href="https://jeecabs.github.io/pi-tooling/da-browser/">Documentation</a> · <a href="https://jeecabs.github.io/pi-tooling/">All tools</a></p>
+<h2>Install</h2>
+<pre tabindex="0"><code class="language-bash">pi install https://github.com/Jeecabs/da-browser
+</code></pre>
+<p>Reload pi if already running:</p>
+<pre tabindex="0"><code class="language-text">/reload
+</code></pre>
+<h2>Prerequisites</h2>
+<ul>
+<li><code>agent-browser</code> 0.38.1 or newer on <code>PATH</code>: <code>npm install -g agent-browser@latest</code></li>
+<li>Arc or Chromium with remote debugging: <code>open -na &quot;Arc&quot; --args --remote-debugging-port=9222</code></li>
+<li><code>ffmpeg</code> on <code>PATH</code> only for <code>browser_record</code> (<code>brew install ffmpeg</code>)</li>
+</ul>
+<p>The extension checks the minimum CLI version on session start and before every action. <code>/browser status</code> shows the installed version.</p>
+<h2>Quick start</h2>
+<pre tabindex="0"><code class="language-bash">open -na &quot;Arc&quot; --args --remote-debugging-port=9222
+</code></pre>
+<p>Then in pi:</p>
+<pre tabindex="0"><code class="language-text">/browser connect
+/browser status
+</code></pre>
+<p>Open a page and snapshot it:</p>
+<ul>
+<li><code>browser_open</code> navigates to a URL</li>
+<li><code>browser_snapshot</code> collects fresh <code>@eN</code> refs</li>
+<li><code>browser_find</code> locates by role/text/label and acts in one step</li>
+</ul>
+<h2>Commands</h2>
+<table tabindex="0">
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/browser connect [port]</code></td>
+<td>Connect to Arc/Chromium through CDP</td>
+</tr>
+<tr>
+<td><code>/browser status</code></td>
+<td>Probe connection, page targets, browser version, artifacts</td>
+</tr>
+<tr>
+<td><code>/browser cleanup</code></td>
+<td>Disconnect/reset browser state for the session</td>
+</tr>
+</tbody></table>
+<h2>Tools</h2>
+<p>27 typed tools cover open, snapshot, read, click, find, fill, navigation, tabs, eval, recording, traces, React inspection, a11y, and vitals. Full table and flags: <a href="docs/tools.html">docs/tools.md</a>.</p>
+<h2>Development</h2>
+<pre tabindex="0"><code class="language-bash">pnpm install
+pnpm check
+pnpm test
+</code></pre>
+<p><code>pnpm test:e2e</code> launches an isolated browser to verify strict shared-CDP pinning. <code>pnpm preview:control</code> previews the control indicator on light and dark backgrounds. See <a href="docs/tools.html">docs/tools.md</a> for install alternatives and operational detail.</p>
+<h2>Notes</h2>
+<ul>
+<li>Browser refs (<code>@eN</code>) go stale after DOM mutations. Re-snapshot before clicking or filling.</li>
+<li><code>browser_find</code> always acts. Use <code>browser_snapshot</code>/<code>browser_get</code> to inspect without mutation.</li>
+<li>Controlled tabs use a coral pointer favicon and a stationary edge glow. Releasing control restores the original favicon.</li>
+<li>Strict tab pinning keeps each pi session on its own tab. A closed pinned tab fails safely with <code>tab_gone</code>; recover with <code>browser_tab</code> new/switch or <code>browser_connect</code>.</li>
+<li>HAR captures can contain cookies, auth headers, and response bodies. Inspect before sharing.</li>
+<li>Artifacts live under <code>/tmp/da-browser/&lt;cwd-slug&gt;</code>.</li>
+</ul>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -42,7 +43,7 @@
 <p>Use a user-scoped <code>launchd</code> agent after the <a href="./setup.html">one-off setup check</a> succeeds.</p>
 <h2>Capture absolute paths</h2>
 <p>In an interactive shell, print the three paths the agent needs:</p>
-<pre><code class="language-bash">AGENT_DIR=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
+<pre tabindex="0"><code class="language-bash">AGENT_DIR=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
 NODE_BIN=&quot;$(command -v node)&quot;
 WORKER_BIN=&quot;$(command -v no-forgetti 2&gt;/dev/null || true)&quot;
 if [ -z &quot;$WORKER_BIN&quot; ]; then
@@ -56,7 +57,7 @@ mkdir -p &quot;$AGENT_DIR/no-forgetti/logs&quot; &quot;$HOME/Library/LaunchAgent
 <p>Use the printed absolute values below. <code>launchd</code> does not load shell startup files, aliases, or Node version-manager initialization.</p>
 <h2>Create the LaunchAgent</h2>
 <p>Create <code>~/Library/LaunchAgents/com.jeecabs.no-forgetti-review.plist</code>:</p>
-<pre><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+<pre tabindex="0"><code class="language-xml">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
 &lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;
 &lt;plist version=&quot;1.0&quot;&gt;
 &lt;dict&gt;
@@ -90,28 +91,28 @@ mkdir -p &quot;$AGENT_DIR/no-forgetti/logs&quot; &quot;$HOME/Library/LaunchAgent
 </code></pre>
 <p>Replace every placeholder, including the three log paths. Do not use <code>~</code> or shell variables in the plist.</p>
 <h2>Validate and register</h2>
-<pre><code class="language-bash">plutil -lint &quot;$HOME/Library/LaunchAgents/com.jeecabs.no-forgetti-review.plist&quot;
+<pre tabindex="0"><code class="language-bash">plutil -lint &quot;$HOME/Library/LaunchAgents/com.jeecabs.no-forgetti-review.plist&quot;
 launchctl bootstrap &quot;gui/$(id -u)&quot; &quot;$HOME/Library/LaunchAgents/com.jeecabs.no-forgetti-review.plist&quot;
 launchctl enable &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
 launchctl kickstart -k &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
 </code></pre>
 <p><code>bootstrap</code> reports an error if the same agent is already loaded. In that case, inspect it first or run the bootout command below before bootstrapping the edited plist again.</p>
 <h2>Verify</h2>
-<pre><code class="language-bash">launchctl print &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
+<pre tabindex="0"><code class="language-bash">launchctl print &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
 tail -n 50 &quot;$AGENT_DIR/no-forgetti/logs/review.stderr.log&quot;
 </code></pre>
 <p>Inside Pi, run:</p>
-<pre><code class="language-text">/memory status
+<pre tabindex="0"><code class="language-text">/memory status
 </code></pre>
 <p>The worker heartbeat should become healthy. Queue depth should fall as eligible jobs complete.</p>
 <h2>Restart after updates</h2>
 <p>No Forgetti’s worker loads its model profile and memory-policy version at process startup. Restart it after updating the package or changing the reviewer profile:</p>
-<pre><code class="language-bash">launchctl kickstart -k &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
+<pre tabindex="0"><code class="language-bash">launchctl kickstart -k &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
 </code></pre>
 <p>If a Node version manager moved the Node executable, or the package checkout path changed, update the plist, boot it out, and bootstrap it again.</p>
 <h2>Stop or unregister</h2>
 <p>Stop and unregister the agent:</p>
-<pre><code class="language-bash">launchctl bootout &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
+<pre tabindex="0"><code class="language-bash">launchctl bootout &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
 </code></pre>
 <p>This does not delete queued work, configuration, budgets, or review evidence. See <a href="./operations.html#disable-external-mode">Disable external mode</a> for the complete sequence.</p>
 <h2>Authentication note</h2>

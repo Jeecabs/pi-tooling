@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -47,11 +48,11 @@
 Start with <a href="./getting-started.html">Getting started</a>. The default embedded reviewer requires no daemon or service configuration.
 :::</p>
 <h2>How it works</h2>
-<p><video controls preload="none" width="1920" height="1080" poster="/how-it-works-poster.jpg" src="/how-it-works.mp4"></video></p>
+<p><video controls preload="none" width="1920" height="1080" poster="/how-it-works-poster.jpg" src="https://jeecabs.github.io/no-forgetti/how-it-works.mp4"></video></p>
 <p>The two paths a memory change can take. A direct <code>project_memory</code> write crosses straight to the branch and lands at once. Automatic review takes the long way: it starts only after a turn settles, reads a bounded and sanitized slice of evidence, proposes changes, and commits them only while the branch still matches the version it reviewed. If a newer write got there first, the proposal is refused rather than applied.</p>
 <p>The video is silent and animated only in the order things appear, so the paragraph above carries the same information. <a href="./guide/memory.html">Project memory</a> covers each step in full.</p>
 <h2>Choose what you need</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Task</th>

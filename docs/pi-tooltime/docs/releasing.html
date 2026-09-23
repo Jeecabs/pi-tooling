@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pi-tooltime</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
@@ -28,7 +29,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
       <div class="md"><h1>Releasing</h1>
@@ -47,7 +48,7 @@
 <p>Pi Tooltime currently uses the MIT License. Change the license only through a separate owner-reviewed decision.</p>
 <h2>2. Select the version</h2>
 <p>Set a shell variable for the release tag:</p>
-<pre><code class="language-bash">export TAG=v1.0.0
+<pre tabindex="0"><code class="language-bash">export TAG=v1.0.0
 </code></pre>
 <p>Make sure these values agree:</p>
 <ul>
@@ -57,60 +58,60 @@
 <li>README installation examples for the release.</li>
 </ul>
 <p>Rebuild generated output, then check these references together:</p>
-<pre><code class="language-bash">pnpm build
+<pre tabindex="0"><code class="language-bash">pnpm build
 pnpm release:metadata
 test &quot;v$(node -p &#39;require(&quot;./package.json&quot;).version&#39;)&quot; = &quot;$TAG&quot;
 </code></pre>
 <p>Do not reuse or move an existing public tag.</p>
 <h2>3. Prepare a clean release commit</h2>
 <p>Start from the intended release branch and current remote state:</p>
-<pre><code class="language-bash">git fetch --prune origin
+<pre tabindex="0"><code class="language-bash">git fetch --prune origin
 git switch main
 git pull --ff-only origin main
 git status --short
 </code></pre>
 <p>The status must be empty before release checks. Review the complete change from the previous release or repository start:</p>
-<pre><code class="language-bash">git log --oneline --decorate --reverse
+<pre tabindex="0"><code class="language-bash">git log --oneline --decorate --reverse
 git diff --stat &quot;${PREVIOUS_TAG:-$(git hash-object -t tree /dev/null)}&quot; HEAD
 </code></pre>
 <p>For a first release, review all tracked files. For later releases, set <code>PREVIOUS_TAG</code> to the prior tag.</p>
 <h2>4. Scan for secrets</h2>
 <p>Run the maintainer-approved secret scanner against Git history and the working tree. The following example uses Gitleaks:</p>
-<pre><code class="language-bash">gitleaks git --redact --no-banner .
+<pre tabindex="0"><code class="language-bash">gitleaks git --redact --no-banner .
 gitleaks dir --redact --no-banner .
 </code></pre>
 <p>Also inspect high-risk file names and common credential markers:</p>
-<pre><code class="language-bash">git ls-files | grep -Ei &#39;(^|/)(\.env|auth|credential|secret|token|private[-_]?key)(\.|$)&#39; || true
+<pre tabindex="0"><code class="language-bash">git ls-files | grep -Ei &#39;(^|/)(\.env|auth|credential|secret|token|private[-_]?key)(\.|$)&#39; || true
 git grep -nEi &#39;(api[_-]?key|authorization:|bearer |private key|client[_-]?secret)&#39; -- . &#39;:!pnpm-lock.yaml&#39; || true
 </code></pre>
 <p>Review every match. Stop for a real secret. Revoke it before history cleanup and release.</p>
 <p>A clean grep is not a substitute for a secret scanner.</p>
 <h2>5. Install from the lockfile</h2>
 <p>Use the package-manager version in <code>packageManager</code>:</p>
-<pre><code class="language-bash">corepack enable
+<pre tabindex="0"><code class="language-bash">corepack enable
 pnpm install --frozen-lockfile
 </code></pre>
 <p>Do not update dependencies during a release check. Make dependency updates in a separate reviewed commit.</p>
 <h2>6. Verify code and committed build output</h2>
 <p>Run the release verification command:</p>
-<pre><code class="language-bash">pnpm release:ready
+<pre tabindex="0"><code class="language-bash">pnpm release:ready
 </code></pre>
 <p><code>pnpm release:ready</code> checks version references, the selected license, native types, tests, build output, the packed Core contract, package lint, and package contents.</p>
 <p>Then make sure the build did not change committed <code>dist/</code> files:</p>
-<pre><code class="language-bash">git diff --exit-code -- dist
+<pre tabindex="0"><code class="language-bash">git diff --exit-code -- dist
 git status --short
 </code></pre>
 <p>The status must still be empty. If <code>dist/</code> changed, commit the source and generated output together. Repeat the checks from a clean commit.</p>
 <h2>7. Smoke-test the packed core</h2>
 <p>Create a tarball from the already verified files. Do not run publication scripts:</p>
-<pre><code class="language-bash">release_tmp=&quot;$(mktemp -d)&quot;
+<pre tabindex="0"><code class="language-bash">release_tmp=&quot;$(mktemp -d)&quot;
 npm pack --ignore-scripts --pack-destination &quot;$release_tmp&quot;
 tarball=&quot;$(find &quot;$release_tmp&quot; -maxdepth 1 -name &#39;pi-tooltime-*.tgz&#39; -print -quit)&quot;
 test -n &quot;$tarball&quot;
 tar -tzf &quot;$tarball&quot;
 </code></pre>
 <p>Install that tarball without optional peers. Then import the Pi-independent core:</p>
-<pre><code class="language-bash">mkdir &quot;$release_tmp/consumer&quot;
+<pre tabindex="0"><code class="language-bash">mkdir &quot;$release_tmp/consumer&quot;
 cd &quot;$release_tmp/consumer&quot;
 npm init -y &gt;/dev/null
 npm install --ignore-scripts --omit=optional &quot;$tarball&quot;
@@ -132,7 +133,7 @@ cd -
 <p>This smoke test confirms that core-only use does not require the optional Pi peer at runtime.</p>
 <h2>8. Smoke-test the Pi extension through RPC</h2>
 <p>Run Pi with an isolated agent directory. Disable discovered extensions and load the release checkout explicitly:</p>
-<pre><code class="language-bash">rpc_agent_dir=&quot;$release_tmp/pi-agent&quot;
+<pre tabindex="0"><code class="language-bash">rpc_agent_dir=&quot;$release_tmp/pi-agent&quot;
 printf &#39;%s\n&#39; \
   &#39;{&quot;id&quot;:&quot;commands&quot;,&quot;type&quot;:&quot;get_commands&quot;}&#39; \
   &#39;{&quot;id&quot;:&quot;status&quot;,&quot;type&quot;:&quot;prompt&quot;,&quot;message&quot;:&quot;/tooltime status&quot;}&#39; |
@@ -143,7 +144,7 @@ printf &#39;%s\n&#39; \
   &gt;&quot;$release_tmp/rpc.jsonl&quot;
 </code></pre>
 <p>Validate strict JSONL output and the command response:</p>
-<pre><code class="language-bash">node --input-type=module - &quot;$release_tmp/rpc.jsonl&quot; &lt;&lt;&#39;EOF&#39;
+<pre tabindex="0"><code class="language-bash">node --input-type=module - &quot;$release_tmp/rpc.jsonl&quot; &lt;&lt;&#39;EOF&#39;
 import { readFileSync } from &quot;node:fs&quot;;
 
 const events = readFileSync(process.argv[2], &quot;utf8&quot;)
@@ -163,18 +164,18 @@ EOF
 <p>Review the JSONL file for <code>extension_error</code> events. Stop if any appear.</p>
 <h2>9. Commit and push</h2>
 <p>Update the changelog and release documentation before the release commit. Review the final diff:</p>
-<pre><code class="language-bash">git diff --check
+<pre tabindex="0"><code class="language-bash">git diff --check
 git status --short
 git log -1 --show-signature --stat
 </code></pre>
 <p>Push the release commit through the normal review process. After the first public release, maintainers must keep <code>main</code> protected:</p>
-<pre><code class="language-bash">git push origin main
+<pre tabindex="0"><code class="language-bash">git push origin main
 </code></pre>
 <p>Wait for the GitHub <code>CI</code> workflow on that exact commit. Both supported Node.js jobs must be green. Do not tag a commit with pending, skipped, cancelled, or failed required checks.</p>
 <h2>10. Configure the public repository</h2>
 <p>Complete this section before the first public tag. For a later release, verify that the settings remain active.</p>
 <p>Changing visibility exposes all reachable Git objects. Stop unless the rights, license, secret, identity, and exact-commit checks have passed.</p>
-<pre><code class="language-bash">gh repo edit Jeecabs/pi-tooltime \
+<pre tabindex="0"><code class="language-bash">gh repo edit Jeecabs/pi-tooltime \
   --visibility public \
   --accept-visibility-change-consequences
 
@@ -205,7 +206,7 @@ gh api --method POST repos/Jeecabs/pi-tooltime/pages --input - &lt;&lt;&#39;JSON
 JSON
 </code></pre>
 <p>Enable confidential vulnerability reports, immutable releases, and required action SHA pins:</p>
-<pre><code class="language-bash">gh api --method PUT repos/Jeecabs/pi-tooltime/private-vulnerability-reporting
+<pre tabindex="0"><code class="language-bash">gh api --method PUT repos/Jeecabs/pi-tooltime/private-vulnerability-reporting
 gh api --method PUT repos/Jeecabs/pi-tooltime/immutable-releases
 gh api --method PUT repos/Jeecabs/pi-tooltime/actions/permissions \
   -F enabled=true \
@@ -213,7 +214,7 @@ gh api --method PUT repos/Jeecabs/pi-tooltime/actions/permissions \
   -F sha_pinning_required=true
 </code></pre>
 <p>Protect <code>main</code> without an approval requirement that would block a sole maintainer:</p>
-<pre><code class="language-bash">gh api --method PUT repos/Jeecabs/pi-tooltime/branches/main/protection --input - &lt;&lt;&#39;JSON&#39;
+<pre tabindex="0"><code class="language-bash">gh api --method PUT repos/Jeecabs/pi-tooltime/branches/main/protection --input - &lt;&lt;&#39;JSON&#39;
 {
   &quot;required_status_checks&quot;: {
     &quot;strict&quot;: true,
@@ -233,7 +234,7 @@ gh api --method PUT repos/Jeecabs/pi-tooltime/actions/permissions \
 JSON
 </code></pre>
 <p>Protect release tags from update and deletion while still allowing a new tag:</p>
-<pre><code class="language-bash">gh api --method POST repos/Jeecabs/pi-tooltime/rulesets --input - &lt;&lt;&#39;JSON&#39;
+<pre tabindex="0"><code class="language-bash">gh api --method POST repos/Jeecabs/pi-tooltime/rulesets --input - &lt;&lt;&#39;JSON&#39;
 {
   &quot;name&quot;: &quot;Protect release tags&quot;,
   &quot;target&quot;: &quot;tag&quot;,
@@ -256,7 +257,7 @@ JSON
 JSON
 </code></pre>
 <p>Verify the settings before tag creation:</p>
-<pre><code class="language-bash">gh repo view Jeecabs/pi-tooltime \
+<pre tabindex="0"><code class="language-bash">gh repo view Jeecabs/pi-tooltime \
   --json visibility,homepageUrl,mergeCommitAllowed,rebaseMergeAllowed,squashMergeAllowed \
   --jq &#39;.visibility == &quot;PUBLIC&quot; and .homepageUrl == &quot;https://jeecabs.github.io/pi-tooltime/&quot; and (.mergeCommitAllowed | not) and (.rebaseMergeAllowed | not) and .squashMergeAllowed&#39;
 gh api repos/Jeecabs/pi-tooltime --jq &#39;.security_and_analysis.secret_scanning.status == &quot;enabled&quot; and .security_and_analysis.secret_scanning_push_protection.status == &quot;enabled&quot;&#39;
@@ -292,22 +293,22 @@ gh api &quot;repos/Jeecabs/pi-tooltime/rulesets/$tag_ruleset_id&quot; --jq &#39;
 <p>Each Boolean command must print <code>true</code>. The ruleset ID assignment must succeed.</p>
 <h2>11. Create an annotated tag</h2>
 <p>Use a signed annotated tag when repository config enables tag signing and a signing identity is available:</p>
-<pre><code class="language-bash">git tag -s &quot;$TAG&quot; -m &quot;Pi Tooltime ${TAG#v}&quot;
+<pre tabindex="0"><code class="language-bash">git tag -s &quot;$TAG&quot; -m &quot;Pi Tooltime ${TAG#v}&quot;
 </code></pre>
 <p>When the project has no configured signing identity, create an unsigned annotated tag:</p>
-<pre><code class="language-bash">git tag -a &quot;$TAG&quot; -m &quot;Pi Tooltime ${TAG#v}&quot;
+<pre tabindex="0"><code class="language-bash">git tag -a &quot;$TAG&quot; -m &quot;Pi Tooltime ${TAG#v}&quot;
 </code></pre>
 <p>Verify the tag points to the green release commit:</p>
-<pre><code class="language-bash">git show --no-patch --decorate &quot;$TAG&quot;
+<pre tabindex="0"><code class="language-bash">git show --no-patch --decorate &quot;$TAG&quot;
 git rev-parse &quot;$TAG^{}&quot;
 git rev-parse HEAD
 </code></pre>
 <p>The two commit IDs must match. Then push only the selected tag:</p>
-<pre><code class="language-bash">git push origin &quot;$TAG&quot;
+<pre tabindex="0"><code class="language-bash">git push origin &quot;$TAG&quot;
 </code></pre>
 <h2>12. Create the GitHub Release</h2>
 <p>Copy the matching changelog section into a temporary release-notes file. Check every claim against the tagged code and tests.</p>
-<pre><code class="language-bash">release_flags=()
+<pre tabindex="0"><code class="language-bash">release_flags=()
 if [[ &quot;$TAG&quot; == *-* ]]; then
   release_flags+=(--prerelease)
 fi
@@ -319,7 +320,7 @@ gh release create &quot;$TAG&quot; \
   &quot;${release_flags[@]}&quot;
 </code></pre>
 <p>Wait for immutable-release finalization. Then verify the published release and its GitHub attestation:</p>
-<pre><code class="language-bash">expected_prerelease=false
+<pre tabindex="0"><code class="language-bash">expected_prerelease=false
 if [[ &quot;$TAG&quot; == *-* ]]; then
   expected_prerelease=true
 fi
@@ -334,7 +335,7 @@ gh release verify &quot;$TAG&quot;
 <p>Do not attach an npm publication. Do not run an npm publish command after the GitHub Release.</p>
 <h2>13. Verify an unauthenticated clone</h2>
 <p>Clone the public tag without stored GitHub credentials:</p>
-<pre><code class="language-bash">public_dir=&quot;$release_tmp/public-clone&quot;
+<pre tabindex="0"><code class="language-bash">public_dir=&quot;$release_tmp/public-clone&quot;
 public_home=&quot;$release_tmp/public-home&quot;
 public_xdg=&quot;$release_tmp/public-xdg&quot;
 mkdir -p &quot;$public_home&quot; &quot;$public_xdg&quot;
@@ -351,13 +352,13 @@ env -u GH_TOKEN -u GITHUB_TOKEN -u GIT_CONFIG_GLOBAL \
     &quot;$public_dir&quot;
 </code></pre>
 <p>Run the frozen install and verification from that clone:</p>
-<pre><code class="language-bash">cd &quot;$public_dir&quot;
+<pre tabindex="0"><code class="language-bash">cd &quot;$public_dir&quot;
 pnpm install --frozen-lockfile
 pnpm release:ready
 </code></pre>
 <p>Repeat the packed-core and Pi RPC smoke tests from the public clone. Confirm that README installation and internal documentation links resolve.</p>
 <p>Remove temporary files after all checks pass:</p>
-<pre><code class="language-bash">rm -rf -- &quot;$release_tmp&quot;
+<pre tabindex="0"><code class="language-bash">rm -rf -- &quot;$release_tmp&quot;
 </code></pre>
 <h2>14. Record the result</h2>
 <p>Record these release facts in the maintainer log or release issue:</p>
@@ -375,7 +376,7 @@ pnpm release:ready
 <li>GitHub Release URL.</li>
 <li>Unauthenticated clone result.</li>
 </ul>
-<p>For later changes, add entries under <a href="../CHANGELOG.html">Unreleased</a>. Never edit a published tag.</p>
+<p>For later changes, add entries under <a href="https://github.com/Jeecabs/pi-tooltime/blob/HEAD/CHANGELOG.md">Unreleased</a>. Never edit a published tag.</p>
 </div>
     </article>
   </div>

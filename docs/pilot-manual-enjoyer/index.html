@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pilot-manual-enjoyer</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/pilot-manual-enjoyer">GitHub</a></nav>
@@ -21,7 +22,7 @@
       <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pilot-manual-enjoyer"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pilot-manual-enjoyer">Jeecabs/pilot-manual-enjoyer &nearr;</a></div>
       <div class="md"><h1>Pilot Manual Enjoyer</h1>
@@ -47,19 +48,19 @@
 <p>This checker covers mechanical rules only. It cannot certify ASD-STE100 or make an unsupported claim true.</p>
 <h2>Install</h2>
 <p>Install the package globally from GitHub:</p>
-<pre><code class="language-bash">pi install https://github.com/Jeecabs/pilot-manual-enjoyer
+<pre tabindex="0"><code class="language-bash">pi install https://github.com/Jeecabs/pilot-manual-enjoyer
 </code></pre>
 <p>Restart Pi or run <code>/reload</code>.</p>
 <p>Remove it with:</p>
-<pre><code class="language-bash">pi remove https://github.com/Jeecabs/pilot-manual-enjoyer
+<pre tabindex="0"><code class="language-bash">pi remove https://github.com/Jeecabs/pilot-manual-enjoyer
 </code></pre>
 <h2>Use</h2>
 <p>The skill loads when you ask Pi to write or revise technical prose. Invoke it directly when needed:</p>
-<pre><code class="language-text">/skill:pilot-manual-enjoyer rewrite this README introduction
+<pre tabindex="0"><code class="language-text">/skill:pilot-manual-enjoyer rewrite this README introduction
 </code></pre>
 <p>The model can call <code>ste_lint</code> with inline text or up to 20 explicit file paths. The tool never changes files.</p>
 <p>Use the command to inspect your current editor draft or one file:</p>
-<pre><code class="language-text">/ste lint
+<pre tabindex="0"><code class="language-text">/ste lint
 /ste file README.md
 /ste rules
 /ste status
@@ -79,14 +80,14 @@
 </ul>
 <p>The selected Pi model still receives normal tool arguments and results as part of its conversation.</p>
 <h2>Development</h2>
-<pre><code class="language-bash">pnpm install
+<pre tabindex="0"><code class="language-bash">pnpm install
 pnpm verify
 pi -e ./src/index.ts
 </code></pre>
 <p><code>pnpm verify</code> runs strict TypeScript checks, Node tests, and a package dry run.</p>
 <h2>Upstream and licensing</h2>
 <p>Pilot Manual Enjoyer is MIT licensed. Adapted upstream material remains MIT licensed under its original copyright.</p>
-<p>See <a href="THIRD_PARTY_NOTICES.html"><code>THIRD_PARTY_NOTICES.md</code></a> and <a href="vendor/WOOSAL_BLOG_LICENSE.html"><code>vendor/WOOSAL_BLOG_LICENSE.md</code></a>. The official ASD-STE100 specification is copyrighted and is not included. Obtain it from <a href="https://asd-ste100.org">https://asd-ste100.org</a>.</p>
+<p>See <a href="https://github.com/Jeecabs/pilot-manual-enjoyer/blob/HEAD/THIRD_PARTY_NOTICES.md"><code>THIRD_PARTY_NOTICES.md</code></a> and <a href="https://github.com/Jeecabs/pilot-manual-enjoyer/blob/HEAD/vendor/WOOSAL_BLOG_LICENSE.md"><code>vendor/WOOSAL_BLOG_LICENSE.md</code></a>. The official ASD-STE100 specification is copyrighted and is not included. Obtain it from <a href="https://asd-ste100.org">https://asd-ste100.org</a>.</p>
 </div>
     </article>
   </div>

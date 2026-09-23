@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -42,13 +43,13 @@
 <p>Complete these steps in order. The one-off worker run near the end catches path and configuration mistakes before they become a service-manager restart loop.</p>
 <h2>1. Confirm a persistent installation</h2>
 <p>Use a normal global installation unless you intentionally need a project-local checkout:</p>
-<pre><code class="language-bash">pi install https://github.com/Jeecabs/no-forgetti
+<pre tabindex="0"><code class="language-bash">pi install https://github.com/Jeecabs/no-forgetti
 pi list
 </code></pre>
 <p>A temporary <code>pi -e</code> checkout disappears after Pi exits and cannot back a persistent worker.</p>
 <h2>2. Resolve the shared agent directory</h2>
 <p>Pi and the worker must use the <strong>same</strong> agent directory.</p>
-<pre><code class="language-bash">AGENT_DIR=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
+<pre tabindex="0"><code class="language-bash">AGENT_DIR=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
 printf &#39;Agent directory: %s\n&#39; &quot;$AGENT_DIR&quot;
 mkdir -p &quot;$AGENT_DIR/no-forgetti/logs&quot;
 </code></pre>
@@ -61,10 +62,10 @@ mkdir -p &quot;$AGENT_DIR/no-forgetti/logs&quot;
 <li><code>$AGENT_DIR/models.json</code>, when present</li>
 </ul>
 <p>The most reliable service setup is to run <code>/login</code> in Pi and store credentials in <code>auth.json</code>. This avoids depending on environment variables that <code>launchd</code> or <code>systemd --user</code> may not inherit.</p>
-<pre><code class="language-text">/login
+<pre tabindex="0"><code class="language-text">/login
 </code></pre>
 <p>Then use <code>/model</code> to confirm the provider and exact model ID you intend to configure:</p>
-<pre><code class="language-text">/model
+<pre tabindex="0"><code class="language-text">/model
 </code></pre>
 <p>The reviewer profile is dedicated and stable. It does not silently inherit whichever foreground model happens to be active. It may use the same provider as your foreground session, but its <code>provider</code> and <code>model</code> values must match Pi’s registered identifiers exactly.</p>
 <p>::: warning Environment-only credentials
@@ -73,7 +74,7 @@ If you rely on a variable such as <code>ANTHROPIC_API_KEY</code>, the worker ser
 <h2>4. Locate stable executables</h2>
 <p>A Pi Git-package install loads the extension but does not guarantee a <code>no-forgetti</code> command on your shell <code>PATH</code>. Resolve the worker script explicitly.</p>
 <p>For the recommended global HTTPS or Git install:</p>
-<pre><code class="language-bash">NODE_BIN=&quot;$(command -v node)&quot;
+<pre tabindex="0"><code class="language-bash">NODE_BIN=&quot;$(command -v node)&quot;
 WORKER_BIN=&quot;$(command -v no-forgetti 2&gt;/dev/null || true)&quot;
 if [ -z &quot;$WORKER_BIN&quot; ]; then
   WORKER_BIN=&quot;$AGENT_DIR/git/github.com/Jeecabs/no-forgetti/bin/no-forgetti.mjs&quot;
@@ -87,7 +88,7 @@ test -f &quot;$WORKER_BIN&quot;
 <p>Keep both absolute paths. Your OS service definition will use them because service managers do not load interactive shell aliases or version-manager setup.</p>
 <h2>5. Create the reviewer profile</h2>
 <p>Create <code>$AGENT_DIR/no-forgetti/service.json</code>:</p>
-<pre><code class="language-bash">cat &gt; &quot;$AGENT_DIR/no-forgetti/service.json&quot; &lt;&lt;&#39;JSON&#39;
+<pre tabindex="0"><code class="language-bash">cat &gt; &quot;$AGENT_DIR/no-forgetti/service.json&quot; &lt;&lt;&#39;JSON&#39;
 {
   &quot;version&quot;: 1,
   &quot;mode&quot;: &quot;external&quot;,
@@ -106,7 +107,7 @@ chmod 600 &quot;$AGENT_DIR/no-forgetti/service.json&quot;
 </code></pre>
 <p>Replace the example provider and model with the exact values you confirmed in <code>/model</code>. Set budgets intentionally; they are daily UTC limits, not recommendations.</p>
 <h3>Configuration fields</h3>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Field</th>
@@ -155,15 +156,15 @@ chmod 600 &quot;$AGENT_DIR/no-forgetti/service.json&quot;
 <p>Daily calls are reserved atomically before dispatch. Token and cost thresholds use actual provider usage, so one in-flight call can cross a threshold; subsequent calls stop until the next UTC day.</p>
 <h2>6. Reload Pi</h2>
 <p>No Forgetti reads the authority mode when a project session loads. After creating or changing <code>service.json</code>, restart Pi or run:</p>
-<pre><code class="language-text">/reload
+<pre tabindex="0"><code class="language-text">/reload
 </code></pre>
 <p>Then check:</p>
-<pre><code class="language-text">/memory status
+<pre tabindex="0"><code class="language-text">/memory status
 </code></pre>
 <p>The monitor should show <code>external</code> mode. An offline-worker warning is expected until you start the worker.</p>
 <h2>7. Validate worker startup once</h2>
 <p>Run the worker in one-off mode with the same absolute paths you will give the service manager:</p>
-<pre><code class="language-bash">&quot;$NODE_BIN&quot; &quot;$WORKER_BIN&quot; review \
+<pre tabindex="0"><code class="language-bash">&quot;$NODE_BIN&quot; &quot;$WORKER_BIN&quot; review \
   --once \
   --agent-dir &quot;$AGENT_DIR&quot; \
   --worker-id setup-check
@@ -186,7 +187,7 @@ chmod 600 &quot;$AGENT_DIR/no-forgetti/service.json&quot;
 </ul>
 <p>Register exactly one normal worker unless you are deliberately testing contention behavior. Use a stable <code>--worker-id</code> for each registered process.</p>
 <p>After the worker starts, run the machine check:</p>
-<pre><code class="language-bash">&quot;$NODE_BIN&quot; &quot;$WORKER_BIN&quot; doctor --agent-dir &quot;$AGENT_DIR&quot; --projects-root /path/to/projects
+<pre tabindex="0"><code class="language-bash">&quot;$NODE_BIN&quot; &quot;$WORKER_BIN&quot; doctor --agent-dir &quot;$AGENT_DIR&quot; --projects-root /path/to/projects
 </code></pre>
 <p>The command exits with status 1 until each live Pi process reloads the installed release.</p>
 </div>

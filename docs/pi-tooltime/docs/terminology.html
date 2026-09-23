@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>pi-tooltime</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/pi-tooltime">GitHub</a></nav>
@@ -28,7 +29,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/pi-tooltime"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">WORKFLOW</span>
       <a class="repo-link" href="https://github.com/Jeecabs/pi-tooltime">Jeecabs/pi-tooltime &nearr;</a></div>
       <div class="md"><h1>Terminology</h1>
@@ -58,29 +59,29 @@
 <p>Local human reports preserve normalized Tool Identifiers. Model-visible analysis reports keep built-in labels but group custom identifiers into fixed model-safe labels.</p>
 <h2>Tool Family</h2>
 <p>A fixed coarse source or capability class:</p>
-<pre><code class="language-text">repository, web, database, issues, process, test, shell, other
+<pre tabindex="0"><code class="language-text">repository, web, database, issues, process, test, shell, other
 </code></pre>
 <p>The API field is <code>family</code>.</p>
 <h2>Tool Operation</h2>
 <p>A fixed coarse action class:</p>
-<pre><code class="language-text">read, search, analyze, mutate, interact, query, request, command,
+<pre tabindex="0"><code class="language-text">read, search, analyze, mutate, interact, query, request, command,
 test-targeted, test-full, report, unknown
 </code></pre>
 <p>The API field is <code>operation</code>. A raw custom-tool <code>action</code> is not stored.</p>
 <p>The classifier maps unknown actions to <code>unknown</code> and mutating.</p>
 <h2>Tool Scope</h2>
 <p>A fixed coarse target scope:</p>
-<pre><code class="language-text">targeted, project, outside, root, full, unknown
+<pre tabindex="0"><code class="language-text">targeted, project, outside, root, full, unknown
 </code></pre>
 <p>The optional API field is <code>scope</code>.</p>
 <h2>Result Kind</h2>
 <p>A fixed coarse tool-result classification:</p>
-<pre><code class="language-text">nonempty, empty, error, unknown
+<pre tabindex="0"><code class="language-text">nonempty, empty, error, unknown
 </code></pre>
 <p>The API field is <code>resultKind</code>.</p>
 <h2>Source Intent</h2>
 <p>A fixed coarse class inferred from explicit words in a task prompt:</p>
-<pre><code class="language-text">repository, web, database
+<pre tabindex="0"><code class="language-text">repository, web, database
 </code></pre>
 <p>The optional API field is <code>intent</code>. Pi Tooltime leaves it absent when it finds no intent or more than one intent.</p>
 <h2>Efficiency Finding</h2>

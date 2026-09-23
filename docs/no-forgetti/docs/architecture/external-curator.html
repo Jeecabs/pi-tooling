@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -47,7 +48,7 @@
 </blockquote>
 <p>This does not guarantee capture before <code>agent_settled</code>, recovery of killed ephemeral sessions, correctness of model output, provider exactly-once execution, or automatic historical import.</p>
 <h2>Delivery architecture</h2>
-<pre><code class="language-text">Pi extension
+<pre tabindex="0"><code class="language-text">Pi extension
   ├─ injects current memory at turn boundaries
   ├─ performs immediate foreground memory commands
   ├─ sanitizes completed evidence
@@ -108,7 +109,7 @@ Review service
 <h2>Project admission transaction</h2>
 <p>Reviewers return proposals only. Admission re-runs schema, secret, Unicode, fence, duplicate, capacity, evidence-reference, and target-precondition checks under canonical project-memory authority.</p>
 <p>Before the first project mutation, admission durably publishes a project-local intent containing an exact binding to the elected outcome, base and resulting branch digests, frozen post-admission branch, optional revision, and stable receipt metadata. The complete elected job/outcome remains in the global decision checkpoint. Recovery inspects canonical artifacts and rolls the project intent forward in order:</p>
-<pre><code class="language-text">intent → branch → revision (when present) → project completion → immutable receipt
+<pre tabindex="0"><code class="language-text">intent → branch → revision (when present) → project completion → immutable receipt
 </code></pre>
 <p>Matching artifacts are idempotent. Missing next artifacts are published. Conflicting artifacts fail closed; recovery never rolls the branch backward. After the bound receipt is durable, the full project intent is compacted to a digest-only tombstone. This makes the project intent the recovery authority for a begun branch mutation, while project memory JSON remains content authority and the decision checkpoint remains provider-result authority.</p>
 <p>No nested locks are permitted across subsystems. Spool, attempt/decision, budget, and project-memory operations acquire one lock domain at a time, persist the hand-off record, release it, then enter the next domain. Recovery uses immutable identities and compare-and-swap checks rather than holding a global lock or acquiring a project lock while a spool/decision/budget lock is held.</p>
@@ -136,7 +137,7 @@ Review service
 <p>This ledger later supports evidence, claims, file applicability, selective projection, and agentic reviewers. Indexing does not imply model review.</p>
 <h2>Historical backfill</h2>
 <p>No historical scan runs at install or daemon startup. Backfill is an explicit two-step operation:</p>
-<pre><code class="language-text">backfill plan --project &lt;cwd&gt; [caps]
+<pre tabindex="0"><code class="language-text">backfill plan --project &lt;cwd&gt; [caps]
 backfill run &lt;plan-id&gt;
 </code></pre>
 <p>Plans report eligible files, provenance quality, bytes, dates, calls, tokens, cost, time, and disk growth. Import is streaming, resumable, capped, index-first, and shadow-only. Historical leaves without trusted settled checkpoints remain inferred. Legacy review cursors are uncertain coverage because old bounded reviews may have skipped earlier entries.</p>

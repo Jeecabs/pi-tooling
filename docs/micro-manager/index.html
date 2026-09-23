@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>micro-manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
@@ -26,7 +27,7 @@
       <a href="../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
       <div class="md"><h1>The Micro Manager</h1>
@@ -41,15 +42,15 @@
 </ul>
 <h2>Install and start</h2>
 <p>Install the package from GitHub:</p>
-<pre><code class="language-sh">pi install git:github.com/Jeecabs/micro-manager
+<pre tabindex="0"><code class="language-sh">pi install git:github.com/Jeecabs/micro-manager
 </code></pre>
 <p>Pi packages run with your user permissions. Review the source before installation.</p>
 <p>The extension is disabled by default. Enable review for one Pi process:</p>
-<pre><code class="language-sh">pi --micro-manager
+<pre tabindex="0"><code class="language-sh">pi --micro-manager
 </code></pre>
 <p>The flag overrides <code>enabled</code> for that process. If no named managers exist, the extension creates a default manager. It uses the primary session model, low thinking, and all four read-only tools.</p>
 <p>For persistent configuration, create <code>~/.pi/agent/MICRO_MANAGER.yml</code>:</p>
-<pre><code class="language-yaml">enabled: true
+<pre tabindex="0"><code class="language-yaml">enabled: true
 thinking: low
 tools: [read, grep, find, ls]
 </code></pre>
@@ -68,7 +69,7 @@ tools: [read, grep, find, ls]
 <p>The extension does not edit files or run commands for a review model. It does not block a primary TUI turn while review work runs.</p>
 <h2>Configure a project</h2>
 <p>Add project configuration at <code>.pi/MICRO_MANAGER.yml</code>:</p>
-<pre><code class="language-yaml">enabled: true
+<pre tabindex="0"><code class="language-yaml">enabled: true
 model: anthropic/claude-sonnet-4-6
 thinking: low
 
@@ -89,7 +90,7 @@ managers:
       Find untested behavior and weak verification.
 </code></pre>
 <p>Add repository-specific priorities at <code>.pi/MICRO_MANAGER.md</code>:</p>
-<pre><code class="language-markdown"># Review priorities
+<pre tabindex="0"><code class="language-markdown"># Review priorities
 
 - Watch for writes that bypass the durable queue.
 - Require a focused regression test for each bug fix.
@@ -97,7 +98,7 @@ managers:
 <p>Project files can select models, add instructions, and grant models read-only access to workspace files. The extension reads them only after Pi grants project trust.</p>
 <h2>Commands</h2>
 <p>Use these commands in an interactive Pi session:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Command</th>
@@ -134,11 +135,11 @@ managers:
 </tr>
 </tbody></table>
 <p>The process flag overrides <code>enabled</code> for one Pi process:</p>
-<pre><code class="language-sh">pi --micro-manager -p &quot;Review this change.&quot;
+<pre tabindex="0"><code class="language-sh">pi --micro-manager -p &quot;Review this change.&quot;
 </code></pre>
 <h2>Report delivery</h2>
 <p>Delivery depends on severity and primary-agent state:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Report</th>
@@ -177,32 +178,32 @@ managers:
 <p>Private review conversations, usage, and errors stay in memory. Visible cards and print-mode report metadata use normal Pi session persistence. The extension writes no separate transcript or analytics database.</p>
 <h2>Troubleshoot</h2>
 <p>Start with:</p>
-<pre><code class="language-text">/micro-manager status
+<pre tabindex="0"><code class="language-text">/micro-manager status
 </code></pre>
 <p>The status shows whether review is disabled, active, paused, unavailable, or in error. It also shows loaded files and project-trust state.</p>
 <p>See <a href="./docs/troubleshooting.html">Troubleshooting</a> for missing reports, model resolution, trust, timeout, and headless-mode problems.</p>
 <h2>Update or remove</h2>
 <p>Update installed Pi packages:</p>
-<pre><code class="language-sh">pi update --extensions
+<pre tabindex="0"><code class="language-sh">pi update --extensions
 </code></pre>
 <p>Remove this package:</p>
-<pre><code class="language-sh">pi remove git:github.com/Jeecabs/micro-manager
+<pre tabindex="0"><code class="language-sh">pi remove git:github.com/Jeecabs/micro-manager
 </code></pre>
 <p>Remove unused <code>MICRO_MANAGER.yml</code>, <code>MICRO_MANAGER.yaml</code>, and <code>MICRO_MANAGER.md</code> files separately.</p>
 <h2>Develop</h2>
 <p>Run a local checkout once without installation:</p>
-<pre><code class="language-sh">pi --no-extensions -e /absolute/path/to/micro-manager
+<pre tabindex="0"><code class="language-sh">pi --no-extensions -e /absolute/path/to/micro-manager
 </code></pre>
 <p>Install dependencies and run all repository checks:</p>
-<pre><code class="language-sh">pnpm install
+<pre tabindex="0"><code class="language-sh">pnpm install
 pnpm verify
 </code></pre>
 <p><code>pnpm verify</code> runs the TypeScript check, test suite, and package dry run.</p>
-<p>See <a href="./CONTRIBUTING.html">Contributing</a> for change guidelines. Maintainers must follow the <a href="./docs/releasing.html">release procedure</a>.</p>
+<p>See <a href="https://github.com/Jeecabs/micro-manager/blob/HEAD/CONTRIBUTING.md">Contributing</a> for change guidelines. Maintainers must follow the <a href="./docs/releasing.html">release procedure</a>.</p>
 <h2>Origin and license</h2>
 <p>The implementation adapts MIT-licensed concepts and selected logic from the original review feature in <a href="https://github.com/can1357/oh-my-pi"><code>can1357/oh-my-pi</code></a>. It replaces upstream runtime integration with public Pi APIs and local modules.</p>
-<p>See <a href="./docs/origin.html">Origin and standalone boundary</a>, the <a href="./CHANGELOG.html">changelog</a>, and <a href="./THIRD_PARTY_NOTICES.html">third-party notices</a>.</p>
-<p>Security reports follow the <a href="./SECURITY.html">security policy</a>. The repository uses the <a href="./LICENSE.html">MIT license</a>.</p>
+<p>See <a href="./docs/origin.html">Origin and standalone boundary</a>, the <a href="https://github.com/Jeecabs/micro-manager/blob/HEAD/CHANGELOG.md">changelog</a>, and <a href="https://github.com/Jeecabs/micro-manager/blob/HEAD/THIRD_PARTY_NOTICES.md">third-party notices</a>.</p>
+<p>Security reports follow the <a href="https://github.com/Jeecabs/micro-manager/blob/HEAD/SECURITY.md">security policy</a>. The repository uses the <a href="https://github.com/Jeecabs/micro-manager/blob/HEAD/LICENSE.md">MIT license</a>.</p>
 </div>
     </article>
   </div>

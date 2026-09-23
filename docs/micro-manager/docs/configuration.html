@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>micro-manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
@@ -26,14 +27,14 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
       <div class="md"><h1>Configuration</h1>
 <p>The Micro Manager loads YAML settings and Markdown review priorities. User files apply to all projects. Project files apply only after Pi grants project trust.</p>
 <h2>Quick configuration</h2>
 <p>Create <code>~/.pi/agent/MICRO_MANAGER.yml</code>:</p>
-<pre><code class="language-yaml">enabled: true
+<pre tabindex="0"><code class="language-yaml">enabled: true
 thinking: low
 tools: [read, grep, find, ls]
 </code></pre>
@@ -41,7 +42,7 @@ tools: [read, grep, find, ls]
 <p>Run <code>/micro-manager reload</code> after you change a file in an active session.</p>
 <h2>YAML settings</h2>
 <p>Top-level settings control the extension and all manager runtimes.</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Key</th>
@@ -135,16 +136,16 @@ tools: [read, grep, find, ls]
 <p>A primary update cannot exceed half of <code>max_context_chars</code>. This rule applies even when <code>max_input_chars</code> is larger.</p>
 <h2>Model selectors</h2>
 <p>Use a provider and model ID when you select a model:</p>
-<pre><code class="language-yaml">model: anthropic/claude-sonnet-4-6
+<pre tabindex="0"><code class="language-yaml">model: anthropic/claude-sonnet-4-6
 </code></pre>
 <p>Add a thinking suffix to override the inherited thinking level:</p>
-<pre><code class="language-yaml">model: anthropic/claude-sonnet-4-6:medium
+<pre tabindex="0"><code class="language-yaml">model: anthropic/claude-sonnet-4-6:medium
 </code></pre>
 <p>A bare model ID works only when exactly one registered provider has that ID. Use <code>provider/model</code> to avoid ambiguity.</p>
 <p>If you omit <code>model</code>, the manager follows the primary session model. The extension rebuilds inherited-model managers after primary model selection changes. It starts from current history and does not replay earlier turns.</p>
 <h2>Named managers</h2>
 <p>Use named managers for separate review concerns:</p>
-<pre><code class="language-yaml">enabled: true
+<pre tabindex="0"><code class="language-yaml">enabled: true
 model: anthropic/claude-sonnet-4-6
 thinking: low
 tools: [read, grep, find, ls]
@@ -168,7 +169,7 @@ managers:
     enabled: false
 </code></pre>
 <p>Each manager accepts these keys:</p>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Key</th>
@@ -211,7 +212,7 @@ managers:
 <p>Configuration retains at most eight merged manager definitions. If file merging produces more than eight, the extension keeps the eight most specific definitions and reports a warning.</p>
 <h2>Markdown priorities</h2>
 <p>Put project-specific review priorities in <code>MICRO_MANAGER.md</code>:</p>
-<pre><code class="language-markdown"># Review priorities
+<pre tabindex="0"><code class="language-markdown"># Review priorities
 
 - Check that durable writes finish before success is reported.
 - Require terminal text to remove control characters.

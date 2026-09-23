@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,14 +35,14 @@
       <a href="../../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
       <div class="md"><h1>Operate and troubleshoot external mode</h1>
 <p>Use <code>/memory status</code> as the primary operational view. Service-manager status and logs explain process failures; the Pi monitor explains No Forgetti state.</p>
 <h2>Read the status view</h2>
-<pre><code class="language-text">/memory status
+<pre tabindex="0"><code class="language-text">/memory status
 </code></pre>
 <p>The monitor reports:</p>
 <ul>
@@ -56,7 +57,7 @@
 <p>An external worker publishes a heartbeat every 10 seconds. A newly started worker may take one monitor tick to appear.</p>
 <h2>Normal job lifecycle</h2>
 <p>A healthy job usually moves through:</p>
-<pre><code class="language-text">queued → reviewing → applying → completed
+<pre tabindex="0"><code class="language-text">queued → reviewing → applying → completed
 </code></pre>
 <p>A transient failure returns the job for a bounded retry. The project widget shows this retry without adding transcript entries.</p>
 <p>A completed provider call can produce these admission results:</p>
@@ -77,7 +78,7 @@
 <li>Run <code>/reload</code> in each live Pi process.</li>
 <li>Run the doctor command.</li>
 </ol>
-<pre><code class="language-bash">&quot;$NODE_BIN&quot; &quot;$WORKER_BIN&quot; doctor --agent-dir &quot;$AGENT_DIR&quot; --projects-root /path/to/projects
+<pre tabindex="0"><code class="language-bash">&quot;$NODE_BIN&quot; &quot;$WORKER_BIN&quot; doctor --agent-dir &quot;$AGENT_DIR&quot; --projects-root /path/to/projects
 </code></pre>
 <p>The doctor fails if a live Pi process or worker uses another release. It also fails if a scanned project has a local No Forgetti override.</p>
 <p>The heartbeat carries the worker’s memory-policy version and capacity. When <code>/memory status</code> shows <code>restart required</code>, new evidence remains unqueued and its cursor does not advance. Already queued candidates remain durable until a compatible worker starts.</p>
@@ -86,7 +87,7 @@
 <h2>Common failures</h2>
 <h3><code>no-forgetti: command not found</code></h3>
 <p>Pi package installation does not guarantee that package binaries appear on your shell <code>PATH</code>. Run the worker script through Node:</p>
-<pre><code class="language-bash">AGENT_DIR=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
+<pre tabindex="0"><code class="language-bash">AGENT_DIR=&quot;${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}&quot;
 node &quot;$AGENT_DIR/git/github.com/Jeecabs/no-forgetti/bin/no-forgetti.mjs&quot; \
   review --once --agent-dir &quot;$AGENT_DIR&quot;
 </code></pre>
@@ -110,14 +111,14 @@ node &quot;$AGENT_DIR/git/github.com/Jeecabs/no-forgetti/bin/no-forgetti.mjs&quo
 <p>Run <code>/login</code> in Pi for the configured provider and ensure Pi and the worker use the same agent directory. If credentials exist only in environment variables, confirm the service manager actually supplies them to the worker.</p>
 <h3>Worker is offline</h3>
 <p>Check the process first:</p>
-<pre><code class="language-bash"># macOS
+<pre tabindex="0"><code class="language-bash"># macOS
 launchctl print &quot;gui/$(id -u)/com.jeecabs.no-forgetti-review&quot;
 
 # Linux
 systemctl --user status no-forgetti-review.service
 </code></pre>
 <p>Then inspect logs:</p>
-<pre><code class="language-bash"># macOS
+<pre tabindex="0"><code class="language-bash"># macOS
 tail -n 50 &quot;$AGENT_DIR/no-forgetti/logs/review.stderr.log&quot;
 
 # Linux
@@ -138,7 +139,7 @@ journalctl --user -u no-forgetti-review.service -n 50 --no-pager
 <h3>A review finished but memory did not change</h3>
 <p>The outcome may be a no-op, stale, rejected, or a valid partial no-op. External UI feedback uses the actual post-validation content diff. Pi does not show an applied-change card when there is no applied diff.</p>
 <p>If Pi shows a durable failure card, run:</p>
-<pre><code class="language-text">/memory review retry
+<pre tabindex="0"><code class="language-text">/memory review retry
 </code></pre>
 <p>Use <code>/memory review retry &lt;job-id&gt;</code> when more than one failed review is present. Retained evidence expires with <code>evidenceTtlHours</code>.</p>
 <h2>Disable external mode</h2>

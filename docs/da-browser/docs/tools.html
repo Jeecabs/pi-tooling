@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>da-browser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<div class="topnav">
+  <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
+  <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/da-browser">GitHub</a></nav>
+</div>
+<div class="frame">
+  <div class="doc-layout">
+    <aside class="sidebar">
+      <div class="side-label">DA-BROWSER</div>
+      <a href="../index.html"><span class="marker">&#9670;</span>README</a>
+      <a href="../docs/agent-browser-v0.34.0.html"><span class="marker">&#9671;</span>agent-browser 0.34.0 deep dive</a>
+      <a class="current" href="../docs/tools.html"><span class="marker">&#9671;</span>da-browser tools and advanced setup</a>
+      <div class="side-label">ELSEWHERE</div>
+      <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
+      <a href="https://github.com/Jeecabs/da-browser"><span class="marker">&nearr;</span>GITHUB</a>
+    </aside>
+    <article class="prose" id="content">
+      <div class="doc-meta"><span class="cat">BROWSER &amp; QA</span>
+      <a class="repo-link" href="https://github.com/Jeecabs/da-browser">Jeecabs/da-browser &nearr;</a></div>
+      <div class="md"><h1>da-browser tools and advanced setup</h1>
+<p>Full command and tool reference, install alternatives, and operational notes.
+The <a href="../index.html">README</a> stays lean on purpose.</p>
+<h2>Install alternatives</h2>
+<p>Recommended:</p>
+<pre tabindex="0"><code class="language-bash">pi install https://github.com/Jeecabs/da-browser
+</code></pre>
+<p>Other routes that also work:</p>
+<pre tabindex="0"><code class="language-bash">pi install git:github.com/Jeecabs/da-browser
+</code></pre>
+<pre tabindex="0"><code class="language-bash">git clone https://github.com/Jeecabs/da-browser.git ~/.pi/agent/extensions/da-browser
+cd ~/.pi/agent/extensions/da-browser
+pnpm install
+</code></pre>
+<p>If GitHub auth is not wired into Git yet:</p>
+<pre tabindex="0"><code class="language-bash">gh auth login
+gh auth setup-git
+</code></pre>
+<p>Reload pi if already running:</p>
+<pre tabindex="0"><code class="language-text">/reload
+</code></pre>
+<h2>Commands</h2>
+<table tabindex="0">
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/browser connect [port]</code></td>
+<td>Connect to Arc/Chromium through CDP</td>
+</tr>
+<tr>
+<td><code>/browser status</code></td>
+<td>Probe connection, page targets, browser version, artifacts</td>
+</tr>
+<tr>
+<td><code>/browser cleanup</code></td>
+<td>Disconnect/reset browser state for the session</td>
+</tr>
+</tbody></table>
+<h2>Tools</h2>
+<table tabindex="0">
+<thead>
+<tr>
+<th>Tool</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>browser_status</code></td>
+<td>Probe live CDP state plus strict session/target binding diagnostics</td>
+</tr>
+<tr>
+<td><code>browser_connect</code></td>
+<td>Connect a strictly tab-pinned session to the browser auth context</td>
+</tr>
+<tr>
+<td><code>browser_open</code></td>
+<td>Navigate to a URL</td>
+</tr>
+<tr>
+<td><code>browser_snapshot</code></td>
+<td>Capture page accessibility snapshot, or <code>delta</code> changes only</td>
+</tr>
+<tr>
+<td><code>browser_read</code></td>
+<td>Fetch markdown/llms-aware text, or read active tab</td>
+</tr>
+<tr>
+<td><code>browser_click</code></td>
+<td>Click by <code>@ref</code>, optionally along a human pointer path</td>
+</tr>
+<tr>
+<td><code>browser_find</code></td>
+<td>Locate by role/text/label/testid/CSS and act</td>
+</tr>
+<tr>
+<td><code>browser_fill</code></td>
+<td>Fill an input by <code>@ref</code></td>
+</tr>
+<tr>
+<td><code>browser_select</code></td>
+<td>Select dropdown option by <code>@ref</code></td>
+</tr>
+<tr>
+<td><code>browser_press</code></td>
+<td>Press keys like Enter, Tab, Escape, Control+a</td>
+</tr>
+<tr>
+<td><code>browser_scroll</code></td>
+<td>Scroll page or container</td>
+</tr>
+<tr>
+<td><code>browser_wait</code></td>
+<td>Wait for selector/ref/text/url/load/fn/ms</td>
+</tr>
+<tr>
+<td><code>browser_nav</code></td>
+<td>Back, forward, reload, or SPA pushstate</td>
+</tr>
+<tr>
+<td><code>browser_get</code></td>
+<td>Read text/html/value/attr/title/url/count/box/styles/cdp-url</td>
+</tr>
+<tr>
+<td><code>browser_debug</code></td>
+<td>Read console logs, page errors, network requests</td>
+</tr>
+<tr>
+<td><code>browser_har</code></td>
+<td>Capture network traffic and response bodies as HAR</td>
+</tr>
+<tr>
+<td><code>browser_command</code></td>
+<td>Run raw <code>agent-browser</code> args with active CDP port</td>
+</tr>
+<tr>
+<td><code>browser_eval</code></td>
+<td>Evaluate JS in page context</td>
+</tr>
+<tr>
+<td><code>browser_tab</code></td>
+<td>List/open/close/switch tabs by id, label, or durable CDP targetId</td>
+</tr>
+<tr>
+<td><code>browser_is</code></td>
+<td>Boolean visible/enabled/checked assertions</td>
+</tr>
+<tr>
+<td><code>browser_set</code></td>
+<td>Configure viewport/device/geo/offline/media/headers/credentials</td>
+</tr>
+<tr>
+<td><code>browser_record</code></td>
+<td>Start/restart/stop a WebM or MP4 recording</td>
+</tr>
+<tr>
+<td><code>browser_trace</code></td>
+<td>Start/stop Playwright trace zip</td>
+</tr>
+<tr>
+<td><code>browser_checkpoint</code></td>
+<td>Save screenshot + interactive snapshot, skippable when unchanged</td>
+</tr>
+<tr>
+<td><code>browser_react</code></td>
+<td>Inspect React tree/fibers/renders/Suspense</td>
+</tr>
+<tr>
+<td><code>browser_a11y</code></td>
+<td>Run embedded axe-core accessibility audits</td>
+</tr>
+<tr>
+<td><code>browser_vitals</code></td>
+<td>Measure web vitals and React hydration timing</td>
+</tr>
+</tbody></table>
+<h2>Environment overrides</h2>
+<ul>
+<li><code>/browser connect 9333</code>, <code>browser_connect({ port: 9333 })</code>, or <code>PI_BROWSER_PORT=9333</code></li>
+<li><code>DA_BROWSER_INPUT_MODE=smooth|human</code> moves the pointer along real paths for every action in the session</li>
+</ul>
+<h2>Operational notes</h2>
+<ul>
+<li>Browser refs (<code>@e12</code>) come from the latest snapshot and go stale after DOM mutations.</li>
+<li><code>browser_find</code> always acts. Use <code>browser_snapshot</code>/<code>browser_get</code> to inspect without mutation.</li>
+<li><code>/browser status</code> and <code>browser_status</code> actively probe the port and any previously known pinned binding. They report the daemon session, binding state, durable targetId, and sanitized tab-gone URL when available.</li>
+<li>CDP actions use a dedicated, Pi-session-derived daemon session, enable strict <code>--pin-tab</code>, and explicitly clear <code>AGENT_BROWSER_ALLOWED_DOMAINS</code>. agent-browser cannot install domain/WebRTC containment on pre-existing browser pages. Explicit-URL <code>browser_read</code> calls still support <code>allowedDomains</code>.</li>
+<li>The controlled tab binding survives daemon restarts. Other Pi sessions and user-opened tabs cannot steal the active target.</li>
+<li>If the pinned tab disappears, commands fail safely with <code>tab_gone</code> and retain its <code>targetId</code> plus sanitized last URL when available. Recover with <code>browser_tab</code> new/switch, or use <code>browser_connect</code> as an explicit request for a fresh controlled tab. Only transient non-pin target failures retry automatically.</li>
+<li><code>browser_record</code> defaults to 30 fps. <code>cursor=true</code> draws the pointer and click ripples into the video; <code>contactSheet=true</code> also writes <code>&lt;name&gt;.contact-sheet.png</code>, a change-selected summary that is far cheaper to inspect than the video.</li>
+<li>Repeated <code>browser_checkpoint</code> calls with <code>ifChanged=true</code> and <code>browser_snapshot</code> with <code>delta=true</code> return nothing when the page has not moved, so polling a page costs almost no context. <code>ifChanged</code> tolerates up to 1% pixel change by default; pass <code>threshold</code> to widen or tighten it.</li>
+<li>The artifact directory is <code>/tmp/da-browser/&lt;cwd-slug&gt;</code>.</li>
+<li>HAR artifacts can contain cookies, authorization headers, and response bodies. Inspect before sharing.</li>
+</ul>
+<h2>Development</h2>
+<pre tabindex="0"><code class="language-bash">pnpm install
+pnpm check
+pnpm test
+pnpm test:e2e  # launches an isolated browser and verifies strict shared-CDP pinning
+</code></pre>
+</div>
+    </article>
+  </div>
+</div>
+</body>
+</html>

@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>micro-manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/micro-manager">GitHub</a></nav>
@@ -26,7 +27,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/micro-manager"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">ORCHESTRATION</span>
       <a class="repo-link" href="https://github.com/Jeecabs/micro-manager">Jeecabs/micro-manager &nearr;</a></div>
       <div class="md"><h1>Architecture</h1>
@@ -37,7 +38,7 @@
 <p>The package uses public types and functions from Pi peer dependencies. It does not read private session files or call private compaction APIs. Provider requests pass through Pi&#39;s model registry, so Pi keeps responsibility for provider registration and authentication.</p>
 <p>The only direct package dependency is <code>yaml</code>, which parses configuration files. Pi packages and <code>typebox</code> remain peer dependencies.</p>
 <h2>Modules</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Module</th>
@@ -83,7 +84,7 @@
 </tbody></table>
 <p><code>MicroManagerRunner</code> is the main deep module. Its interface is <code>enqueue</code>, <code>reset</code>, <code>dispose</code>, <code>waitForIdle</code>, <code>stats</code>, and <code>dump</code>. It hides provider calls, tool rounds, context limits, retries, and cancellation.</p>
 <h2>Lifecycle</h2>
-<pre><code class="language-text">project_trust
+<pre tabindex="0"><code class="language-text">project_trust
   -&gt; inspect candidate metadata only
   -&gt; ask before project MICRO_MANAGER content loads
 
@@ -142,7 +143,7 @@ session_shutdown
 <p>The transcript renderer includes visible user and assistant text, tool calls, text tool results, compaction summaries, and selected primary context. It omits hidden reasoning, images, and prior micro-manager messages.</p>
 <p>The extension resets the cursor after compaction and tree navigation. It seeds the cursor after manual enable, configuration reload, and inherited model changes. These actions do not replay old work.</p>
 <h2>Delivery policy</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>State</th>
@@ -189,7 +190,7 @@ session_shutdown
 <p>Project <code>MICRO_MANAGER</code> files are repository-controlled. The extension requires explicit Pi project trust. A root configuration file does not always trigger Pi&#39;s built-in trust detector. The extension checks file metadata and asks in the TUI before it reads content.</p>
 <p>The extension rejects symbolic links and files larger than 64 KiB. It rejects unknown YAML keys, unsafe tools, invalid types, and out-of-range limits.</p>
 <h2>Data limits</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Resource</th>

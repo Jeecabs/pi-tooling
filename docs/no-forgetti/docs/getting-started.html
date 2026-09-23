@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>no-forgetti</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css?v=4a587d79bf98">
 </head>
 <body>
+<a class="skip" href="#content">Skip to content</a>
 <div class="topnav">
   <a class="logo" href="../../index.html"><span class="pi">&pi;</span> my glorious pi setup</a>
   <nav><a href="../../index.html">Index</a><a href="https://github.com/Jeecabs/no-forgetti">GitHub</a></nav>
@@ -34,7 +35,7 @@
       <a href="../../index.html"><span class="marker">&larr;</span>ALL TOOLS</a>
       <a href="https://github.com/Jeecabs/no-forgetti"><span class="marker">&nearr;</span>GITHUB</a>
     </aside>
-    <article class="prose">
+    <article class="prose" id="content">
       <div class="doc-meta"><span class="cat">MEMORY</span>
       <a class="repo-link" href="https://github.com/Jeecabs/no-forgetti">Jeecabs/no-forgetti &nearr;</a>
       <a class="site-link" href="https://jeecabs.github.io/no-forgetti/">LIVE DOCS &nearr;</a></div>
@@ -47,30 +48,30 @@
 <li>A project directory, preferably inside a Git repository</li>
 </ul>
 <h2>Install for all projects</h2>
-<pre><code class="language-bash">pi install https://github.com/Jeecabs/no-forgetti
+<pre tabindex="0"><code class="language-bash">pi install https://github.com/Jeecabs/no-forgetti
 pi list
 </code></pre>
 <p>Restart Pi after the first install, or run <code>/reload</code> in an existing interactive session. <code>pi list</code> should show the No Forgetti package.</p>
 <h3>Other install scopes</h3>
 <p>Install only for the current project:</p>
-<pre><code class="language-bash">pi install -l https://github.com/Jeecabs/no-forgetti
+<pre tabindex="0"><code class="language-bash">pi install -l https://github.com/Jeecabs/no-forgetti
 </code></pre>
 <p>Try it for one Pi process without changing settings:</p>
-<pre><code class="language-bash">pi -e https://github.com/Jeecabs/no-forgetti
+<pre tabindex="0"><code class="language-bash">pi -e https://github.com/Jeecabs/no-forgetti
 </code></pre>
 <p>Pi also accepts Git shorthand:</p>
-<pre><code class="language-bash">pi install git:github.com/Jeecabs/no-forgetti
+<pre tabindex="0"><code class="language-bash">pi install git:github.com/Jeecabs/no-forgetti
 </code></pre>
 <p>::: warning External worker path
 A temporary <code>pi -e</code> checkout is not suitable for a persistent external worker. The checkout disappears when that Pi process ends. Use a normal global, project-local, or local-path installation before configuring external mode.
 :::</p>
 <h2>Confirm the extension loaded</h2>
 <p>Open Pi in a project and run:</p>
-<pre><code class="language-text">/memory status
+<pre tabindex="0"><code class="language-text">/memory status
 </code></pre>
 <p>The status view should show the current project root, memory branch, capacity, and review mode. With no service configuration, the mode is <code>embedded</code>.</p>
 <p>Then inspect the initially empty memory:</p>
-<pre><code class="language-text">/memory show
+<pre tabindex="0"><code class="language-text">/memory show
 </code></pre>
 <p>No repository files are created. State defaults to <code>~/.pi/agent/no-forgetti/</code>, or the equivalent path beneath <code>PI_CODING_AGENT_DIR</code> when that variable is set.</p>
 <h2>What happens next</h2>
@@ -84,7 +85,7 @@ A temporary <code>pi -e</code> checkout is not suitable for a persistent externa
 </ol>
 <p>The periodic memory-review fallback is 10 completed user prompts. Explicit signals can trigger review earlier, and <code>/memory review</code> requests one on demand.</p>
 <h2>Choose a review mode</h2>
-<table>
+<table tabindex="0">
 <thead>
 <tr>
 <th>Mode</th>
@@ -114,7 +115,7 @@ A temporary <code>pi -e</code> checkout is not suitable for a persistent externa
 </tbody></table>
 <p>Stay on <code>embedded</code> unless you specifically need durable out-of-process review. To continue, read <a href="./external-mode/index.html">How external mode works</a>, then follow <a href="./external-mode/setup.html">Set up external mode</a>.</p>
 <h2>Local development</h2>
-<pre><code class="language-bash">git clone https://github.com/Jeecabs/no-forgetti.git
+<pre tabindex="0"><code class="language-bash">git clone https://github.com/Jeecabs/no-forgetti.git
 cd no-forgetti
 pnpm install --frozen-lockfile
 pnpm check
